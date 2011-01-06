@@ -85,6 +85,11 @@ Then go to the "hardware" folder in which the repository is located and type, fo
 bjam release toolset=gcc
 @endcode
 
+@section bugs_sec Bugs
+
+If you find a bug or would like to request a feature, then please use the bug tracking tool located at
+http://us-physics:3000/projects/show/hardware
+
 
 @section licence_sec Licence
 Since the library uses the Boost c++ libraries, the Boost lisence applies.
