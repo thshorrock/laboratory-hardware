@@ -1,0 +1,31 @@
+
+rule swig_decoration ( name : type ? : property-set ) 
+{
+  ret1 =  [ MATCH (.*)_swig  :  $(name:B) ]  ;
+  return $(name:B)/_$(ret1).so ;
+} 
+
+
+
+project  hardware_lecroy_swig
+	: source-location ../../src
+	: default-build <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+
+lib hardware_lecroy_swig-python :
+ 		     [ obj hardware_lecroy_interface-python  : hardware_lecroy.i  /lib/hardware-lecroyCM : <cxxflags>-c <linkflags>-shared <linkflags>-lpython2.6 <include>/usr/include/python2.6/ 
+		       	   			       	 <main-target-type>PYTHON_WRAPPER  
+		     ]
+		     /lib/hardware-lecroyCM
+		   : <cxxflags>-c <linkflags>-shared <include>/usr/include/python2.6/  <linkflags>-lpython2.6
+		     <main-target-type>PYTHON_WRAPPER
+		    <tag>@$(__name__).swig_decoration
+		     <threadapi>pthread   
+		   ;
+
+install hardware_lecroy_swig-python-lib : hardware_lecroy_swig-python   : <location>$(TOP)/python    ;

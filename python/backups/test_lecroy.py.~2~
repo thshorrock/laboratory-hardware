@@ -1,0 +1,6 @@
+from hardware_coms_manager import *
+
+
+ip = IPmanager("172.16.12.152","1861") 
+# print ip.timed_recv("*IDN?\n",128,  3);
+ip.send("C2:CPL D50\n") 

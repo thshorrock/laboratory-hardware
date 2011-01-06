@@ -1,0 +1,15 @@
+#pragma once
+#include <cstdio>
+namespace ICR{
+  namespace exceptions{
+    
+    struct timeout_exceeded
+    {
+      void debug_print()
+      {
+	std::cerr<<"timeout for communication was exceeded\n"
+      }
+    }
+    
+  }
+}

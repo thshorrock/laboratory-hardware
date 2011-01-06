@@ -1,0 +1,31 @@
+
+rule swig_decoration ( name : type ? : property-set ) 
+{
+  ret1 =  [ MATCH (.*)_swig  :  $(name:B) ]  ;
+  return $(name:B)/_$(ret1).so ;
+} 
+
+
+
+project  hardware_coms_manager_swig
+	: source-location ../../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+
+lib hardware_coms_manager_swig-python :
+ 		     [ obj hardware_coms_interface-python  : hardware_coms_manager.i  /lib/hardware-coms-manager : <cxxflags>-c <linkflags>-shared <linkflags>-lpython2.6 <include>/usr/include/python2.6/ 
+		       	   			       	 <main-target-type>PYTHON_WRAPPER  
+		     ]
+		     /lib/hardware-coms-manager
+		   : <cxxflags>-c <linkflags>-shared <include>/usr/include/python2.6/  <linkflags>-lpython2.6
+		     <main-target-type>PYTHON_WRAPPER
+		    <tag>@$(__name__).swig_decoration
+		      <threadapi>pthread   
+		   ;
+
+install hardware_coms_manager_swig-python-lib : hardware_coms_manager_swig-python   : <location>$(TOP)/python    ;

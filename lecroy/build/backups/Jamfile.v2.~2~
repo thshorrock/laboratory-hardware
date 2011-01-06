@@ -1,0 +1,22 @@
+
+project  lecroyCM
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+lib lecroyCM : lecroy_coms_manager.cpp 
+     /lib/hardware-coms-manager	
+              ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/agilent/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;
+
+install lecroyCM-lib : lecroyCM  :  <location>$(TOP)/lib   <install-type>LIB ;
+

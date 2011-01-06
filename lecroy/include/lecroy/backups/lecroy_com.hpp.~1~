@@ -1,0 +1,37 @@
+#include "lecroy_com_manager.hpp"
+
+namespace ICR{
+
+
+  namespace lecroy{
+    
+    namespace coupling{
+      enum {A1M, D1M, D50, GND};
+    }
+
+    namespace exception{
+      struct option_not_recognised{};
+      struct failed_to_reset{};
+    } 
+    
+
+    class lecroy_com : public lecroy_com_manager
+    {
+
+    public:
+      lecroy_com(const std::string& IPaddress);
+
+      using lecroy_com_manager::send;
+      using lecroy_com_manager::recv;
+      
+      template<int>
+      void set_coupling(int coupling);
+
+      //void set_timebase(double timebase);
+
+
+
+    };
+    
+  }
+}

@@ -1,0 +1,58 @@
+
+#include <boost/progress.hpp>
+#include <boost/timer.hpp>
+
+#define BOOST_TEST_MODULE filename_tests
+#include <boost/test/unit_test.hpp>
+
+#include "get_filename.hpp"
+#include <string>
+#include <vector>
+#include <list>
+namespace icr = institute_of_cancer_research;
+using std::string;
+using std::vector;
+using std::list;
+
+
+
+//____________________________________________________________________________//
+
+
+
+
+
+
+BOOST_AUTO_TEST_SUITE( DIRECTORY_SUITE )
+BOOST_AUTO_TEST_CASE( directory_constructor_test )
+{ 
+  string file = "/mirror/cu/data/tom/beamplots/72db_lft/";
+  icr::filename::directory d(file);
+
+  list<string> files = d.get_filenames();
+  list<string>::iterator it = files.begin();
+//   while(it!=files.end()){
+//     std::cout<<*it<<std::endl;
+//     ++it;
+//   }
+  while(it!=files.end()){
+    std::cout<<*it<<std::endl;
+    icr::filename::file f(*it);
+    std::vector<double> numbers;
+    f.get_numbers(numbers);
+    std::cout<<"checked file "<<f.stub()<<std::endl;
+
+    ++it;
+  }
+
+}
+
+
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+//____________________________________________________________________________//
+
+
+

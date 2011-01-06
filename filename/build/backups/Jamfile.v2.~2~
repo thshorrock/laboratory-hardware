@@ -1,0 +1,23 @@
+
+project icr-10.01/src/libs/general/get_filename/build//get_filename
+	: source-location ../src
+	: default-build <variant>releaseAMD64mp <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(TOP)/boost_files/
+	#<warnings-as-errors>on
+;
+
+lib get_filename : 
+    get_filename.cpp 
+    $(TOP)//filesystem-library
+    ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/get_filename/*.hpp ]
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;
+install get_filename_lib : get_filename  : <location>$(TOP)/lib  ;

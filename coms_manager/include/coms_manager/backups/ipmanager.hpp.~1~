@@ -1,0 +1,44 @@
+#include <iostream>
+#include <boost/array.hpp>
+#include <boost/asio.hpp>
+#include <iostream>
+
+namespace ICR{
+
+  class IPmanager
+  {
+      boost::asio::io_service m_io_service;
+      ip::tcp::socket m_socket;
+  public:
+    IPmanager(const string& address)
+      : m_socket(m_io_service)
+    {
+      ip::tcp::resolver resolver(m_io_service);
+      ip::tcp::resolver::query query(address, "http");
+      ip::tcp::resolver::iterator iter = resolver.resolve(query);
+      ip::tcp::resolver::iterator end; // End marker.
+      boost::system::error_code error = boost::asio::error::host_not_found;
+      while (error && endpoint_iterator != end)
+	{
+	  m_socket.close();
+	  m_socket.connect(*iter++, error);
+	  ip::tcp::endpoint endpoint = *iter;
+	  std::cout << endpoint << std::endl;
+	}
+      if (error)
+	throw boost::system::system_error(error);
+    };
+    
+    ~IPmanager(){m_socket.close();};
+    
+    void command(const string& cmd)
+    {
+      std::cout<<cmd<<std::endl;
+
+
+    };
+
+  };
+
+
+}

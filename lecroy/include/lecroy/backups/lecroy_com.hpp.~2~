@@ -1,0 +1,127 @@
+#include "lecroy_com_manager.hpp"
+#include "stringify.hpp"
+
+namespace ICR{
+
+
+  namespace lecroy{
+    namespace trace{
+      enum{C1,C2,C3,C4,F1,F2,F3,F4,F5,F6,F7,F8,M1,M2,M3,M4,ALL_DISPLAYED, EX, EX10,
+ETM10};
+      std::string get_string(const int&);
+    }
+    namespace destination{
+      enum{M1, M2, M3, M4, FILE, HDD};
+      std::string get_string(const int&);
+    }
+    namespace store_mode{
+      enum {OFF, FILL, WRAP};
+      std::string get_string(const int&);
+    }
+    namespace store_type{
+      enum {ASCII, BINARY, EXCEL, MATHCAD,MATLAB};
+      std::string get_string(const int&);
+    }
+
+    
+    namespace coupling{
+      enum {DC, AC, A1M, D1M, D50, GND};
+      std::string get_string(const int&);
+    }
+
+    namespace trigger_mode{
+      enum {AUTO, NORM, SINGLE, STOP};
+      std::string get_string(const int&);
+    }
+    // namespace trigger_state{
+    //   enum {LOW, HIGH};
+    //   std::string get_string(const int&);
+    // }
+    namespace trigger_type{
+      enum {DROPOUT, EDGE, GLITCH, INTERVAL, STD,SINGLE_SOURCE ,STATE_QUALIFIED,EDGE_QUALIFIED };
+      std::string get_string(const int&);
+    }
+    namespace trigger_hold_type{
+      enum {TIME_GREATER_THAN, TIME_WIDTH, EVENTS,
+	    PULSE_SMALLER_THAN, PULSE_GREATER_THAN, 
+	    INTERVAL_SMALLER_THAN, INTEVAL_GREATER_THAN, 
+	    PULSE_WIDTH,INTERVAL_WIDTH, OFF};
+      std::string get_string(const int&);
+    }
+
+    namespace exception{
+      struct option_not_recognised{};
+      struct failed_to_reset{};
+      struct channel_value_not_valid{};
+      struct destination_value_not_valid{};
+      struct store_mode_not_valid{};
+      struct store_type_not_valid{};
+      struct coupling_option_not_recognised{};      
+      struct trigger_mode_not_recognised{}; 
+      struct trigger_state_not_recognised{};
+      struct trigger_logic_not_recognised{};
+      struct trigger_type_not_recognised{};
+      struct trigger_hold_type_not_recognised{};
+      struct calibration_failed_exception{};
+      struct invalid_memory_option{};
+    } 
+    
+
+    class lecroy_com : public lecroy_com_manager
+    {
+
+    public:
+      lecroy_com(const std::string& IPaddress);
+
+      using lecroy_com_manager::send;
+      using lecroy_com_manager::recv;
+      
+      void
+      set_coupling(const int& channel, const int& opt);
+
+
+      void set_timebase(const double& timebase);  //in seconds
+      void arm() {send("ARM\n");}
+      void auto_calibrate(const bool& b);
+      void calibrate();
+      void beep() {send("BUZZ BEEP\n");}
+      void clear_memory(const int i);
+      void clear_sweeps() {send("CLSW\n");}
+      void clear() {send("*CLS\n");}
+      void set_date();
+      void aquire_single() {send("TRMD SINGLE;ARM;FRTR\n");}
+      void set_vertical_offset(const int& channel, const double& offset); //volts
+      void offset_constant(const bool& b);
+      void persistence(const bool& b);
+      void reset(){send("*RST\n");}
+      void sequence(const int& segments, const long& max_samples);
+      void stop() {send("STOP\n");}
+      void store(const int& trace, const int& dest);
+      void store_setup(const int& trace, const int& dest, const int& mode, const int& type
+);
+      void toggle_trace(const int& trace);
+      void trace_on(const int& trace) {send(trace::get_string(trace)+":TRA ON\n");}
+      void trace_off(const int& trace) {send(trace::get_string(trace)+":TRA OFF\n");}
+      void transfer_file(const std::string& filename){send("TRFL DISK,HDD,FILE,'"+filename+"'\n");}
+      void trigger(const int& channel, const int& coupling);
+      void trigger_delay(const double& delay);// negive numbers for post trigger
+      void trigger_level(const int& channel, const double& level);
+      void trigger_mode(const int& mode) {send("TRMD "+trigger_mode::get_string(mode)+"\n");}
+      
+      /*The following instruction configures the logic state of the pattern as
+	HLXH (CH 1 = H, CH 2 = L, CH 3 = X, CH 4 = H) and defines the
+	state as NOR.
+	*
+	*  eg C1,H,C2,L,C4,H,STATE,NOR
+	*
+	*/
+      void trigger_pattern(const std::string& pattern){send("TRPA " + pattern + "\n");}
+      void trigger_select(const int& type,const int& source,const int& hold_type, const double& hold_value1, const double& hold_value2);
+      void trigger_positive_edge(const int& channel){send(trace::get_string(channel)+":TRSL POS\n");}
+      void trigger_negative_edge(const int& channel){send(trace::get_string(channel)+":TRSL NEG\n");}
+      void vols_per_div(const int& channel,const double& v) {send(trace::get_string(channel)+":VDIV "+stringify(v)+"\n");}
+      void wait() {send("WAIT\n");}
+      //      void get_waveform()
+    };
+  }
+}

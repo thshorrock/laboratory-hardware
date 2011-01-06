@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<chapter xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" id="stringify" rev:last-revision="$Date: 2008-07-12 20:30:45 +0100 (Sat, 12 Jul 2008) $">
+  <chapterinfo><author>
+      <firstname>Tom</firstname>
+      <surname>Shorrock</surname>
+    </author></chapterinfo>
+</chapter>

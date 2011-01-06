@@ -1,0 +1,21 @@
+#include "agilent/ipmanager.hpp"
+
+ICR::IPmanager::IPmanager(const std::string& address)
+      : m_socket(m_io_service)
+    {
+      boost::asio::ip::tcp::resolver resolver(m_io_service);
+      boost::asio::ip::tcp::resolver::query query(address, "http");
+      boost::asio::ip::tcp::resolver::iterator iter = resolver.resolve(query);
+      boost::asio::ip::tcp::resolver::iterator end; // End marker.
+      boost::system::error_code error = boost::asio::error::host_not_found;
+      while (error && iter != end)
+	{
+	  m_socket.close();
+	  m_socket.connect(*iter++, error);
+	  boost::asio::ip::tcp::endpoint endpoint = *iter;
+	  std::cout << endpoint << std::endl;
+	}
+      if (error)
+	throw boost::system::system_error(error);
+    };
+    

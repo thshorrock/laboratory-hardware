@@ -1,0 +1,10 @@
+namespace ICR{
+
+  namespace pulser{
+
+    namespace channel{
+      enum type {A, B};
+    }
+ 
+ }
+}

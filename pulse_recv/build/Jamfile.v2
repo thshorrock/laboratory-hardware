@@ -1,0 +1,30 @@
+
+project  DPR500CM
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+lib DPR500CM : DPR500.cpp commands.cpp basic_pulser_receiver.cpp pulser_receivers.cpp
+     $(TOP)//threaded-library
+     /lib/hardware-coms-manager	
+     /lib/stringify
+    : <toolset>msvc:<link>static
+              ;
+
+exe DPR500 : examples/example1.cpp DPR500CM 
+    : <toolset>msvc:<link>static ;
+
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/DPR500/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include  
+;
+
+install DPR500CM-lib : DPR500CM  :  <location>$(TOP)/lib   <install-type>LIB ;
+
+install DPR500-exe : DPR500 : <location>$(TOP)/bin ;

@@ -1,0 +1,44 @@
+#include "stringify.hpp"
+#include <boost/test/unit_test.hpp>
+#include <boost/bind.hpp>
+#include <boost/filesystem.hpp>   // includes all needed
+				  // Boost.Filesystem declarations
+
+
+using namespace boost::unit_test;
+using namespace icr;
+
+void open_exiting_file_test()
+{
+  
+  BOOST_CHECK_THROW (input_ascii pIN("non-existant"),error::CannotOpenException );
+  
+  //this should create the non-existant-file
+  try {
+    io_ascii pIO("file_sentry_existant");
+  }
+  catch (error::FileSentryException& e) {
+    e.debug_print();
+    BOOST_ERROR( "The above error was not expected!" );
+  };
+  
+  BOOST_CHECK(fs::exists("file_sentry_existant") == true); //check it now exists
+  
+  //clean up;
+  if (fs::exists("file_sentry_existant"))   fs::remove("file_sentry_existant");
+  
+  //BOOST_CHECK( true /* test assertion */ );
+}
+
+
+//____________________________________________________________________________//
+
+test_suite*
+init_unit_test_suite( int argc, char* argv[] ) 
+{
+    framework::master_test_suite().
+      add( BOOST_TEST_CASE( &add_double ) );
+    return 0;
+}
+
+

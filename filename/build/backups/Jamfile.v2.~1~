@@ -1,0 +1,20 @@
+
+project icr/src/libs/general/get_filename/build//get_filename
+	: source-location ../src
+	: default-build <variant>releaseAMD64mp <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(TOP)/boost_files/
+	#<warnings-as-errors>on
+;
+
+lib get_filename : filename.cpp ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/get_filename/*.hpp ]
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;
+install myfinallib : mylib : <location>$(TOP)/lib  ;

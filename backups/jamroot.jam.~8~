@@ -1,0 +1,93 @@
+
+#using boost/tools/build/v2/tools/testing ;
+
+import feature : feature ;
+import toolset : flags ;
+
+#Name this location $(TOP),
+path-constant TOP : . ;
+
+
+import swig ;
+#exe codegen : codegen.cpp class.verbatim usage.verbatim 
+#    t1.verbatim ;
+
+
+
+
+
+
+
+## from http://lists.boost.org/boost-build/2006/12/15869.php
+## and http://code.google.com/p/rdkit/wiki/SwigAndBoostBuild
+
+feature parallelism : mpi mp none : composite link-incompatible ;
+feature.compose <parallelism>none :  ; 
+feature.compose <parallelism>mpi : <define>BOOST_THREAD_WORKING <define>USING_MPI <cxxflags>-Wno-long-long <cxxflags>-fopenmp  <linkflags>-fopenmp <cxxflags>-msse2 <cxxflags>-mmmx <cxxflags>-mfpmath=sse ;
+feature.compose <parallelism>mp :  <cxxflags>-fopenmp <linkflags>-fopenmp <define>BOOST_THREAD_WORKING <cxxflags>-Wno-long-long <cxxflags>-msse2 <cxxflags>-mmmx <cxxflags>-mfpmath=sse ;
+
+
+##Use the boost-libraries as they came...
+path-constant BOOST_BASE : ./boost/ ; 
+path-constant BOOST_ROOT : ./boost/ ;
+
+
+#some variants
+variant releaseAMD64   : release :                 <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64 <cxxflags>-O3 ;
+variant releaseAMD64mp : release : <parallelism>mp <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64 ;
+variant releaseAMD64mpi : release : <parallelism>mpi <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64  ;
+variant release32 : release :  <define>EXTRA_FAST   ;
+
+variant debugAMD64 : debug :  <define>GLIBCXX_FORCE_NEW <instruction-set>athlon64 <address-model>64   ;
+variant debugAMD64mp : debug :  <define>GLIBCXX_FORCE_NEW <instruction-set>athlon64 <address-model>64 <parallelism>mp  ;
+variant debugAMD64mpi : debug :  <define>GLIBCXX_FORCE_NEW <instruction-set>athlon64 <address-model>64 <parallelism>mpi  ;
+
+variant profileAMD64 : release :                 <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64 <cxxflags>-g ;
+
+#asio requires boost system
+alias asio-library     
+      : $(BOOST_BASE)/libs/system/build//boost_system
+      : <include>$(BOOST_BASE) ;
+
+
+alias date_time-library     
+      : $(BOOST_BASE)/libs/date_time/build
+      : <include>$(BOOST_BASE) ;
+
+#install asio-lib : asio-library : <location>$(TOP)/lib  ;
+install date_time-lib : date_time-library : <location>$(TOP)/lib  ;
+
+#Name the directory structure
+use-project /lib/stringify : general/stringify/build ;
+use-project /lib/hardware-coms-manager : coms_manager/build ;
+use-project /lib/hardware-lecroyCM : lecroy/build ;
+use-project /lib/hardware-agilentWG : agilent_pulse_generators/build ;
+
+
+
+
+#build libraries;
+build-project ./general/stringify/build ;
+build-project ./coms_manager/build ;
+build-project ./agilent_pulse_generators/build ;
+build-project ./lecroy/build ;
+
+#test libraries
+
+#build-project ./src/libs/maths/complex/build/test ;
+
+#swig libraries
+
+build-project ./coms_manager/build/swig ;
+build-project ./agilent_pulse_generators/build/swig ;
+build-project ./lecroy/build/swig ;
+
+
+#build app
+#build-project ./src/apps/maths/build ;
+
+
+#docs
+build-project ./lecroy/build/docs ;
+
+

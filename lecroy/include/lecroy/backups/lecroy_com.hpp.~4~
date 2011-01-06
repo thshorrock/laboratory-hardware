@@ -1,0 +1,644 @@
+
+/**
+ * @file   lecroy_com.hpp
+ * @author Tom Shorrock (t.h.shorrock@gmail.com)
+ * @date   December, 2010
+ * @brief  Interface to communicate with the lecroy waverunner scope
+ *
+ * Example usage:
+ *
+ * @code
+ * #include "lecroy/lecroy_com.hpp"
+ * using namespace ICR::lecroy;
+ * lecroy_com lc("ip_address");   //where ip_address is the IP address of the scope, 
+                                  //for example 193.62.12.322 
+ * lc.set_coupling(ICR::lecroy::location::C1, ICR::lecroy::coupling::D50); //set C1 to 50 ohm DC coupling
+ * @endcode
+ */
+
+
+#include "lecroy_com_manager.hpp"
+#include "stringify.hpp"
+
+
+/** Institute of Cancer Research Namespace. */
+namespace ICR{
+
+  /** Lecroy Namespace. */
+  namespace lecroy{
+    /** Namespace containg locations of data  
+     *  This contains both physical channels such as C1, C2, Ex, Ex10; but also memory channels such as M1, M2, etc. and the hard disk HDD*/
+    namespace location{
+      /** An enumeration that contains channels. */
+      enum{C1, //!< Channel 1
+	   C2, //!< Channel 2
+	   C3, //!< Channel 3
+	   C4, //!< Channel 4
+	   F1,F2,F3,F4,F5,F6,F7,F8,M1,M2,M3,M4,ALL_DISPLAYED, EX, EX10,ETM10, FILE, HDD};
+      /**  Return a string containing the channel.
+       * @param code The location code. @return The location string.
+       *   For example \code using namespace ICR::lecroy; std::string channel_str = ICR::lecroy::location::get_string(ICR::lecroy::location::C1); \endcode
+       */
+      std::string get_string(const int& code);
+    } 
+    /** Namespace containg the destination channels.  */
+   
+    namespace store_mode{
+      enum {NO_AUTOSAVE, FILL, WRAP};
+      std::string get_string(const int&);
+    }
+    namespace store_format{
+      enum {ASCII, BINARY, EXCEL, MATHCAD,MATLAB};
+      std::string get_string(const int&);
+    }
+
+    
+    namespace coupling{
+      enum {DC, AC, A1M, D1M, D50, GND};
+      std::string get_string(const int&);
+    }
+
+    namespace trigger_mode{
+      enum {AUTO, NORM, SINGLE, STOP};
+      std::string get_string(const int&);
+    }
+    // namespace trigger_state{
+    //   enum {LOW, HIGH};
+    //   std::string get_string(const int&);
+    // }
+    namespace trigger_type{
+      enum {DROPOUT, EDGE, GLITCH, INTERVAL, STD,SINGLE_SOURCE ,STATE_QUALIFIED,EDGE_QUALIFIED };
+      std::string get_string(const int&);
+    }
+    namespace trigger_hold_type{
+      enum {TIME_GREATER_THAN, TIME_WIDTH, EVENTS,
+	    PULSE_SMALLER_THAN, PULSE_GREATER_THAN, 
+	    INTERVAL_SMALLER_THAN, INTEVAL_GREATER_THAN, 
+	    PULSE_WIDTH,INTERVAL_WIDTH, NO_HOLD};
+      std::string get_string(const int&);
+    }
+
+    
+    namespace exception{ 
+      /** Option not recognised. */
+      struct option_not_recognised{};
+      
+      /** Scope failed to reset. */
+      struct failed_to_reset{};
+      
+      /**Channel value not valid. */
+      struct channel_value_not_valid{}; 
+
+      /** store mode not valid. */
+      struct store_mode_not_valid{};  
+      
+      /** store format not valid. */
+      struct store_format_not_valid{};
+      
+      /** coupling option not recognised. */
+      struct coupling_option_not_recognised{};  
+      
+      /**trigger mode not recognised. */
+      struct trigger_mode_not_recognised{};
+
+      /**  trigger state not recognised. */
+      struct trigger_state_not_recognised{}; 
+      
+      /**trigger type not recognised. */
+      struct trigger_type_not_recognised{};  
+      
+      /**  trigger hold type not recognised. */
+      struct trigger_hold_type_not_recognised{};
+
+      /** Scope calibration failed. */
+      struct calibration_failed_exception{}; 
+
+      /** Invalid memory option.*/
+      struct invalid_memory_option{};
+    } 
+    /* @endinternal */
+ 
+    /** Interface for communicating with the Lecroy Waverunner scope.
+     *
+     *
+     */
+    class lecroy_com : public lecroy_com_manager<ICR::lecroy::IP>
+    {
+
+    public:
+      /** Constructor for interface to Lecroy Waverunner scope.
+       *
+       * @param IPaddress The IP address of the scope. (via VICP).
+       * Example: 
+       * @code
+       * #include "lecroy/lecroy_com.hpp"
+       * using namespace ICR::lecroy;
+       * lecroy_com lc("ip_address"); //where ip_address is, for example 193.62.12.322.
+       * @endcode
+       */
+      lecroy_com(const std::string& IPaddress);
+      
+      /** Send a command to the scope.
+       * All command need to terminated by a new line character "\n".
+       *
+       * Example: Make the scope beep (emulates beep()).
+       * @code
+       * lecroy_com lc("ip_address");
+       * lc.send("BUZZ BEEP\n");
+       * @endcode
+      */
+      using lecroy_com_manager::send;
+
+      
+      /** Receive a command from the scope.
+       * All command need to terminated by a new line character "\n".
+       *
+       * Example: Calibrate the scope (receiving a status signal)
+       * @code
+       * lecroy_com lc("ip_address");
+       * std::string ans = lc.recv("*cal?\n"); //ans = "*CAL 0" if calibration successful.
+       * @endcode
+      */
+      using lecroy_com_manager::recv;
+      
+      /** Set the coupling for a channel on the scope.
+       *  @param channel  Acceptable values are ICR::lecroy::location::C1, ICR::lecroy::location::C2, ICR::lecroy::location::C3 and ICR::lecroy::location::C4.
+       *  @param opt  Accepatable values are  
+       *  - ICR::lecroy::coupling::A1M: AC 1 MOhm coupling,
+       *  - ICR::lecroy::coupling::D1M, DC 1 MOhm coupling,
+       *  - ICR::lecroy::coupling::D50, DC 50Ohm coupling,
+       *  - ICR::lecroy::coupling::GND, coupled to ground.
+       * 
+       * Example: Setting channel 1 to 50 ohm coupling. 
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.set_coupling(ICR::lecroy::location::C1, ICR::lecroy::coupling::D50);
+       * @endcode
+       *
+       * @todo check for errors in the input and throw appropriately.
+       */
+      void
+      set_coupling(const int& channel, const int& opt);
+
+      /** Set the timebase to the scope (seconds per division).
+       *  @param timebase The seconds per divisiton
+       * Example: Set timebase to be 50us per division
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.set_timebase(50e-6);
+       * @endcode
+       *
+       * @see volts_per_div
+       * @todo check for timebases that are out of possible range for the scope
+       */
+      void set_timebase(const double& timebase);  //in seconds
+      
+      /** Arms the scope and forces a single acquisition if it is already armed.
+       * Example:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.arm();
+       * @endcode
+       */
+      void arm() {send("ARM\n");}
+      
+      /** Enable or disable the automatic calibration of the oscilloscope.
+       * @param enable_ac true or false.
+       *
+       * Example:  
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.auto_calibrate(true);
+       * @endcode
+       */
+      void auto_calibrate(const bool& enable_ac);
+      
+      /** Calibrate the oscilloscope now.
+       * Example:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.calibrate();
+       * @endcode
+       */
+      void calibrate();
+      
+      /** Make the oscilloscope beep. 
+       * Example:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.beep();
+       * @endcode
+       */
+      void beep() {send("BUZZ BEEP\n");}
+      
+      /** Clear the memory of one of the memory slots.
+       * @param mem An integer 1-4 indicating M1, M2, M3, or M4. 
+       *
+       * Example clear M3:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.clear_memory(3);
+       * @endcode
+       */
+      void clear_memory(const int mem);
+
+      /** Restarts the cumulative processing functions.
+       *  For example summed or continuous average, extrema, FFT power
+       *  average, histogram, pulse parameter statistics, Pass/Fail counters,
+       *  and persistence.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.clear_sweeps();
+       * @endcode
+       * @bug This fuction does not presently work even though it should from the documentation. Maybe registors in header need to be altered for this function case?
+       */
+      void clear_sweeps() {send("CLEAR_SWEEPS\n");}
+
+      /** Clear all status data registers.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.clear();
+       * @endcode
+       * @bug This fuction does not presently work even though it should from the documentation. Maybe registors in header need to be altered for this function case?
+       */
+      void clear() {send("*CLS\n");}
+
+      /** Copy the local date and time on the computer over to the scope.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.set_date();
+       * @endcode
+       */
+      void set_date();
+      
+       /** Aquire a single trace.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.aquire_single();
+       * @endcode
+       */
+      void aquire_single() {send("TRMD SINGLE;ARM;FRTR\n");}
+      
+      /** Print a message on the bottom of the screen.
+       * @param message The message to be displayed
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.aquire_single("A message from me");
+       * @endcode
+       */
+      void message(const std::string& message) {send("MSG '"+message+"'\n");}
+
+      /** Set vertical offset (in volts) to a channel.
+       * Note this essentially a dc offset, it is not the volts per divisiton. 
+       * @see volts_per_div(const int& channel,const double& v)
+       *
+       * Example: Set offset channel 3 by 2 volts
+       * @param channel  Acceptable values are ICR::lecroy::location::C1, ICR::lecroy::location::C2, ICR::lecroy::location::C3 and ICR::lecroy::location::C4.
+       * @param offset Vertical offset in volts.
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.set_vertical_offset(ICR::lecroy::location::C3, 2);
+       * @endcode
+       */
+      void set_vertical_offset(const int& channel, const double& offset);
+      
+      /**  Specifiy whether the vertical offset is scaled as you change the gain.
+       * @param scale_with_gain true or false.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.vertical_offset_constant(true);
+       * @endcode
+      */
+      void vertical_offset_constant(const bool& scale_with_gain);
+
+      /** Turn persisence on or off.
+       * @param persistence_on true or false.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.peristence(true);
+       * @endcode
+      */
+      void persistence(const bool& persistence_on);
+
+      /** Reset the scope
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.reset();
+       * @endcode
+      */
+      void reset(){send("*RST\n");}
+
+      /** Turn on/off sequence mode.
+       * @param segments The segments to the sequence. 
+       * A value of less than or equal to 1 turns off sequence mode.  
+       * Otherwise the stated number of sequences is set.
+       * @param max_samples Request the maximum number of samples per segemnt.
+       * Note that the scope will adjust this to the closest allowed value.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.sequence(10, 1e6);
+       * @endcode
+      */
+      void sequence(const int& segments, const double& max_samples);
+
+
+      /** Stop aquiring waveforms.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.stop();
+       * @endcode
+       */
+      void stop() {send("STOP\n");}
+
+      /** Store the contents of the specified trace in
+       * one of the internal memories M1 to M4 or in the current directory
+       * in mass storage.
+       * @param trace Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4, ICR::lecroy::location::F1, ... ICR::lecroy::location::F9, ICR::lecroy::location::ALL_DISPLAYED
+       * @param dest Destination.  Acceptable values are 
+       * - ICR::lecroy::location::M1, ..., ICR::lecroy::location::M4, The internal memory
+       * - ICR::lecroy::location::FILE saves over the currently specied trace title, 
+       * - ICR::lecroy::location::HDD  save over the incremented the filename.
+       *       
+       * Example: store C1 on hard disk (without incrementing filename)
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.store(ICR::lecroy::location::C1, ICR::lecroy::location::FILE);
+       * @endcode
+       * @see trigger_mode
+      */
+      void store(const int& trace, const int& dest);
+      
+      /** Setup the way the data is stored.
+       * @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4, ICR::lecroy::location::F1, ... ICR::lecroy::location::F9, ICR::lecroy::location::ALL_DISPLAYED.
+       * @param dest Destination.  Acceptable values are 
+       * - ICR::lecroy::location::M1, ..., ICR::lecroy::location::M4, The internal memory
+       * - ICR::lecroy::location::FILE saves over the currently specied trace title, 
+       * - ICR::lecroy::location::HDD  save over the incremented the filename.
+       * @param mode Autosave mode
+       * - store_mode::NO_AUTOSAVE  No autosave
+       * - store_mode::FILL Fill hard-disk
+       * - store_mode::WRAP Overwrite filename
+       * @param type Format of the data. Acceptable values are
+       * - store_format::ASCII 
+       * - store_format::BINARY
+       * - store_format::EXCEL
+       * - store_format::MATHCAD
+       * - store_format::MATLAB
+       *
+       * Example: store C1 on hard disk (with incrementing filename) autosaving on trigger, in binary format.
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.store(ICR::lecroy::location::C1, ICR::lecroy::location::HDD, store_mode::FILL, store_format::BINARY);
+       * @endcode
+       */
+      void store_setup(const int& trace, const int& dest, const int& mode, const int& type);
+
+      /** Toggle trace on/off.
+       * @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
+       *
+       * Example:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.toggle_trace(ICR::lecroy::location::C1); //if C1 is displayed turn it off, otherwise turn it on.
+       * @endcode
+       * @see trace_on
+       * @see trace_off
+       */
+      void toggle_trace(const int& trace);
+      /** Turn trace on.
+       *  @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
+       *
+       * Example:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trace_on(ICR::lecroy::location::C1); //Display channel 1
+       * @endcode
+       * @see toggle_trace
+       * @see trace_off
+       */
+       void trace_on(const int& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA ON\n");}
+       
+      /** Turn trace off.
+       *  @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
+       *
+       * Example:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trace_on(ICR::lecroy::location::C1); //Turn off channel 1
+       * @endcode
+       * @see toggle_trace
+       * @see trace_on
+       */
+      void trace_off(const int& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA OFF\n");}
+
+      //void transfer_file(const std::string& filename){send("TRFL DISK,HDD,FILE,'"+filename+"'\n");}
+      
+      /** Set the trigger coupling.
+       * @param channel  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
+       * @param coupling Accepatable values are   for internal source
+       *  - ICR::lecroy::coupling::DC 
+       *  - ICR::lecroy::coupling::AC 
+       * while for external sources the following can be used
+       *  - ICR::lecroy::coupling::A1M: AC 1 MOhm coupling,
+       *  - ICR::lecroy::coupling::D1M, DC 1 MOhm coupling,
+       *  - ICR::lecroy::coupling::D50, DC 50Ohm coupling,
+       *  - ICR::lecroy::coupling::GND, coupled to ground.
+       *
+       * Example: Trigger to channel 1 with 50 ohm coupling
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_coupling(ICR::lecroy::location::C1, ICR::lecroy::coupling::D50); 
+       * @endcode
+       * \see trigger_delay, trigger_level, trigger_mode
+       */
+      void trigger_coupling(const int& channel, const int& coupling);
+       /** Set the trigger delay.
+	* Negative numbers indicate a post trigger.
+       * @param delay Time in seconds. Negative numbers indicate a post trigger.
+       *
+       * Example: delay of 50us
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_delay(50e-6); 
+       * @endcode
+       * \see trigger_coupling, trigger_level, trigger_mode
+       */
+      void trigger_delay(const double& delay);// negive numbers for post trigger
+       /** Set the trigger level.
+       * @param channel  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
+       * @param level Level in volts.
+       *
+       * Example: trigger level of 1V
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_level(1); 
+       * @endcode
+       * @see trigger_coupling, trigger_delay, trigger_mode
+       */
+      void trigger_level(const int& channel, const double& level);
+      
+      /** Set the trigger mode.
+       * @param mode Acceptible values
+       * - trigger_mode::AUTO,
+       * - trigger_mode::NORM,
+       * - trigger_mode::SINGLE,
+       * - trigger_mode::STOP.
+       *
+       * Example: put triggering in normal mode
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_mode(trigger_mode::NORM); 
+       * @endcode
+       * @see stop
+       */
+      void trigger_mode(const int& mode) {send("TRMD "+trigger_mode::get_string(mode)+"\n");}
+
+      /**  Define a trigger pattern,
+       *  The command specifies the logic level of the pattern sources (Channel 1,
+       * Channel 2, Channel 3, Channel 4, External), 
+       * as well as the states under which a trigger can occur. 
+       * This command can be used even if the Pattern trigger mode has not been activated.
+       * Notation:
+       * - L LOW H HIGH
+       * - AND OR
+       * - NAND NOR
+       *
+       * @param pattern The pattern string to send to the scope.
+       *
+       * Example:
+       * The following instruction configures the logic state of the pattern as
+       * HLXH (CH 1 = H, CH 2 = L, CH 3 = X, CH 4 = H) and defines the
+       * state as NOR.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_pattern("C1,H,C2,L,C4,H,STATE,NOR"); 
+       * @endcode
+       */
+      void trigger_pattern(const std::string& pattern){send("TRPA " + pattern + "\n");}
+      
+      /** Selects the condition that will trigger the acquisition of waveforms. 
+       * Depending on the trigger type, additional parameters may need to be specified.
+       * Thes additional parameters are grouped in pairs. The first in the pair
+       * names the variable to be modified, while the second gives the new
+       * value to be assigned. Pairs may be given in any order and restricted
+       * to only those variables to be changed.
+       * @param type Accptable values
+       * - ICR::lecroy::trigger_type::DROPOUT
+       * - ICR::lecroy::trigger_type::EDGE
+       * - ICR::lecroy::trigger_type::GLITCH
+       * - ICR::lecroy::trigger_type::INTERVAL
+       * - ICR::lecroy::trigger_type::STD
+       * - ICR::lecroy::trigger_type::SINGLE_SOURCE
+       * - ICR::lecroy::trigger_type::STATE_QUALIFIED
+       * - ICR::lecroy::trigger_type::EDGE_QUALIFIED
+       * @param source Acceptable values
+       * - ICR::lecroy::location::C1, 
+       * - ICR::lecroy::location::C2, 
+       * - ICR::lecroy::location::C3, 
+       * - ICR::lecroy::location::C4, 
+       * - ICR::lecroy::location::LINE, 
+       * - ICR::lecroy::location::EX, 
+       * - ICR::lecroy::location::EX10, 
+       * - ICR::lecroy::location::PA,
+       * - ICR::lecroy::location::ETM10
+       * @param hold_type Acceptable values:
+       * - ICR::lecroy::trigger_hold_type::TIME_GREATER_THAN, 
+       * - ICR::lecroy::trigger_hold_type::TIME_WIDTH, 
+       * - ICR::lecroy::trigger_hold_type::EVENTS,
+       * - ICR::lecroy::trigger_hold_type::PULSE_SMALLER_THAN, 
+       * - ICR::lecroy::trigger_hold_type::PULSE_GREATER_THAN, 
+       * - ICR::lecroy::trigger_hold_type::INTERVAL_SMALLER_THAN, 
+       * - ICR::lecroy::trigger_hold_type::INTEVAL_GREATER_THAN, 
+       * - ICR::lecroy::trigger_hold_type::PULSE_WIDTH,
+       * - ICR::lecroy::trigger_hold_type::INTERVAL_WIDTH,
+       * - ICR::lecroy::trigger_hold_type::NO_HOLD
+       * @param hold_value1 Hold value1
+       * @param hold_value2 Necessary if using ICR::lecroy::trigger_hold_type::PULSE_WIDTH or ICR::lecroy::trigger_hold_type::INTERVAL_WIDTH.
+       *
+       * Example: The following instruction selects the single-source trigger with
+       * Channel 1 as trigger source. Hold type and hold value are chosen as
+       * “pulse smaller” than 20 ns:
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_select(ICR::lecroy::trigger_type::EDGE,ICR::lecroy::location::C1, ICR::lecroy::trigger_hold_type::PULSE_SMALLER_THAN, 20e-9 ); 
+       * @endcode
+       * @see trigger_positive_edge
+       * @see trigger_negative_edge
+      */
+      void trigger_select(const int& type,const int& source,const int& hold_type, const double& hold_value1, const double& hold_value2 = 0.0);
+      
+      /** Trigger on positive edge of selected channel.
+       * @param channel  Acceptable values
+       * - ICR::lecroy::location::C1, 
+       * - ICR::lecroy::location::C2, 
+       * - ICR::lecroy::location::C3, 
+       * - ICR::lecroy::location::C4, 
+       * - ICR::lecroy::location::LINE, 
+       * - ICR::lecroy::location::EX, 
+       * - ICR::lecroy::location::EX10.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_positive_edge(ICR::lecroy::location::C1); 
+       * @endcode
+       * @see trigger_negative_edge
+       * @see trigger_select
+       */
+      void trigger_positive_edge(const int& channel){send(ICR::lecroy::location::get_string(channel)+":TRSL POS\n");}
+      /** Trigger on negative edge of selected channel.
+       * @param channel  Acceptable values
+       * - ICR::lecroy::location::C1, 
+       * - ICR::lecroy::location::C2, 
+       * - ICR::lecroy::location::C3, 
+       * - ICR::lecroy::location::C4, 
+       * - ICR::lecroy::location::LINE, 
+       * - ICR::lecroy::location::EX, 
+       * - ICR::lecroy::location::EX10.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.trigger_negative_edge(ICR::lecroy::location::C1); 
+       * @endcode
+       * @see trigger_positive_edge
+       * @see trigger_select
+       */
+      void trigger_negative_edge(const int& channel){send(ICR::lecroy::location::get_string(channel)+":TRSL NEG\n");}
+      /** Set the volts per division.
+       * @param channel  Acceptable values
+       * - ICR::lecroy::location::C1, 
+       * - ICR::lecroy::location::C2, 
+       * - ICR::lecroy::location::C3, 
+       * - ICR::lecroy::location::C4.
+       * @param volts
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.volts_per_div(ICR::lecroy::location::C1,1); 
+       * @endcode
+       * @see set_timebase
+       */
+      void volts_per_div(const int& channel,const double& volts) {send(ICR::lecroy::location::get_string(channel)+":VDIV "+stringify(volts)+"\n");}
+      
+      /** Wait for current aquisition to complete before processing new commands.
+       *
+       * @code  
+       * lecroy_com lc("ip_address");
+       * lc.wait(); 
+       * @endcode
+       */
+      void wait() {send("WAIT\n");}
+      //      void get_waveform()
+    };
+  }
+}

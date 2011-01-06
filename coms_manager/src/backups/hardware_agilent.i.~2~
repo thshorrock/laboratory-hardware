@@ -1,0 +1,28 @@
+
+%module hardware_agilent
+%include stl.i
+%include "std_string.i"
+ //%apply const std::string& {std::string* foo};
+%{
+#include "agilent/33220A.hpp"
+/* Include in the generated wrapper file */
+//typedef unsigned int size_t;
+%}
+
+//%naturalvar std::string;
+
+/* Tell SWIG about it */
+typedef unsigned int size_t;
+
+//interface for rng
+namespace ICR{
+
+  namespace agilent{
+    class WG33220A{
+
+    public:
+      WG33220A(const std::string& IPaddress);
+      void command(const std::string& cmd);
+    };
+  }
+}  

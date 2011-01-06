@@ -1,0 +1,3 @@
+#!/bin/bash
+#bcp --scan --boost=/mirror/boost_1_42_0  coms_manager/src/ipmanager.cpp boost
+bcp --boost=/mirror/boost_1_42_0  units optional date_time system config build tools boost

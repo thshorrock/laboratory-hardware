@@ -1,0 +1,196 @@
+
+using testing ;
+
+import feature : feature ;
+import toolset : flags ;
+
+#Name this location $(TOP),
+path-constant TOP : . ;
+
+
+import swig ;
+#exe codegen : codegen.cpp class.verbatim usage.verbatim 
+#    t1.verbatim ;
+
+
+
+
+
+
+
+## from http://lists.boost.org/boost-build/2006/12/15869.php
+## and http://code.google.com/p/rdkit/wiki/SwigAndBoostBuild
+
+feature parallelism : mpi mp none : composite link-incompatible ;
+feature.compose <parallelism>none :  ; 
+feature.compose <parallelism>mpi : <define>BOOST_THREAD_WORKING <define>USING_MPI <cxxflags>-Wno-long-long <cxxflags>-fopenmp  <linkflags>-fopenmp <cxxflags>-msse2 <cxxflags>-mmmx <cxxflags>-mfpmath=sse ;
+feature.compose <parallelism>mp :  <cxxflags>-fopenmp <linkflags>-fopenmp <define>BOOST_THREAD_WORKING <cxxflags>-Wno-long-long <cxxflags>-msse2 <cxxflags>-mmmx <cxxflags>-mfpmath=sse ;
+#<cxxflags>-D_GLIBCXX_PARALLEL
+
+#BOOST_BUILD_PATH = $(.boost-build-file:D)/tools/build/v2 ;
+
+
+##Use the boost-libraries as they came...
+path-constant BOOST_TOP : /mirror ;
+path-constant LOKI : /mirror/loki-0.1.7 ;
+path-constant BOOST_BASE : /mirror/boost_1_42_0 ;
+
+
+#some variants
+variant releaseAMD64   : release :                 <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64 <cxxflags>-O3 ;
+variant releaseAMD64mp : release : <parallelism>mp <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64 ;
+variant releaseAMD64mpi : release : <parallelism>mpi <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64  ;
+variant release32 : release :  <define>EXTRA_FAST   ;
+
+variant debugAMD64 : debug :  <define>GLIBCXX_FORCE_NEW <instruction-set>athlon64 <address-model>64   ;
+variant debugAMD64mp : debug :  <define>GLIBCXX_FORCE_NEW <instruction-set>athlon64 <address-model>64 <parallelism>mp  ;
+variant debugAMD64mpi : debug :  <define>GLIBCXX_FORCE_NEW <instruction-set>athlon64 <address-model>64 <parallelism>mpi  ;
+
+variant profileAMD64 : release :                 <define>EXTRA_FAST  <instruction-set>athlon64 <address-model>64 <cxxflags>-g ;
+
+alias testing-library     
+      :  $(BOOST_BASE)/libs/test/build//boost_prg_exec_monitor
+       	 $(BOOST_BASE)/libs/test/build//boost_test_exec_monitor
+	 $(BOOST_BASE)/libs/test/build//boost_unit_test_framework
+      :  <include>$(TOP)/boost_1_42_0
+      	 <define>BOOST_TEST_DYN_LINK ;
+
+alias regex-library     
+      : $(BOOST_BASE)/libs/regex/build//boost_regex
+      : <include>$(TOP)/boost_1_42_0 ;
+
+
+alias filesystem-library     
+      : $(BOOST_BASE)/libs/filesystem/build//boost_filesystem
+      : <include>$(TOP)/boost_1_42_0 ;
+
+alias program-options-library     
+      : $(BOOST_BASE)/libs/program_options/build//boost_program_options
+      : <include>$(TOP)/boost_1_42_0 	
+      :  <variant>releaseAMD64mp <threading>multi ;
+
+alias threaded-library     
+      : $(BOOST_BASE)/libs/thread/build//boost_thread
+      : <include>$(TOP)/boost_1_42_0 ;
+
+alias serialization-library     
+      : $(BOOST_BASE)/libs/serialization/build//boost_serialization
+      : <include>$(TOP)/boost_1_42_0 ;
+
+#alias units-library     
+#      : $(BOOST_BASE)/libs/serialization/build//boost_serialization
+#      : <include>$(TOP)/boost_1_42_0 ;
+
+
+
+#import mpi ;
+#import python ;
+
+#libraries = ;
+
+
+
+
+alias mpi-library     
+      : $(BOOST_BASE)/libs/mpi/build//boost_mpi
+      : <include>$(TOP)/boost_1_42_0 ;
+
+
+if (  --with-mpi in  [ modules.peek : ARGV ] ) ## [ mpi.configured   ] ##mpi.configured 
+{
+install mpi-lib : mpi-library : <location>$(TOP)/lib  ;
+
+
+
+}
+else if ! ( --without-mpi in  [ modules.peek : ARGV ] )
+{
+  message boost_mpi   
+      : " "
+      : "warning: skipping optional Message Passing Interface (MPI) library."
+      : "note: to enable MPI support, add \"using mpi ;\" to user-config.jam."
+      : "note: to suppress this message, pass \"--without-mpi\" to bjam."
+      : "note: otherwise, you can safely ignore this message." 
+      ;
+}
+
+
+
+#install serialization-lib : serialization-library : <location>$(TOP)/lib  ;
+#install threaded-lib : threaded-library : <location>$(TOP)/lib  ;
+#install program-options-lib : program-options-library : <location>$(TOP)/lib  ;
+#install filesystem-lib : filesystem-library : <location>$(TOP)/lib  ;
+#install testing-lib :  testing-library : <location>$(TOP)/lib  ;
+#install mpi-lib : mpi-library : <location>$(TOP)/lib  ;
+#install regex-lib : regex-library : <location>$(TOP)/lib  ;
+
+
+
+lib loki-core
+    :
+    : <name>loki  <search>$(LOKI)/lib <python-debugging>off <python>2.6 <threadapi>pthread  ##not sure why these last arguements required for build, nothing to do with Loki
+    ;
+
+alias loki-library
+     :	$(TOP)//loki-core 
+     ;
+
+# project gsl-core : : : : : <search>/mirror/gsl-1.14/lib ;
+
+lib gsl-core
+    :
+    : <name>gsl  <search>/mirror/gsl-1.14/lib <python-debugging>off <python>2.6 <threadapi>pthread
+    ;
+
+
+lib gsl-cblas
+    :
+    : <name>cblas  <search>/mirror/CBLAS/lib/LINUX <python-debugging>off <python>2.6 <threadapi>pthread  <cxxflags>-fopenmp  <linkflags>-fopenmp  <cxxflags>-msse2 <cxxflags>-mmmx <cxxflags>-mfpmath=sse  <instruction-set>athlon64 <address-model>64 <cxxflags>-O3 <cxxflags>-fPIC
+    ;
+
+lib acml-library
+    :
+    : <name>acml_mp  <search>/mirror/acml4.4.0/gfortran64_mp/lib <python-debugging>off <python>2.6 <threadapi>pthread  <cxxflags>-fopenmp  <linkflags>-fopenmp  <cxxflags>-msse2 <cxxflags>-mmmx <cxxflags>-mfpmath=sse  <instruction-set>athlon64 <address-model>64 <cxxflags>-O3   <cxxflags>-fPIC
+    ;
+
+lib gfortran-library
+    :
+    : <name>gfortran <python-debugging>off <python>2.6 <threadapi>pthread  <cxxflags>-fopenmp  <linkflags>-fopenmp  <cxxflags>-msse2 <cxxflags>-mmmx <cxxflags>-mfpmath=sse  <instruction-set>athlon64 <address-model>64 <cxxflags>-O3  <cxxflags>-fPIC
+    ;
+
+alias gsl-library
+      : $(TOP)//gsl-core
+	$(TOP)//gsl-cblas
+	$(TOP)//acml-library
+	$(TOP)//gfortran-library
+      :  <search>/mirror/gsl-1.14/lib  
+      	<define>HAVE_INLINE 
+        <define>DGSL_RANGE_CHECK_OFF  <cxxflags>-fPIC
+      : : <include>/mirror/gsl-1.13    <library-path>/usr/lib/gcc/x86_64-linux-gnu/4.4 <library-path>/mirror/gsl-1.14/lib  <library>$(TOP)//gsl-core
+      ;
+
+#Name the directory structure
+use-project /lib/hardware-agilentWG : agilent_pulse_generators/build ;
+
+
+
+
+#build libraries
+build-project ./agilent_pulse_generators/build ;
+
+#test libraries
+
+#build-project ./src/libs/maths/complex/build/test ;
+
+#swig libraries
+
+#build-project ./src/libs/maths/complex/build/test ;
+#build-project ./src/libs/maths/vec/build/swig ;
+#build-project ./src/libs/maths/serialize/build/test ;
+
+
+#build app
+#build-project ./src/apps/maths/build ;
+
+
+

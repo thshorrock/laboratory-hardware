@@ -1,0 +1,32 @@
+
+project  lecroy/build//lecroyCM
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+lib lecroyCM : lecroy_com_manager.cpp  lecroy_com.cpp lecroy_header.cpp lecroy_file.cpp
+     /lib/hardware-coms-manager	
+     /lib/stringify
+     $(TOP)//date_time-library  
+     $(TOP)//serialization-library  
+     $(TOP)//threaded-library
+    : <toolset>msvc:<link>static
+              ;
+
+exe lecroy_ctr : example/example1.cpp lecroyCM
+    : <toolset>msvc:<link>static ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/lecroy/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include  <install-dependencies>on
+;
+
+install lecroyCM-lib : lecroyCM  :  <location>$(TOP)/lib <install-type>LIB ;
+
+
+install lecroy_ctr-exe : lecroy_ctr : <location>$(TOP)/bin ;

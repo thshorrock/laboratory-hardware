@@ -1,0 +1,120 @@
+
+%module hardware_lecroy
+%include stl.i
+%include "std_string.i"
+%include "carrays.i"
+%array_class(float, floatArray);
+ //%apply const std::string& {std::string* foo};
+%{
+#include "lecroy/lecroy_com_manager.hpp"
+#include "lecroy/lecroy_com.hpp"
+
+
+/* Include in the generated wrapper file */
+//typedef unsigned int size_t;
+%}
+
+
+
+/* Tell SWIG about it */
+typedef unsigned int size_t;
+
+
+namespace ICR{
+
+  namespace lecroy{
+    
+    class lecroy_com_manager {
+
+    public:
+      lecroy_com_manager(const std::string& IPaddress);
+      void send(const std::string& cmd);
+
+      std::string recv(const std::string& cmd, const unsigned int& buffsize = 128) ;
+      std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5) ;
+      
+      void clear();
+      //std::string serial_poll_byte() ;
+    };
+
+namespace trace{
+      enum{C1,C2,C3,C4,F1,F2,F3,F4,F5,F6,F7,F8,M1,M2,M3,M4,ALL_DISPLAYED, EX, EX10,
+ETM10};
+    }
+    namespace destination{
+      enum{FILE, HDD}; //M1, M2, M3, M4, 
+    }
+    namespace store_mode{
+      enum {OFF, FILL, WRAP};
+    }
+    namespace store_type{
+      enum {ASCII, BINARY, EXCEL, MATHCAD,MATLAB};
+    }
+
+    
+    namespace coupling{
+      enum {DC, AC, A1M, D1M, D50, GND};
+    }
+
+    namespace trigger_mode{
+      enum {AUTO, NORM, SINGLE, STOP};
+    }
+    // namespace trigger_state{
+    //   enum {LOW, HIGH};
+    //   std::string get_string(const int&);
+    // }
+    namespace trigger_type{
+      enum {DROPOUT, EDGE, GLITCH, INTERVAL, STD,SINGLE_SOURCE ,STATE_QUALIFIED,EDGE_QUALIFIED };
+    }
+    namespace trigger_hold_type{
+      enum {TIME_GREATER_THAN, TIME_WIDTH, EVENTS,
+	    PULSE_SMALLER_THAN, PULSE_GREATER_THAN, 
+	    INTERVAL_SMALLER_THAN, INTEVAL_GREATER_THAN, 
+	    PULSE_WIDTH,INTERVAL_WIDTH, OFF}; //,
+    }
+
+
+    class lecroy_com {
+
+    public:
+      lecroy_com(const std::string& IPaddress);
+      void send(const std::string& cmd);
+
+      std::string recv(const std::string& cmd, const unsigned int& buffsize = 128) ;
+      void set_coupling(const int& channel,const int& coupling);
+      void set_timebase(const double& timebase);  //in seconds
+      void arm();
+      void auto_calibrate(const bool& b);
+      void calibrate();
+      void beep();
+      void clear_memory(const int i);
+      void set_date();
+      void aquire_single();
+      void set_vertical_offset(const int& channel, const double& offset);
+      void offset_constant(const bool& b);
+      void persistence(const bool& b);
+      void reset();
+      void sequence(const int& segments, const long& max_samples);
+      void stop();
+      void store(const int& trace, const int& dest);
+      void store_setup(const int& trace, const int& dest, const int& mode, const int& type
+		       );
+      void toggle_trace(const int& trace);
+      void trace_on(const int& trace) ;
+      void trace_off(const int& trace);
+      void transfer_file(const std::string& filename);
+      void trigger(const int& channel, const int& coupling);
+      void trigger_delay(const double& delay);// negive numbers for post trigger
+      void trigger_level(const int& channel, const double& level);
+      void trigger_mode(const int& mode);
+      void trigger_pattern(const std::string& pattern);
+      void trigger_select(const int& type,const int& source,const int& hold_type, const double& hold_value1, const double& hold_value2);
+      void trigger_positive_edge(const int& channel);
+      void trigger_negative_edge(const int& channel);
+      void vols_per_div(const int& channel,const double& v);
+      void wait() ;
+    };
+
+  }
+
+}  

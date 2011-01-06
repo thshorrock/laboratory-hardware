@@ -1,0 +1,70 @@
+#pragma once
+#include "commands.hpp"
+#include "basic_pulser_receiver.hpp"
+#include "enums.hpp"
+#include "exceptions.hpp"
+
+
+namespace ICR{
+
+  namespace pulser{
+    
+    /** The RPL2 pulser receiver. 
+     * The is a pulser receiver with the following parameters:
+     *   - p1
+     *   - p2
+     */
+    class RPL2 : public pulser_receiver
+    {
+      /** A typedef defining the cmd_ptr interface */
+    public: typedef boost::shared_ptr<command::PulserReceiver_cmd> cmd_ptr;
+    private:
+      std::list<cmd_ptr> m_cmds;
+
+      enum channel::type m_channel;
+      char m_address;
+      bool attached_to_DPR500;
+
+      command::ReceiverCommandFactory m_rf;
+      command::PulserCommandFactory   m_pf;
+
+      boost::shared_ptr<command::gain>             m_gain;
+      //      boost::shared_ptr<command::high_pass_filter<command::> >  m_hpf;
+      // boost::shared_ptr<command::low_pass_filter<command:: > >  m_lpf;
+      
+    protected:
+      void attach_cmd(cmd_ptr c);
+      void detach_cmd(cmd_ptr c);
+      void notify();
+      void set_channel(const enum channel::type& channel);
+      void set_address(const char& channel);
+      void detach();
+      std::list<cmd_ptr> get_commands() const {return m_cmds;}
+    public:
+      /** Constructor. */
+      RPL2(
+    	   /* pulser */
+    	   const double& cal_fall_time = 6.0 /*ns*/,
+    	   const double& cal_min_neg_pulse_amp = 170 /*V*/,
+    	   const double& cal_pulse_width = 109 /*ns FWHM*/,
+    	   /* receiver */
+    	   const double& cal_gain = 5.3 /*db */,
+    	   const double& cal_high_freq_cut_off  = 118 /*MHz*/
+    	   );
+      /** Set the gain. @param gain The gain */
+      void set_gain(const short& gain){m_gain->set(gain);}
+      char get_channel_char() const ;
+      char get_address_char() const ;
+    };
+
+    class PulserReceiverFactory
+    {
+    public:
+      typedef boost::shared_ptr<pulser_receiver> pulser_receiver_ptr; 
+      boost::shared_ptr<pulser::RPL2> RPL2() const 
+      {return  boost::shared_ptr<pulser::RPL2>(new pulser::RPL2());} 
+
+    };
+
+  }
+}

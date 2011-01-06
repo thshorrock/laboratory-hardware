@@ -1,0 +1,17 @@
+#include "lecroy.hpp"
+
+using namespace ICR::lecroy;
+using namespace ICR::lecroy::location;
+int
+main  (int ac, char **av)
+{
+  
+  lecroy_64Xi lc("10.0.0.10");
+  
+  lc.waveform_text(C2, "some text");
+  std::cout<< "waveform text = "<< lc.get_waveform_text(C2)  <<std::endl;
+  lecroy_file file = lc.get_waveform(C2);
+  file.save("test.dat");
+  file.save_ascii("test.txt");
+    
+}

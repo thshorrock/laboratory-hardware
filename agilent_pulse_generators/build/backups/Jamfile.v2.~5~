@@ -1,0 +1,23 @@
+
+
+project  agilentWG
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+lib agilentWG : 33220A.cpp 
+     /lib/hardware-coms-manager	
+              ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/agilent/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;
+
+install agilentWG-lib : agilentWG  :  <location>$(TOP)/lib   <install-type>LIB ;
+

@@ -1,0 +1,22 @@
+
+project  readme
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+lib readme : readme.cpp  
+     /lib/filename
+              ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/readme/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include  <install-dependencies>on
+;
+
+install readme-lib : readme  :  <location>$(TOP)/lib <install-type>LIB ;
+

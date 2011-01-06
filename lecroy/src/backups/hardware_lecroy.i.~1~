@@ -1,0 +1,80 @@
+
+%module hardware_lecroy
+%include stl.i
+%include "std_string.i"
+%include "carrays.i"
+%array_class(float, floatArray);
+ //%apply const std::string& {std::string* foo};
+%{
+#include "lecroy/lecroy_com_manager.hpp"
+
+/* Include in the generated wrapper file */
+//typedef unsigned int size_t;
+%}
+
+
+
+/* Tell SWIG about it */
+typedef unsigned int size_t;
+
+
+namespace ICR{
+
+  namespace agilent{
+    
+    
+    namespace shape{
+      enum {SIN, SQUARE, PULSE, TRIANGLE, RAMP, NOISE, DC, USER};
+    }
+    namespace load{
+      enum {OHM50, INFTY}; 
+    }
+    namespace trigger{
+      enum {IMMEDIATE, EXTERNAL, BUS}; 
+    }
+    
+    namespace exception{
+      struct option_not_recognised{};
+      struct failed_to_reset{};
+    }
+
+
+    class WG33220A {
+
+    public:
+      WG33220A(const std::string& IPaddress);
+      void send(const std::string& cmd);
+      void recv(const std::string& cmd);
+      void reset();
+      void apply(const int shape, 
+		 const double freq,
+		 const double volts,
+		 const double offset);
+      
+      void shape(const int);
+
+      void load(const int);
+      void duty_cycle(const double); // square wave only
+
+      void frequency(const double frequency);
+      void voltage(const double V);
+      void offset(const double offset);
+
+      /* //burst commands */
+      void cycles(const unsigned int c);
+      void burst_on(void);
+      void burst_off(void);
+      void phase(const double degrees);
+      void burst_int(const  double  rate); 
+      void burst_ext();
+
+      void trigger(const int source); 
+      void trigger_now() {send("*TRG");}; 
+      std::string error();
+      void arb_wave(const std::string name, const float*, const unsigned long size);
+      // void arb_wave(const boost::array data);
+
+    };
+  }
+
+}  

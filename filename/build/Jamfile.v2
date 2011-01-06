@@ -1,0 +1,25 @@
+
+project filename
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include <define>BOOST_REGEX_MATCH_EXTRA 
+	: requirements 
+	<include>../include/
+	<include>$(TOP)/boost_files/
+	#<warnings-as-errors>on
+;
+
+lib filename : 
+    get_filename.cpp 
+    $(TOP)//filesystem-library
+    $(TOP)//regex-library
+    : <toolset>msvc:<link>static
+    ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/filename/*.hpp ]
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;
+install get_filename_lib : filename  : <location>$(TOP)/lib  ;

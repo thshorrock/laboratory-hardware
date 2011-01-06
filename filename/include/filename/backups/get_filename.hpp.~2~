@@ -1,0 +1,135 @@
+
+
+#pragma once
+#include <boost/regex.hpp>
+#include <iostream>
+#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include <string>
+#include <vector>
+#include <list>
+
+/** ICR namespace */
+namespace institute_of_cancer_research{
+  /** filename namespace */
+  namespace filename{
+    using std::string;
+    using std::vector;
+    using std::list;
+    /**A class to obtain and analyse filenames.
+     * Often experimental variables written into filenames,
+     * this class extracts that information */
+    class file{
+    boost::filesystem::path m_path;
+    public:
+      /** A constructor.
+       *  The filename to analyse is provided as a string.
+       * @param filename. The filename to analyse.
+       */
+      file(const string filename);
+
+      /*Pull out the numbers within the filename.
+       * These often correspond to experimental variables.
+       * @param A reference to a std::vector into which the numbers are to be put.
+       */
+      template<class T>
+      void
+      get_numbers(vector<T>& numbers);
+
+      /** Return the stub of the filename.
+       * (i.e. before the final . (dot) marking an extension.
+       * @return A string of the stub.
+       */
+      string 
+      stub() const {return m_path.stem();};
+
+      /** Return the extension of the filename.
+       * (i.e. after the final . (dot) marking an extension.
+       * @return A string of the extension.
+       */
+      string 
+      extension() const {return m_path.extension();};
+
+      /** Return the full directory of the filename.
+       * @return A string of the directory.
+       */
+      string 
+      get_directory() const {return m_path.parent_path().file_string();};
+
+      /** Return the full filename.
+       * @return A string of the full path.
+       */
+      string 
+      full_filename() const {boost::filesystem::path p = boost::filesystem::system_complete(m_path); return p.file_string();};
+
+
+    };
+ 
+    class directory{
+      boost::filesystem::path m_path;
+    public:
+      /** A constructor.
+       *
+       */
+      directory(string directory);
+      
+      /** Get all the files in the directory.
+       * @return A vector containing all the filenames
+       */
+      list<string>
+      get_filenames() const;
+
+      /** Get the pathname of the directory.
+       */
+      string
+      get_directory() const {return m_path.file_string();};
+
+    };
+
+    
+    
+  }
+}
+
+
+//implementation
+
+template<class T>
+void
+institute_of_cancer_research::filename::file::get_numbers(std::vector<T>& numbers)
+{
+  std::string name = stub();
+  string text = name;
+  string regex_float = "{[[-+]]?([[0-9]]+\\.?[[0-9]]*|\\.[[0-9]]+)([[eE]][[-+]]?[[0-9]]+)?}";
+  string regx = "([[:alpha:]]*("+regex_float+"))+";//"([[:alpha:]]*(\\d+))+";
+  boost::regex e(regx);
+   boost::smatch what;
+   std::cout << "Expression:  \"" << regx << "\"\n";
+   std::cout << "Text:        \"" << text << "\"\n";
+   if(boost::regex_match(text, what, e, boost::match_extra))
+   {
+      unsigned i, j;
+      std::cout << "** Match found **\n   Sub-Expressions:\n";
+      for(i = 0; i < what.size(); ++i)
+         std::cout << "      $" << i << " = \"" << what[i] << "\"\n";
+      std::cout << "   Captures:\n";
+      for(i = 0; i < what.size(); ++i)
+      {
+         std::cout << "      $" << i << " = {";
+         for(j = 0; j < what.captures(i).size(); ++j)
+         {
+            if(j)
+               std::cout << ", ";
+            else
+               std::cout << " ";
+            std::cout << "\"" << what.captures(i)[j] << "\"";
+         }
+         std::cout << " }\n";
+      }
+   }
+   else
+   {
+      std::cout << "** No Match found **\n";
+   }
+
+
+}

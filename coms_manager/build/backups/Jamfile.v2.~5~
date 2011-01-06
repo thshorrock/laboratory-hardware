@@ -1,0 +1,26 @@
+
+
+project  coms_manager
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+#	<include>$(TOP)/boost_files/
+;
+
+lib coms_manager :  ipmanager.cpp 
+   $(TOP)//asio-library
+              ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/coms_manager/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include <install-dependencies>on
+;
+
+install coms_manager-lib : coms_manager  :  <location>$(TOP)/lib  <install-dependencies>on <install-type>LIB
+;
+

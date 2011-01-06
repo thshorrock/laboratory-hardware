@@ -1,0 +1,4 @@
+#include "coms_manager/coms_manager.hpp"
+
+ICR::coms::~coms_manager()
+{}

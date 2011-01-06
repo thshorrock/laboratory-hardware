@@ -1,0 +1,56 @@
+#include "get_filename.hpp"
+#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include <iostream>               // for std::cout
+
+
+#include <stdexcept>
+namespace icr_file = institute_of_cancer_research::filename;
+namespace fs = boost::filesystem;
+
+
+icr_file::file::file(string filename)
+  : m_path(filename)
+{
+  if ( !fs::exists( full_filename() ) ) {
+    std::string errstr = full_filename() + " is not found";
+    throw(errstr.c_str());
+  }
+}
+
+
+
+icr_file::directory::directory(string directory)
+  : m_path(directory)
+{
+  //check to see whether its a directory
+  if ( !fs::is_directory( m_path ) ){
+    std::cout<<m_path.file_string()<<" is not directory"<<std::endl;
+    m_path = m_path.parent_path();
+    std::cout<<"directory path set to "<<m_path.file_string() <<std::endl;
+  }
+  //check to see whether path exists
+  if ( !fs::exists( m_path  ) ) throw("given directory path does not exist");
+ 
+}
+
+std::list<std::string>
+icr_file::directory::get_filenames() const
+{
+  std::list<std::string> files;
+  fs::directory_iterator end_iter;
+  for ( fs::directory_iterator dir_itr( m_path );
+        dir_itr != end_iter;
+        ++dir_itr )
+    {
+      try {
+        if ( fs::is_regular_file( dir_itr->status() ) ){
+          fs::path p =  system_complete(dir_itr->path());
+          files.push_back(p.file_string());
+        }
+      }
+      catch ( const std::exception & ex ){
+        std::cerr << dir_itr->path().filename() << " " << ex.what() << "\n";
+      }
+    }
+  return files;
+}

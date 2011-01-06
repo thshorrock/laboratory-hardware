@@ -1,0 +1,74 @@
+#pragma once
+#include "basic_pulser_receiver.hpp"
+
+
+namespace ICR{
+
+  namespace pulser{
+    
+    /** The RPL2 pulser receiver. 
+     * The is a pulser receiver with the following parameters:
+     *   - p1
+     *   - p2
+     */
+    class RPL2 : public pulser_receiver
+    {
+      /** A typedef defining the cmd_ptr interface */
+    public: typedef boost::shared_ptr<command::PulserReceiver_cmd> cmd_ptr;
+    private:
+
+      
+
+      command::ReceiverCommandFactory m_rf;
+      command::PulserCommandFactory   m_pf;
+
+      boost::shared_ptr<command::gain>                             m_gain;
+      boost::shared_ptr<command::high_pass_filter<filter::HPF1> >  m_hpf;
+      boost::shared_ptr<command::low_pass_filter <filter::LPF1> >  m_lpf;
+      boost::shared_ptr<command::internal_trigger>                 m_int_trig;
+      boost::shared_ptr<command::external_trigger>                 m_ext_trig;
+      boost::shared_ptr<command::master>                           m_master;
+      // boost::shared_ptr<command::turn_on >                         m_on;
+      // boost::shared_ptr<command::turn_off>                         m_off;
+      boost::shared_ptr<command::prf>                              m_prf;
+      boost::shared_ptr<command::voltage>                          m_voltage;
+        
+      
+
+
+      //Singleton pattern.
+      static boost::shared_ptr<RPL2> m_instance;
+      
+    protected:
+
+      /** Constructor. */
+      RPL2(); //protected constructor.
+    public:
+      static RPL2* Instance();
+     
+      /** Set the gain. @param gain The gain */
+      void set_gain(const short& gain){m_gain->set(gain);}
+      void set_high_pass_filter(const enum filter::HPF1::type& v){m_hpf->set(v);}
+      void set_low_pass_filter (const enum filter::LPF1::type& v){m_lpf->set(v);}
+      double  set_prf (const double& frequency){return m_prf->set(frequency);}
+      void set_internal_trigger();
+      void set_external_trigger();
+      void set_master() {m_master->set(true);}
+      void set_slave()  {m_master->set(false);};
+      void set_voltage(const unsigned short& voltage){m_voltage->set(voltage);}
+      
+    };
+    
+
+    class PulserReceiverFactory
+    {
+    public:
+      typedef boost::shared_ptr<pulser_receiver> pulser_receiver_ptr; 
+      
+      pulser::RPL2* make_RPL2() const 
+      {return  RPL2::Instance();} //Return the singleton to this class
+
+    };
+
+  }
+}

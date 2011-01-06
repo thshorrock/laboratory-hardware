@@ -1,0 +1,28 @@
+from hardware_lecroy import *
+lc = lecroy_com("172.16.12.152")
+lc.set_coupling(C2,D50)
+
+#lc = lecroy_com_manager("172.16.12.152")
+#lc.clear()
+#lc.send("C1:CPL D50\n") 
+#print lc.recv("MSIZ?\n",30)
+#print lc.recv("C1:VDIV?\n",30)
+#print lc.recv("C1:VDIV?\n",30)
+#print lc.recv("C1:VDIV?\n",30)
+#from hardware_coms_manager import *
+#cm = IPmanager("172.16.12.152","1861")
+#cm.send("BUZZ BEEP\n");
+#cm.send("BUZZ BEEP\n");
+#cm.send("BUZZ BEEP\n");
+#cm.send("BUZZ BEEP\n");
+
+#ip = IPmanager("172.16.12.152","1861") 
+# print ip.timed_recv("*IDN?\n",128,  3);
+#lc.clear();
+#print lc.serial_poll_byte()
+#lc.send("BUZZ BEEP;DISPLAY OFF\n")
+#lc.send("ASET \n")
+#lc.send("C1:CPL D50\n") 
+#lc.send("C1:gfVDIV 2 \n")
+#lc.send("C1:gfVDIV 2 ")
+

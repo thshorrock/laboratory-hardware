@@ -1,0 +1,14 @@
+#include "lecroy_com_manager.hpp"
+
+namespace ICR{
+
+
+  namespace lecroy{
+    
+    class lecroy : public lecroy_com_manager
+    {
+
+
+
+
+    }

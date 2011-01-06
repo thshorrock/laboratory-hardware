@@ -1,0 +1,4 @@
+plot  "./voltage_0.5/with_imaging_pulse_0.dat" w l, \
+      "./voltage_0.5/without_imaging_pulse_0.dat" w l, \
+      "./voltage_0.5/with_imaging_pulse_1.dat" w l, \
+      "./voltage_0.5/without_imaging_pulse_1.dat" w l

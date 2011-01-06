@@ -1,0 +1,46 @@
+#include "lecroy/lecroy_file.hpp"
+
+ICR::lecroy::aline::aline(const boost::shared_array<double>& time,
+			  const boost::shared_array<double>& trace,
+			  const size_t& size)
+  : m_t(time), m_trace(trace), m_size(size) 
+{
+}
+
+
+void 
+ICR::lecroy::aline::save_ascii(const std::string filename)
+{
+  boost::scoped_ptr<std::fstream> 
+    pOut(new std::fstream(filename.c_str(), std::ios_base::out ));
+	
+  //char array1
+  const size_t size1 = m_size;
+  for(size_t i=0;i<size1;++i){
+    *pOut  <<  m_t[i] <<"  "<< m_trace[i] <<"\n";
+  }
+  pOut->close();
+}
+
+ICR::lecroy::aline&
+ICR::lecroy::aline::operator+=(const aline& other)
+{
+  if (other.size()!= m_size) throw exception::alines_not_of_same_size();
+  for(size_t i=0;i<m_size;++i){
+    m_trace[i]+=other[i];
+  }
+  return *this;
+}
+      
+      
+ICR::lecroy::aline&
+ICR::lecroy::aline::operator-=(const aline& other)
+{
+  if (other.size()!= m_size) throw exception::alines_not_of_same_size();
+  for(size_t i=0;i<m_size;++i){
+    m_trace[i]-=other[i];
+  }
+  return *this;
+}
+
+      

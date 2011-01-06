@@ -1,0 +1,20 @@
+#include "DPR500.hpp"
+
+using namespace ICR::pulser;
+int
+main  (int ac, char **av)
+{
+  DPR500 dpr500("/dev/ttyUSB0");
+  dpr500.blink(120);
+
+  PulserReceiverFactory factory;
+  
+  RPL2* low_freq_pulser = factory.make_RPL2();
+  
+  low_freq_pulser->set_gain(30);
+
+  dpr500.attach_A(low_freq_pulser);
+  
+  
+
+}

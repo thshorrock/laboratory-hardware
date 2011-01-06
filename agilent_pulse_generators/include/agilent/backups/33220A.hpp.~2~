@@ -1,0 +1,26 @@
+#include <string>
+#include <iostream>
+
+#include "agilent/vxi11_user.h"
+#define BUF_LEN 100000
+
+namespace ICR {
+  namespace agilent{
+    
+
+    class WG33220A{
+      const std::string m_IP;
+      CLINK		*clink;
+    public:
+      WG33220A(const std::string& IPaddress);
+      ~WG33220A() ;
+      void command(const std::string& cmd );
+      WG33220A& voltage(const double d);
+      WG33220A& amplitude(const double d);
+      WG33220A& cycles(const double d);
+      
+     
+    };
+
+  }
+}

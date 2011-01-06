@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE library PUBLIC "-//Boost//DTD BoostBook XML V1.0//EN"
+  "http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<library name="stringify" dirname="general/stringify" xmlns:xi="http://www.w3.org/2001/XInclude"
+  id="stringify" last-revision="$Date: 2010-01-01 20:30:45 +0100 (Sat, 12 Jul 2008) $">
+  <libraryinfo>
+    <author>
+      <firstname>Tom</firstname>
+      <surname>Shorrock</surname>
+    </author>
+    <librarypurpose>
+      Convert most standard types (e.g. integers, doubles etc.) into a string.
+    </librarypurpose> 
+    <librarycategory name="category:data-structures"/>
+  </libraryinfo>
+</library>

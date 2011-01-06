@@ -1,0 +1,143 @@
+
+/** @file lecroy_com_manager.hpp Contains the VICP control for communicating to the lecroy scope. */
+
+#pragma once
+
+#include <string>
+#include <iostream>
+#include "coms_manager/ipmanager.hpp"
+
+
+namespace ICR{
+
+  namespace lecroy {
+
+    /** A class handling the VICP header to the Lecroy scope */
+    class lecroy_header
+    {
+    private:
+      boost::array<unsigned char, 8> m_header;
+      //operation bits
+      bool m_data, m_remote, m_lockout, m_clear, m_srq, m_serial_poll, m_eoi;
+      
+      //version
+      unsigned char m_version;
+      
+      //sequence number
+      unsigned char  m_sequence_number;    // only set in version 1A and later
+
+      void set_operation();
+      void set_length(const std::string& cmd);
+      void set_sequence(void);
+      void set_version(void);
+    public:
+      lecroy_header(const bool& eol=true,const bool& lock = false );
+      virtual ~lecroy_header(){};
+      std::string add(const std::string& cmd);
+      void set_clear(const bool& b) {m_clear = b; }
+      void set_lockout(const bool& b) {m_lockout = b; }
+      void set_eoi(const bool& b) {m_eoi = b; ;}
+      void set_remote(const bool& b) {m_remote = b;}
+      void set_data(const bool& b) {m_data = b; }
+    };
+    
+    enum{ IP, SERIAL, USB }
+
+    /** Lecroy VICP communications manager */
+    template<int com_method>
+    class lecroy_com_manager  : T //coms::IPmanager
+    {
+      lecroy_header header;
+    public:
+      /** Open a communication with the lecroy scope.
+       * @param IPaddress The IP address of the lecroy scope.
+       */
+      lecroy_com_manager(coms_manager* communication_proxy);
+      /** The distructor.*/
+      virtual ~lecroy_com_manager();
+      /** Send a command to the scope.  Most of the time this will be null terminated @param cmd The command string.*/
+      void send(const std::string& cmd);
+      
+      /** Send a request to the scope.  Most of the time this will be null terminated 
+       * @param cmd The request string 
+       * @param buffsize The size of the buffer to collect.  The returned string can be shorter than this size.
+       * @return The returned string from the scope (missing the header). */
+      std::string recv(const std::string& cmd, const unsigned int& buffsize = 128) ;
+      std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5) ;
+      void clear();
+
+    };
+
+
+    
+
+
+
+  }
+
+}
+
+template<>
+ICR::lecroy::lecroy_com_manager<ICR::lecroy::IP>::lecroy_com_manager(const std::string& IPaddress)
+  : coms::IPmanager(IPaddress, "1861"),
+    header(false,false)
+{
+  header.set_data(false);
+  send(""); //make remote
+  header.set_data(true);
+  header.set_eoi(true);
+}
+
+template<>
+ICR::lecroy::lecroy_com_manager<ICR::lecroy::IP>::~lecroy_com_manager()
+{
+  header.set_data(false);
+  header.set_eoi(false);
+  header.set_remote(false);
+  header.set_lockout(false);
+  send(""); //make live
+}
+
+template<int coms_method>
+void
+ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string& cmd)
+{
+  std::string full_command = header.add(cmd);
+  coms::IPmanager::send(full_command);
+}
+
+template<int coms_method>
+std::string
+ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string& cmd, const unsigned int& buffsize ) 
+{
+  std::string rec = coms::IPmanager::recv(cmd,buffsize);
+  //skip the header
+  std::string rec_no_head = rec.substr(8, rec.size()-8) ;
+  return rec_no_head;
+}
+
+template<int coms_method>
+std::string
+ICR::lecroy::lecroy_com_manager<coms_method>::timed_recv(const std::string& cmd, const unsigned int& buffsize , const double& seconds) 
+{ 
+  std::string rec = coms::IPmanager::timed_recv(cmd,buffsize,seconds);
+  //skip the header
+  std::string rec_no_head = rec.substr(8, rec.size()-8) ;
+  return rec_no_head;
+}
+
+template<int coms_method>
+void
+ICR::lecroy::lecroy_com_manager<coms_method>::clear()
+{
+  header.set_data(false);
+  header.set_eoi(false);
+  header.set_clear(true);
+  send("");
+  header.set_clear(false);
+  header.set_data(true);
+  header.set_eoi(true);
+  //deviceClear= true;
+  //send("");
+  //deviceClear= false;
+}

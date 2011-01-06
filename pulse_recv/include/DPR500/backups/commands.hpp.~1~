@@ -1,0 +1,60 @@
+namespace ICR{
+
+  namespace pulser{
+
+
+    namespace commands{
+      class D_command{
+	std::string m_cmd;
+      public:
+	D_command();
+	operator const std::string() {return m_cmd;};
+      };
+      class I_command{
+	std::string m_cmd;
+      public:
+	I_command(const  char& i);
+	operator const std::string() {return m_cmd;};
+      };
+
+      
+      class A_command{
+	std::string m_cmd;
+      public:
+	A_command(const char& address) ;
+	operator const std::string() {return m_cmd;};
+      };
+
+      class E_command{
+	std::string m_cmd;
+      public:
+	E_command(const char& address) ;
+	operator const std::string() {return m_cmd;};
+      };
+      class Function_command{
+	std::string m_cmd;
+      public:
+	Function_command(const char& address, const char& command, const char& value, const char & channel = 0x00);
+	
+	operator const std::string() {return m_cmd;};
+
+      };
+      class Query_command{
+	std::string m_cmd;
+      public:
+	Query_command(const char& address, const char& command,  const  char& channel);
+	operator const std::string() {return m_cmd;};
+
+      };
+      
+      class QueryI_command{
+	std::string m_cmd;
+      public:
+	QueryI_command(const char& address, const char& command, const char& value, const char& channel, const char& channel_option);
+	operator const std::string() {return m_cmd;};
+
+      };
+      
+    }
+  }
+}

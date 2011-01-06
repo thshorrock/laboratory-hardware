@@ -1,0 +1,16 @@
+
+
+ICR::pulser::DPR500_com::DPR500_com(const std::string& port)
+  : ICR::coms::serial_manager(port, ...),
+    m_instrument()
+{
+  
+}
+
+ICR::pulser::DPR500_com::~DPR500_com() {};
+
+void
+ICR::pulser::DPR500_com::send(const std::string& cmd)
+{
+
+}

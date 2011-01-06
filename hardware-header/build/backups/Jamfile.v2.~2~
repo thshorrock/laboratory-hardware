@@ -1,0 +1,15 @@
+
+#header-only-library
+alias hardware-lib
+	: # -no -sources
+	: <include>../include # -no -build -requirements
+  	: # -no -default -build
+	:
+	<include>../include/
+;
+
+install  hardware-lib
+	: [ glob ../include/*.hpp ]
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;

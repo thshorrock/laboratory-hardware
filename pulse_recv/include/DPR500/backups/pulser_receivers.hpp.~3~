@@ -1,0 +1,56 @@
+#pragma once
+#include "basic_pulser_receiver.hpp"
+
+
+namespace ICR{
+
+  namespace pulser{
+    
+    /** The RPL2 pulser receiver. 
+     * The is a pulser receiver with the following parameters:
+     *   - p1
+     *   - p2
+     */
+    class RPL2 : public pulser_receiver
+    {
+      /** A typedef defining the cmd_ptr interface */
+    public: typedef boost::shared_ptr<command::PulserReceiver_cmd> cmd_ptr;
+    private:
+
+      
+
+      command::ReceiverCommandFactory m_rf;
+      command::PulserCommandFactory   m_pf;
+
+      boost::shared_ptr<command::gain>             m_gain;
+      //      boost::shared_ptr<command::high_pass_filter<command::> >  m_hpf;
+      // boost::shared_ptr<command::low_pass_filter<command:: > >  m_lpf;
+      
+
+      //Singleton pattern.
+      static boost::shared_ptr<RPL2> m_instance;
+      
+    protected:
+
+      /** Constructor. */
+      RPL2(); //protected constructor.
+    public:
+      static RPL2* Instance();
+     
+      /** Set the gain. @param gain The gain */
+      void set_gain(const short& gain){m_gain->set(gain);}
+    };
+    
+
+    class PulserReceiverFactory
+    {
+    public:
+      typedef boost::shared_ptr<pulser_receiver> pulser_receiver_ptr; 
+      
+      pulser::RPL2* make_RPL2() const 
+      {return  RPL2::Instance();} //Return the singleton to this class
+
+    };
+
+  }
+}

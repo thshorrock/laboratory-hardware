@@ -1,0 +1,21 @@
+
+#header-only-library
+alias icr/src/libs/general/stringify//stringify
+	: # -no -sources
+	: # -no -build -requirements
+  	: # -no -default -build
+	:
+	<include>../include/
+;
+
+
+import path ;
+
+install  file_sentry
+	: [ glob ../include/*.hpp ] [ glob ../include/file_sentry/*.hpp ]
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+#	  <install-dependencies>on 
+;
+#[ path.glob-tree ../include : *.hpp  : .svn ]  #
+#[ path.glob-tree $(TOP)/src/libs/general/file_sentry/include : *.hpp  : .svn ]  # ../include/file_sentry.hpp

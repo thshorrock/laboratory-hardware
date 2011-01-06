@@ -1,0 +1,29 @@
+
+project stringify/doc ;
+import boostbook : boostbook ; 
+import doxygen : doxygen ;
+
+import toolset : using ;
+using doxygen ;
+
+doxygen stringify.html : [ glob ../include/*.hpp ] 
+:
+    <doxygen:param>PROJECT_NAME=file_sentry
+    <doxygen:param>PROJECT_NUMBER=1.0	
+    <doxygen:param>OUTPUT_DIRECTORY=$(TOP)/doc/
+    <doxygen:param>HIDE_UNDOC_MEMBERS=YES
+    <doxygen:param>EXTRACT_PRIVATE=NO
+    <doxygen:param>ENABLE_PREPROCESSING=YES
+    <doxygen:param>MACRO_EXPANSION=YES
+    <doxygen:param>EXPAND_ONLY_PREDEF=YES
+    <doxygen:param>QUIET=YES
+    <doxygen:param>WARNINGS=YES
+    <doxygen:param>WARN_IF_UNDOCUMENTED=YES
+    <doxygen:param>WARN_IF_DOC_ERROR=YES
+    <doxygen:param>WARN_NO_PARAMDOC=YES
+    <doxygen:param>SHORT_NAMES=YES
+;
+
+#boostbook file_sentry : file_sentry  ;
+        
+

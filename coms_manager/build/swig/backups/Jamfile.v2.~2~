@@ -1,0 +1,31 @@
+
+rule swig_decoration ( name : type ? : property-set ) 
+{
+  ret1 =  [ MATCH (.*)_swig  :  $(name:B) ]  ;
+  return $(name:B)/_$(ret1).so ;
+} 
+
+
+
+project  hardware_agilent_swig
+	: source-location ../../src
+	: default-build <variant>releaseAMD64mp <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+
+lib hardware_agilent_swig-python :
+ 		     [ obj hardware_agilent_interface-python  : hardware_agilent.i  /lib/hardware-agilentWG : <cxxflags>-c <linkflags>-shared <linkflags>-lpython2.6 <include>/usr/include/python2.6/ 
+		       	   			       	 <main-target-type>PYTHON_WRAPPER  
+		     ]
+		     /lib/hardware-agilentWG
+		   : <cxxflags>-c <linkflags>-shared <include>/usr/include/python2.6/  <linkflags>-lpython2.6
+		     <main-target-type>PYTHON_WRAPPER
+		    <tag>@$(__name__).swig_decoration
+		     <python-debugging>off <python>2.6 <threadapi>pthread   
+		   ;
+
+install hardware_agilent_swig-python-lib : hardware_agilent_swig-python   : <location>$(TOP)/python    ;

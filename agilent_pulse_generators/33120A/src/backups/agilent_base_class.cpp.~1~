@@ -1,0 +1,411 @@
+
+#include "stdafx.h"
+#include "FPGA.hpp"
+//#include <iostream>
+//#include <boost/timer.hpp>
+//System::IO::Ports
+//using namespace System::IO::Ports;
+using namespace benchtop;
+namespace bt = benchtop;
+
+bt::agilent_class::agilent_class()
+  :
+    numReferenceFrames(5),  
+    numFramesNoBurst(1), 
+    numBursts(200),
+    resolution(4), 
+    delay(5), 
+    burst_length(10),  
+    running(false),
+
+ 
+#ifdef _MSC_VER
+    serial_port_name("COM1"),
+#else 
+    io(),
+    SerialPort(io),
+    serial_port_name("/dev/ttyS0"),
+#endif
+	//// HIFU parameters
+	//int Resolution = 4;
+	//double delayTimeStart = 9;		// in ms
+	//double delayTimeStep = 1;		// in ms
+	//double delayTimeEnd = 10;		// in ms
+	//double burstLength = 10;		// in ms
+	//int numReferenceFrames = 5;		// from 0 to 255
+	//int numFramesNoBurst = 1;		// minimum: 1, maximum: 255
+	//int numBursts = 200	;				// minimum: 1, maximum: 255
+
+
+    //gui
+    tblHIFU1(2,1,false),
+    tblHIFU2(1,2,false),
+    
+	     
+    /* Motor Stepping */
+    frmSequence("Sequence"),
+    algSequence(0,0,0,0),
+    tblSequence(3,2,false),
+    lblNoReferenceFrames(  "<small> # reference frames: </small>"), 
+    lblNoFramesNoBurst(    "<small> # frames without burst: </small>"), 
+    lblHIFUBurst(          "<small> # HIFU bursts: </small>"),
+    txtNoReferenceFrames(), txtNoFramesNoBurst(), txtHIFUBurst(),
+    
+    /* Positioning */
+    frmPulse("Pulse"),
+    algPulse(0,0,0,0),
+    tblPulse(4,3,false),
+    lblDelayTime(        "<small> delay time </small>"), 
+    lblFirst(            "<small> first </small>"), 
+    lblIncrement(        "<small> increment </small>"), 
+    lblLast(             "<small> last </small>"), 
+    lblPulseLengthHIFU(  "<small> Pulse Length HIFU </small>"),
+    txtFirst(), txtIncrement(), txtLast(), txtPulseLengthHIFU(),
+
+    bbHIFU(),
+    //bbHIFU(5,1,false),
+    cmdConnect("connect"),
+    cmdSet("set"), 
+    cmdInitialise("initialise"), 
+    cmdStart("start"), 
+    cmdStop("stop") 
+
+    
+{
+  open(); 
+};
+
+
+
+
+bt::agilent_class::~agilent_class()
+{
+
+  // stop HIFU and acquisition sequence
+  close();
+};
+
+
+void
+bt::agilent_class::connect()
+{
+
+#ifdef _MSC_VER
+  LPCTSTR com_port = _T("COM3");
+  com.Open(com_port);
+  com.Setup(CSerial::EBaud19200,CSerial::EData8,CSerial::EParNone,CSerial::EStop1);
+  com.SetupHandshaking(CSerial::EHandshakeHardware);
+
+  boost::timer time;
+  time.restart();//start the clock
+  double timeout = 5.0;
+  while(!com.IsOpen()){
+    if (time.elapsed()>timeout) throw benchtop::error::TimeoutException();
+  };
+#else
+  SerialPort.open(serial_port_name);
+  SerialPort.set_option(boost::asio::serial_port::baud_rate(19200) ); 
+  SerialPort.set_option(
+			boost::asio::serial_port::flow_control(
+							       boost::asio::serial_port::flow_control::hardware 
+							       ) 
+			);
+   boost::timer time;
+  time.restart();//start the clock
+  double timeout = 5.0;
+  while(!SerialPort.is_open()){
+    if (time.elapsed()>timeout) throw benchtop::error::TimeoutException();
+  };
+#endif
+};
+
+void
+bt::agilent_class::set_variables()
+{
+
+
+  tstring strCommand;
+  //	System::String^ strCommand;
+  unsigned int uTemp;
+			
+  //base address
+  strCommand=agilent::commands::CMD_BASE_ADDR + "256,";
+ #ifdef _MSC_VER
+  com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //control register
+  uTemp=1;//Zonare=0, Acuson=1
+  uTemp=uTemp<<1;
+  uTemp+=1;//capture all images
+  uTemp=uTemp<<1;
+  uTemp=(uTemp << 3)+ 3;//HIFU part frame, "+ 3" for radiation force image mode
+  uTemp=(uTemp<<1) + 1; // with cooling time, "+ 1"
+  uTemp=uTemp<<3;
+  strCommand=agilent::commands::CMD_CTL_REG + stringify(uTemp) + ",";
+  
+  #ifdef _MSC_VER
+  com.Write(strCommand.c_str() );
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //frame number
+  // bits 0-7: number of reference frames (0-255)
+  // bits 8-15: number of reference frames without HIFU bursts (1-255)
+  uTemp=(numFramesNoBurst << 8) + (numReferenceFrames + 1);	// no reference frame ("+ 1"), 1 frame without HIFU burst in between two bursts
+  strCommand=agilent::commands::CMD_FRM_NUM + stringify(uTemp) + ",";
+ 
+#ifdef _MSC_VER
+ com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //number of HIFU bursts
+  uTemp=numBursts;
+  strCommand=agilent::commands::CMD_IMA_PUL + stringify(uTemp) + ",";
+  
+#ifdef _MSC_VER
+com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //Treatment Time (T0 Set)
+  uTemp= 5;//not useful in RFEI mode (set to 5)
+  strCommand=agilent::commands::CMD_T0_SET + stringify(uTemp) + ",";
+ 
+#ifdef _MSC_VER
+ com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //HIFU Time (T1 Set)
+  uTemp= 3;//not useful in RFEI mode (set to 3)
+  strCommand=agilent::commands::CMD_T1_SET + stringify(uTemp) + ",";
+ 
+#ifdef _MSC_VER
+ com.Write(strCommand.c_str() );
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //Cooling Time (T2 Set)
+  uTemp= 2;//not useful in RFEI mode (set to 2)
+  strCommand=agilent::commands::CMD_T2_SET + stringify(uTemp) + ",";
+  
+#ifdef _MSC_VER
+com.Write(strCommand.c_str() );
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //Delay Time (T3 Set)
+  uTemp= (unsigned int)((delay*1000*agilent::params::BCLK)/2/resolution);//Clock=8MHz
+  strCommand=agilent::commands::CMD_T3_SET + stringify(uTemp) + ",";
+
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str() );
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //Pulse Width (T4 Set)
+  uTemp= (unsigned int)((burst_length*1000*agilent::params::BCLK)/2/resolution);//Clock=8MHz, PulseWidth_in_ms = 5
+  strCommand=agilent::commands::CMD_T4_SET + stringify(uTemp) + ",";
+
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str() );
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+
+  //clock1 (T5 Set)
+  uTemp=resolution;
+  strCommand=agilent::commands::CMD_T5_SET + stringify(uTemp) + ",";
+
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //clock2 (T6 Set)
+  uTemp=resolution;//Clock=8MHz
+  strCommand=agilent::commands::CMD_T6_SET + stringify(uTemp) + ",";
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  //Preconditioning Delay Time (T7 Set)
+  uTemp=(unsigned int)((4*1000*agilent::params::BCLK)/2/resolution);//Clock=8MHz, dPrecondiDelayTime_in_ms = 4
+  strCommand=agilent::commands::CMD_T7_SET + stringify(uTemp) + ",";
+
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif  //Amp Channel ON Enable
+  uTemp=0x0000;
+  strCommand=agilent::commands::CMD_AMP_CH_ON + stringify(uTemp) + ",";
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif  //Amp Channel ON Enable
+  //
+  //HIFU Channel Selections
+  uTemp=0xffff;
+  strCommand=agilent::commands::CMD_AMP_CH_SEL + stringify(uTemp) + ",";
+
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif  //
+
+
+
+  //set the fpga card
+ //  string strCommand;
+  strCommand=agilent::commands::CMD_INIT_agilent + ",";
+
+#ifdef _MSC_VER
+  com.Write(strCommand.c_str() );
+#else
+		    write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) ) ;
+#endif
+  //pause to let the fpga card update
+		    boost::timer pause;
+		    pause.restart();
+		    while (pause.elapsed()<0.8) {};
+
+};
+
+void
+bt::agilent_class::run(){	
+  //  System::String ^ strCommand;
+#ifdef _MSC_VER
+  string strCommand;
+  strCommand=agilent::commands::CMD_START_OP + ",";
+  com.Write(strCommand.c_str());
+  running = true;
+#endif
+};
+
+
+
+void
+bt::agilent_class::open(){
+  close(); //if running
+  connect();
+  set_variables();  //default variables
+};
+
+
+void
+bt::agilent_class::close(){
+  // start HIFU and acquisition sequence
+
+  if (running){
+    string strCommand=agilent::commands::CMD_STOP_OP + ",";
+#ifdef _MSC_VER
+    com.Write(strCommand.c_str());
+#else
+ write_with_timeout(SerialPort, boost::asio::buffer(strCommand.c_str(), strCommand.size() ) );
+#endif
+  };
+
+};
+
+
+
+/*  gui   */
+void
+bt::agilent_class::gui(Gtk::Notebook& notebook){
+  
+  Gtk::VBox      vboxHIFU;
+  Gtk::VBox      hboxHIFU;
+  
+  /* sequence */
+  /* set frame details */
+  frmSequence.set_label_align();
+  frmSequence.set_shadow_type(Gtk::SHADOW_OUT);
+  /* set label details */
+  lblNoReferenceFrames.set_use_markup(true);
+  lblNoFramesNoBurst.set_use_markup(true);
+  lblHIFUBurst.set_use_markup(true);
+  txtNoReferenceFrames.set_text("1");
+  txtNoFramesNoBurst.set_text("1");
+  txtHIFUBurst.set_text("1");
+  /* table packing */
+  tblSequence.attach( lblNoReferenceFrames, 0, 1, 0, 1);
+  tblSequence.attach( txtNoReferenceFrames, 1, 2, 0, 1);
+  tblSequence.attach( lblNoFramesNoBurst  , 0, 1, 1, 2);
+  tblSequence.attach( txtNoFramesNoBurst  , 1, 2, 1, 2);
+  tblSequence.attach( lblHIFUBurst        , 0, 1, 2, 3);
+  tblSequence.attach( txtHIFUBurst        , 1, 2, 2, 3);
+  /* add to frame */
+  frmSequence.add(algSequence);
+  algSequence.add(tblSequence);
+
+  //frmSequence.show_all_children();
+
+  /* pulse */
+  /* set frame details */
+  frmPulse.set_label_align();
+  frmPulse.set_shadow_type(Gtk::SHADOW_OUT);
+  /* set label details */
+  lblDelayTime.set_use_markup(true);
+  lblFirst.set_use_markup(true);
+  lblIncrement.set_use_markup(true);
+  lblLast.set_use_markup(true);
+  lblPulseLengthHIFU.set_use_markup(true);
+  txtFirst.set_text("4");
+  txtIncrement.set_text("1");
+  txtLast.set_text("4");
+  txtPulseLengthHIFU.set_text("8");
+
+
+  /* table packing */
+  tblPulse.attach(lblDelayTime       , 0, 1, 0, 1);
+  tblPulse.attach(lblFirst           , 1, 2, 0, 1);
+  tblPulse.attach(txtFirst           , 2, 3, 0, 1);
+  tblPulse.attach(lblIncrement       , 1, 2, 1, 2);
+  tblPulse.attach(txtIncrement       , 2, 3, 1, 2);
+  tblPulse.attach(lblLast            , 1, 2, 2, 3);
+  tblPulse.attach(txtLast            , 2, 3, 2, 3);
+  tblPulse.attach(lblPulseLengthHIFU , 1, 2, 3, 4);
+  tblPulse.attach(txtPulseLengthHIFU , 2, 3, 3, 4);
+
+  /* add to frame */
+  frmPulse.add(algPulse);
+  algPulse.add(tblPulse);
+
+  //frmPulse.show_all_children();
+
+  /* add the command boxes */
+ //  bbHIFU.attach( cmdConnect     , 0, 1, 0, 1  );
+//   bbHIFU.attach( cmdSet         , 0, 1, 1, 2  );
+//   bbHIFU.attach( cmdInitialise  , 0, 1, 2, 3  );
+//   bbHIFU.attach( cmdStart       , 0, 1, 3, 4  );
+//   bbHIFU.attach( cmdStop        , 0, 1, 4, 5  );
+
+  bbHIFU.pack_start(cmdConnect );
+  bbHIFU.pack_start(cmdSet );
+  bbHIFU.pack_start(cmdInitialise );
+  bbHIFU.pack_start(cmdStart );
+  bbHIFU.pack_start(cmdStop );
+  
+  //vboxHIFU.pack_start(frmSequence);
+  //vboxHIFU.pack_start(frmPulse);
+  //vboxHIFU.show_all_children();
+  //hboxHIFU.pack_start(vboxHIFU);
+  //boxHIFU.pack_start(bbHIFU);
+  
+  tblHIFU1.attach(frmSequence, 0,1,0,1);
+  tblHIFU1.attach(frmPulse   , 0,1,1,2);
+
+  tblHIFU2.attach(tblHIFU1, 0,1,0,1);
+  tblHIFU2.attach(bbHIFU  , 1,2,0,1);
+  
+  notebook.append_page(tblHIFU2, "HIFU control"); //hboxHIFUfrmPulse
+
+  
+};

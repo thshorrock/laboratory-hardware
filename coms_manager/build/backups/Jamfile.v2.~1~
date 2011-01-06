@@ -1,0 +1,26 @@
+
+
+project  agilentWG
+	: source-location ../src
+	: default-build <variant>releaseAMD64mp <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+#	<include>$(BOOST_BASE)/
+#	<include>$(TOP)/boost_files/
+;
+
+lib maths : 33220A.cpp 
+   # $(TOP)//gsl-library
+   # $(TOP)//serialization-library  
+              ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/maths/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;
+
+install maths-lib : maths  : <location>$(TOP)/lib  ;
+

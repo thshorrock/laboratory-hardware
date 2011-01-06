@@ -1,0 +1,29 @@
+#include <iostream>
+#include <boost/array.hpp>
+#include <boost/asio.hpp>
+
+namespace ICR{
+
+  class IPmanager
+  {
+      boost::asio::io_service m_io_service;
+  public:
+    IPmanager(const string& address)
+    {
+      ip::tcp::resolver resolver(m_io_service);
+      ip::tcp::resolver::query query("www.boost.org", "http");
+      ip::tcp::resolver::iterator iter = resolver.resolve(query);
+      ip::tcp::resolver::iterator end; // End marker.
+      while (iter != end)
+	{
+	  ip::tcp::endpoint endpoint = *iter++;
+	  std::cout << endpoint << std::endl;
+	}
+      ip::tcp::socket socket(my_io_service);
+      socket.connect(endpoint);  
+    }
+
+  };
+
+
+}

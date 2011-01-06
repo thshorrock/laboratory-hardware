@@ -1,0 +1,41 @@
+
+%module hardware_agilent
+%include stl.i
+%include "std_string.i"
+ //%apply const std::string& {std::string* foo};
+%{
+#include "agilent/33220A.hpp"
+#include "agilent/ipmanager.hpp"
+/* Include in the generated wrapper file */
+//typedef unsigned int size_t;
+%}
+
+//%naturalvar std::string;
+
+
+/* Tell SWIG about it */
+typedef unsigned int size_t;
+
+
+//interface for rng
+namespace ICR{
+
+  namespace agilent{
+    class WG33220A{
+
+    public:
+      WG33220A(const std::string& IPaddress);
+      void command(const std::string& cmd);
+    };
+  }
+
+  class IPmanager{
+
+  public:
+    IPmanager(const std::string& address, const std::string& port = "80");
+    void send(const std::string& cmd);
+    std::string recv(const std::string& cmd, const  unsigned int& buffsize = 128) ;
+    std::string timed_recv(const std::string& cmd, const  unsigned int& buffsize = 128, const double& seconds = 5) ;
+  };
+
+}  

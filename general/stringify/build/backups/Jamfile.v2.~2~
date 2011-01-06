@@ -1,0 +1,17 @@
+
+#header-only-library
+alias icr/src/libs/general/stringify//stringify
+	: # -no -sources
+	: # -no -build -requirements
+  	: # -no -default -build
+	:
+	<include>../include/
+;
+
+import path ;
+
+install  file_sentry
+	: [ glob ../include/*.hpp ]
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;

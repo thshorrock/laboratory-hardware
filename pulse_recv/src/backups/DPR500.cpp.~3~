@@ -1,0 +1,169 @@
+#include "DPR500/DPR500.hpp"
+#include "stringify.hpp"
+
+ICR::pulser::commands::D_command::D_command()
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x44);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+}
+
+
+
+ICR::pulser::commands::I_command::I_command(const  char& i)
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x49);
+  m_cmd.push_back(i);
+  m_cmd.push_back(0x00);
+}
+
+ICR::pulser::commands::A_command::A_command(const  char& address)
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x41);
+  m_cmd.push_back( address);
+  m_cmd.push_back(0x00);
+}
+
+ICR::pulser::commands::E_command::E_command(const  char& address)
+
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x45);
+  m_cmd.push_back( address);
+  m_cmd.push_back(0x00);
+}
+
+
+ICR::pulser::commands::Function_command::Function_command(const char& address, const char& command, const char& value, const char& channel)
+{
+  m_cmd.push_back( address);//bit 1
+  // if (command == "B") m_cmd.push_back(0x00);
+  // else if (command == "P" || command == "V") m_cmd.push_back(0x02);
+  // else m_cmd.push_back(0x01);
+
+  switch ((long) command) {//bit 2
+  case ((long) 'B'): m_cmd.push_back(0x00); break;
+  case ((int) 'P'): m_cmd.push_back(0x02); break;
+  case ((int) 'V'): m_cmd.push_back(0x02); break;
+   default: m_cmd.push_back(0x01); break;
+  }
+	  
+  m_cmd.push_back(command);//bit 3
+  m_cmd.push_back(value);//bit 4
+  m_cmd.push_back(channel); //bit 5
+  m_cmd.push_back(0x00);  //bit 6
+	  
+}
+
+
+ICR::pulser::commands::Query_command::Query_command(const char& address, const char& command,  const  char& channel)
+{
+  m_cmd.push_back(address);//bit 1
+  m_cmd.push_back(0x00); //bit 2
+	  
+  m_cmd.push_back(command);//bit 3
+  m_cmd.push_back(channel); //bit 4
+  m_cmd.push_back(0x00);  //bit 5
+	  
+}
+ICR::pulser::commands::QueryI_command::QueryI_command(const char& address, const char& command, const char& value, const char& channel, const char& channel_option)
+{
+  m_cmd.push_back( address);//bit 1
+  m_cmd.push_back(0x00); //bit 2
+	  
+  m_cmd.push_back(command);//bit 3
+  m_cmd.push_back(value); //bit 4
+  m_cmd.push_back(channel); //bit 5
+  m_cmd.push_back(channel_option); //bit 6
+  m_cmd.push_back(0x00);  //bit 7
+	  
+}
+
+ICR::pulser::DPR500_com::DPR500_com(const std::string& port)
+  : ICR::coms::serial_manager(port),
+    m_address(0x00)
+{
+  commands::D_command D;
+  commands::I_command I(0x00);
+  ICR::coms::serial_manager::send(D); 
+  std::string ans = ICR::coms::serial_manager::recv(I); 
+  m_address = ans[0];
+  commands::E_command E(m_address); 
+  ICR::coms::serial_manager::send(E);
+  
+}
+
+ICR::pulser::DPR500_com::~DPR500_com() {};
+
+void ICR::pulser::DPR500_com::send(const std::string& cmd)
+{
+  char command = cmd[0];
+  char channel = cmd[1];
+  char rest = (char) atoi(cmd.substr(3,cmd.size()-3).c_str());
+  commands::Function_command F(m_address, command, rest, channel);
+  ICR::coms::serial_manager::send(F);
+}
+
+std::string
+ICR::pulser::DPR500_com::recv(const std::string& cmd, const unsigned int& buffsize )
+{
+  char command;
+  switch ((int) cmd[0])   {
+  case ((int) 'B'): command = 0xE2; break;
+  case ((int) 'F'): command = 0xE6; break;
+  case ((int) 'G'): command = 0xE7; break;
+  case ((int) 'H'): command = 0xE8; break;
+  case ((int) 'I'): command = 0xE9; break;
+  case ((int) 'L'): command = 0xEC; break;
+  case ((int) 'M'): command = 0xED; break;
+  case ((int) 'O'): command = 0xEF; break;
+  case ((int) 'P'): command = 0xF0; break;
+  case ((int) 'T'): command = 0xF4; break;
+  case ((int) 'V'): command = 0xF6; break;
+  default: throw exceptions::invalid_query(); break;
+  }
+  char channel = cmd[1];
+  if (cmd[0] != 'I'){ 
+    
+    commands::Query_command F(m_address, command,  channel);
+    std::string answer =  ICR::coms::serial_manager::recv(F);
+    if (cmd[0] == 'B') return stringify(atoi(answer.substr(4,1).c_str()));
+    else return stringify(atoi(answer.substr(4,answer.size()-3).c_str()));
+    
+  }
+  else {
+    char channel = cmd[1];
+    char channel_option = cmd[2];
+    //cmd[3] = :
+    
+    char rest = (char) (atoi(cmd.substr(4,cmd.size()-4).c_str()));
+    commands::QueryI_command F(m_address, command, rest, channel, channel_option);
+    std::string answer =  ICR::coms::serial_manager::recv(F);
+    return stringify(atoi(answer.substr(4,answer.size()-4).c_str()));
+  }
+  
+}
+
+
+
+ ICR::pulser::DPR500::DPR500(const std::string& port)
+  : DPR500_com(port)
+{};
+
+
+void 
+ICR::pulser::DPR500::blink(const short& speed)
+{
+  short sp = speed;
+  if (speed<50) sp = 50;
+  if (speed>200) sp = 200;
+  send("BL:"+stringify(sp));
+
+}

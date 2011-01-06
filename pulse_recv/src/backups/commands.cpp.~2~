@@ -1,0 +1,560 @@
+#include "DPR500/DPR500.hpp"
+#include "stringify.hpp"
+
+
+
+ICR::pulser::commands::initiate_address_assignment::initiate_address_assignment()
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x44);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+}
+
+
+ICR::pulser::commands::end_address_assignment::end_address_assignment(const  char& address)
+
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x45);
+  m_cmd.push_back(address);
+  m_cmd.push_back(0x00);
+}
+
+ICR::pulser::commands::set_address::set_address(const  char& address)
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x41);
+  m_cmd.push_back(address);
+  m_cmd.push_back(0x00);
+}
+
+ICR::pulser::commands::instrument_address::instrument_address()
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x49);
+  m_cmd.push_back(0x02);
+  m_cmd.push_back(0x00);
+}
+
+std::string
+ICR::pulser::commands::instrument_address::decode(const std::string& ans)
+{
+  return ans[0]; //the address char
+}
+
+
+ICR::pulser::commands::instrument_type::instrument_type()
+{ 
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x49);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+}
+
+std::string
+ICR::pulser::commands::instrument_type::decode(const std::string& ans)
+{
+  return ans.substr(3,7);
+}
+
+
+ICR::pulser::commands::instrument_serial_number::instrument_serial_number()
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x49);
+  m_cmd.push_back(0x01);
+  m_cmd.push_back(0x00);
+}
+
+
+std::string
+ICR::pulser::commands::instrument_serial_number::decode(const std::string& ans)
+{
+  return ans.substr(3,7);
+}
+
+
+ICR::pulser::commands::instrument_firmware::instrument_firmware()
+{
+ m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x49);
+  m_cmd.push_back(0x02);
+  m_cmd.push_back(0x00);
+}
+
+
+std::string
+ICR::pulser::commands::instrument_firmware::decode(const std::string& ans)
+{
+  return ans.substring(3,4);
+}
+
+
+
+ICR::pulser::commands::DPR500_serial_number::DPR500_serial_number()
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x49);
+  m_cmd.push_back(0x03);
+  m_cmd.push_back(0x00);
+}
+
+
+std::string
+ICR::pulser::commands::DPR500_serial_number::decode(const std::string& ans)
+{
+  return ans.substring(3,7)
+}
+
+
+
+ICR::pulser::commands::
+{
+
+}
+
+
+std::string
+ICR::pulser::commands::::decode(const std::string& ans)
+{
+
+}
+
+
+ICR::pulser::commands::
+{
+
+}
+
+
+std::string
+ICR::pulser::commands::::decode(const std::string& ans)
+{
+
+}
+
+
+
+// ICR::pulser::commands::D_command::D_command()
+// {
+//   m_cmd.push_back(0x00);
+//   m_cmd.push_back(0x00);
+//   m_cmd.push_back(0x44);
+//   m_cmd.push_back(0x00);
+//   m_cmd.push_back(0x00);
+//   std::cout<<"D COMMAND"<<std::endl;
+
+//   for(size_t i=0;i<m_cmd.size();++i){
+//     std::cout<<"["<<i<<"] = "<<(int) m_cmd[i]<<std::endl;
+//   }
+// }
+
+
+
+ICR::pulser::commands::I_command::I_command(const  char& i)
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x49);
+  m_cmd.push_back(i);
+  m_cmd.push_back(0x00);
+  std::cout<<"I COMMAND"<<std::endl;
+
+  for(size_t i=0;i<m_cmd.size();++i){
+    std::cout<<"["<<i<<"] = "<<(int) m_cmd[i]<<std::endl;
+  }
+
+
+}
+
+ICR::pulser::commands::A_command::A_command(const  char& address)
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x41);
+  m_cmd.push_back( address);
+  m_cmd.push_back(0x00);
+}
+
+ICR::pulser::commands::E_command::E_command(const  char& address)
+
+{
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x00);
+  m_cmd.push_back(0x45);
+  m_cmd.push_back( address);
+  m_cmd.push_back(0x00);
+}
+
+
+ICR::pulser::commands::Function_command::Function_command(const char& address, const char& command, const char& value, const char& channel)
+{
+  m_cmd.push_back( address);//bit 1
+  // if (command == "B") m_cmd.push_back(0x00);
+  // else if (command == "P" || command == "V") m_cmd.push_back(0x02);
+  // else m_cmd.push_back(0x01);
+  
+
+  switch ((long) command) {//byte 2 //length
+  case ((long) 'B'): m_cmd.push_back(0x00); break;
+  case ((int) 'P'): m_cmd.push_back(0x02); break;
+  case ((int) 'V'): m_cmd.push_back(0x02); break;
+   default: m_cmd.push_back(0x01); break;
+  }
+	  
+  m_cmd.push_back(command);//bit 3
+  m_cmd.push_back(value);//bit 4
+  m_cmd.push_back(channel); //bit 5
+  m_cmd.push_back(0x00);  //bit 6
+	  
+}
+
+
+ICR::pulser::commands::Query_command::Query_command(const char& address, const char& command,  const  char& channel)
+{
+  m_cmd.push_back(address);//bit 1
+  m_cmd.push_back(0x00); //bit 2
+	  
+  m_cmd.push_back(command);//bit 3
+  m_cmd.push_back(channel); //bit 4
+  m_cmd.push_back(0x00);  //bit 5
+	  
+}
+ICR::pulser::commands::QueryI_command::QueryI_command(const char& address, const char& command, const char& value, const char& channel, const char& channel_option)
+{
+  m_cmd.push_back( address);//bit 1
+  m_cmd.push_back(0x00); //bit 2
+	  
+  m_cmd.push_back(command);//bit 3
+  m_cmd.push_back(value); //bit 4
+  m_cmd.push_back(channel); //bit 5
+  m_cmd.push_back(channel_option); //bit 6
+  m_cmd.push_back(0x00);  //bit 7
+	  
+}
+
+ICR::pulser::command::gain::gain(
+				 const short& measured, 
+				 const short& min, 
+				 const short& max, 
+				 const short step
+				 )
+  : 
+    m_measured(measured), m_min(min), m_max(max), m_step(step),
+    m_gain_char(max),
+    m_channel_char(0x41), //channel A
+    m_cmd()
+{
+  if (max<min) throw incorrect_input_to_gain_command();
+}
+
+void 
+ICR::pulser::command::gain::set_cmd()
+{
+  // if ( !attached_to_receiver ) throw gain_command_not_attached_to_reveiver();
+  // if ( !attached_to_DPR500 ) throw gain_command_not_attached_to_DPR500();
+  
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x67); //g
+  m_cmd.push_back(m_gain_char);
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+
+void
+ICR::pulser::command::gain::set_pulser_receiver(boost::shared_pointer<pulse_receiver> p)
+{
+  m_pr = p;
+}
+
+void 
+ICR::pulser::command::gain::update()
+{
+  m_channel_char = m_pr->get_channel_char();
+}
+
+
+void
+ICR::pulser::command::gain::set(const short& g)
+{
+  const short actual_gain = g-m_measured;
+  if (actual_gain<m_min || actual_gain>m_max) throw requested_gain_out_of_bounds();
+  m_gain_char = (char) (actual_gain +m_min);
+};
+
+
+std::string
+ICR::pulser::command::gain::decode(const std::string& ans)
+{
+  return stringify(atoi(ans[4]));
+}
+
+template<class filter_option>
+ICR::pulser::command::high_pass_filter::high_pass_filter()
+  : 
+    m_filter_char(0x00),
+    m_channel_char(0x41),
+    m_cmd(),
+    m_option(),
+{}
+
+template<class filter_option>
+void 
+ICR::pulser::command::high_pass_filter::set(enum filter_option::type& option)
+{
+  m_filter_char = char(int(option));
+}
+
+template<class filter_option>
+void 
+ICR::pulser::command::high_pass_filter::set_cmd()
+{
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x01); 
+  m_cmd.push_back(0x68); //h
+  m_cmd.push_back(m_filter_char);
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+template<class filter_option>
+void
+ICR::pulser::command::high_pass_filter::set_pulser_receiver(boost::shared_pointer<pulse_receiver> p)
+{
+  m_pr = p;
+}
+
+template<class filter_option>
+void 
+ICR::pulser::command::high_pass_filter::update()
+{
+  m_channel_char = m_pr->get_channel_char();
+}
+
+template<class filter_option>
+std::string
+ICR::pulser::command::high_pass_filter::decode(const std::string& ans)
+{
+  return stringify(atoi(ans[4]));
+}
+
+
+template<class filter_option>
+ICR::pulser::command::low_pass_filter::low_pass_filter()
+  : 
+    m_filter_char(0x00),
+    m_channel_char(0x41),
+    m_cmd(),
+    m_option(),
+{}
+
+template<class filter_option>
+void 
+ICR::pulser::command::low_pass_filter::set(enum filter_option::type& option)
+{
+  m_filter_char = char(int(option));
+}
+
+template<class filter_option>
+void 
+ICR::pulser::command::low_pass_filter::set_cmd()
+{
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x01); 
+  m_cmd.push_back(0x68); //h
+  m_cmd.push_back(m_filter_char);
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+template<class filter_option>
+void
+ICR::pulser::command::low_pass_filter::set_pulser_receiver(boost::shared_pointer<pulse_receiver> p)
+{
+  m_pr = p;
+}
+
+template<class filter_option>
+void 
+ICR::pulser::command::low_pass_filter::update()
+{
+  m_channel_char = m_pr->get_channel_char();
+}
+
+template<class filter_option>
+std::string
+ICR::pulser::command::low_pass_filter::decode(const std::string& ans)
+{
+  return stringify(atoi(ans[4]));
+}
+
+ICR::pulser::command::master::master(const bool& is_master)
+  : m_master(is_master),
+    m_channel_char(0x41),
+    m_cmd()
+{}
+ICR::pulser::command::master::set(const bool& is_master)
+{
+  if (is_master) m_master=true;
+  else m_master=false;
+}
+
+
+
+void 
+ICR::pulser::command::master::set_cmd()
+{
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x01); 
+  m_cmd.push_back(0x6D); //m
+  if (m_master()) 
+    m_cmd.push_back(0);
+  else
+    m_cmd.push_back(1);
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+
+
+
+ 
+ICR::pulser::commmand::turn_on::turn_on()
+  : m_channel_char(0x41),
+    m_cmd(),
+    m_ptr()
+{
+
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x01); 
+  m_cmd.push_back(0x6F); //o
+  m_cmd.push_back(1); //on
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+
+
+ 
+ICR::pulser::commmand::turn_on::turn_off()
+  : m_channel_char(0x41),
+    m_cmd(),
+    m_ptr()
+{
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x01); 
+  m_cmd.push_back(0x6F); //o
+  m_cmd.push_back(0); //off
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+
+
+
+void 
+ICR::pulser::command::prf::prf()
+  : m_prf(),
+    m_channel_char(0x41),
+    m_cmd(),
+    m_pr()
+{}
+
+void 
+ICR::pulser::command::prf::set(const double& frequency)
+{
+  double value = 12000000.0/frequency;
+  //round value to nearest integer
+  short s = (short) (value+0.5);
+  m_prf[0] = s;
+  m_prf[1] = s>>8;
+  set_cmd();
+}
+std::string 
+ICR::pulser::command::prf::decode(const std::string& ans)
+{
+  return stringify(atoi(ans.substr(4,2).c_str()));
+}
+
+
+
+void 
+ICR::pulser::command::prf::set_cmd()
+{
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x02); 
+  m_cmd.push_back(0x70); //p
+  m_cmd.push_back(m_prf[0]);
+  m_cmd.push_back(m_prf[1]);
+  m_cmd.push_back(m_channel_char());
+  m_cmd.push_back(0x00);
+}
+
+
+void 
+ICR::pulser::command::external_trigger::external_trigger()
+{
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x01); 
+  m_cmd.push_back(0x74); //t
+  m_cmd.push_back(1);
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+
+
+void 
+ICR::pulser::command::internal_trigger::internal_trigger()
+{
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x01); 
+  m_cmd.push_back(0x74); //t
+  m_cmd.push_back(0);
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+}
+
+
+
+
+ICR::pulser::command::voltage::voltage(const double& min, const double& max)
+  : m_voltage(),
+    m_min(min), m_max(max),
+    m_channel_char(0x41),
+    m_cmd(),
+    m_pr()
+{
+}
+void
+ICR::pulser::command::voltage::set_cmd(){
+  m_cmd.push_back(m_address);
+  m_cmd.push_back(0x02); 
+  m_cmd.push_back(0x76); //p
+  m_cmd.push_back(v_voltage[0]);
+  m_cmd.push_back(v_voltage[1]);
+  m_cmd.push_back(m_channel_char);
+  m_cmd.push_back(0x00);
+  
+}
+void
+ICR::pulser::command::voltage::set(const double& voltage)
+{
+  //round value to nearest integer
+  if (voltage<m_min || voltage>m_max)  throw exception::voltage_out_of_range();
+  short s = (short) (value+0.5);
+  m_prf[0] = s;
+  m_prf[1] = s>>8;
+  set_cmd();
+
+}

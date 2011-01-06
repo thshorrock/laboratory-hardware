@@ -1,0 +1,311 @@
+#include "lecroy/lecroy_com.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
+
+namespace L = ICR::lecroy;
+std::string
+L::coupling::get_string(const int& opt)
+{
+  switch (opt) {
+  case coupling::DC: return std::string("DC"); break;
+  case coupling::AC: return std::string("AC"); break;
+  case coupling::A1M: return std::string("A1M"); break;
+  case coupling::D1M: return std::string("D1M"); break;
+  case coupling::D50: return std::string("D50"); break;
+  case coupling::GND: return std::string("GND"); break;
+  default: throw exception::coupling_option_not_recognised();
+  }
+}
+
+std::string
+L::trigger_mode::get_string(const int& opt)
+{
+  switch (opt) {
+  case trigger_mode::AUTO: return std::string("AUTO"); break;
+  case trigger_mode::NORM: return std::string("NORM"); break;
+  case trigger_mode::SINGLE: return std::string("SINGLE"); break;
+  case trigger_mode::STOP: return std::string("STOP"); break;
+  default: throw exception::trigger_mode_not_recognised();
+  }
+}
+
+// std::string
+// L::trigger_state::get_string(const int& opt)
+// {
+//   switch (opt) {
+//   case coupling::LOW return std::string("L"); break;
+//   case coupling::HIGH: return std::string("H"); break;
+//   case coupling::L: return std::string("L"); break;
+//   case coupling::H: return std::string("H"); break;
+//   default: throw exception::trigger_state_not_recognised();
+//   }
+// }
+
+std::string
+L::trigger_type::get_string(const int& opt)
+{
+  switch (opt) {
+  case DROPOUT: return std::string("DROP"); break;
+  case EDGE: return std::string("EDGE"); break;
+  case GLITCH: return std::string("GLIT"); break;
+  case INTERVAL: return std::string("INTV"); break;
+  case STD: return std::string("STD"); break;
+  case SINGLE_SOURCE: return std::string("SNG"); break;
+  case STATE_QUALIFIED: return std::string("SQ"); break;
+  case EDGE_QUALIFIED: return std::string("TEQ"); break;
+  default: throw exception::trigger_type_not_recognised();
+  }
+}
+
+std::string
+L::trigger_hold_type::get_string(const int& opt)
+{
+  switch (opt) {
+  case TIME_GREATER_THAN: return std::string("TI"); break;
+  case TIME_WIDTH: return std::string("TL"); break;
+  case EVENTS: return std::string("EV"); break;
+  case PULSE_SMALLER_THAN: return std::string("PS"); break;
+  case PULSE_GREATER_THAN: return std::string("PL"); break;
+  case INTERVAL_SMALLER_THAN: return std::string("IS"); break;
+  case INTEVAL_GREATER_THAN: return std::string("IL"); break;
+  case PULSE_WIDTH: return std::string("P2"); break;
+  case INTERVAL_WIDTH: return std::string("I2"); break;
+  case NO_HOLD: return std::string("OFF"); break;
+  default: throw exception::trigger_hold_type_not_recognised();
+  }
+}
+std::string
+L::location::get_string(const int& opt)
+{
+  switch(opt) {
+  case C1: return std::string("C1"); break;
+  case C2: return std::string("C2"); break;
+  case C3: return std::string("C3"); break;
+  case C4: return std::string("C4"); break;
+  case F1: return std::string("F1"); break;
+  case F2: return std::string("F2"); break;
+  case F3: return std::string("F3"); break;
+  case F4: return std::string("F4"); break;
+  case F5: return std::string("F5"); break;
+  case F6: return std::string("F6"); break;
+  case F7: return std::string("F7"); break;
+  case F8: return std::string("F8"); break;
+  case M1: return std::string("M1"); break;
+  case M2: return std::string("M2"); break;
+  case M3: return std::string("M3"); break;
+  case M4: return std::string("M4"); break;
+  case ALL_DISPLAYED: return std::string("ALL_DISPLAYED"); break;
+  case EX: return std::string("EX"); break;
+  case EX10: return std::string("EX10"); break;
+  case ETM10: return std::string("ETM10"); break;
+  case FILE: return std::string("FILE"); break;
+  case HDD: return std::string("HDD"); break;
+  default: throw exception::channel_value_not_valid();
+  }
+  
+}
+// std::string
+// L::destination::get_string(const int& opt)
+// {
+//   switch(opt) {
+//   case M1: return std::string("M1"); break;
+//   case M2: return std::string("M2"); break;
+//   case M3: return std::string("M3"); break;
+//   case M4: return std::string("M4"); break;
+//   case FILE: return std::string("FILE"); break;
+//   case HDD: return std::string("HDD"); break;
+//   default: throw exception::destination_value_not_valid();
+//   }
+// }
+
+std::string
+L::store_mode::get_string(const int& opt)
+{
+  switch(opt) {
+  case NO_AUTOSAVE: return std::string("OFF"); break;
+  case FILL: return std::string("FILL"); break;
+  case WRAP: return std::string("WRAP"); break;
+  default: throw exception::store_mode_not_valid();
+  }
+}
+
+std::string
+L::store_format::get_string(const int& opt)
+{
+  switch(opt) {
+  case ASCII: return std::string("ASCII"); break;
+  case BINARY: return std::string("BINARY"); break;
+  case EXCEL: return std::string("EXCEL"); break;
+  case MATHCAD: return std::string("MATHCAD"); break;
+  case MATLAB: return std::string("MATLAB"); break;
+  default: throw exception::store_format_not_valid();
+  }
+}
+
+L::lecroy_com::lecroy_com(const std::string& IPaddress)
+  : lecroy_com_manager(IPaddress)
+{}
+
+
+void
+L::lecroy_com::set_coupling(const int& channel, const int& opt)
+{
+  std::string cmd;
+  switch (opt) {
+  case coupling::A1M: cmd = location::get_string(channel)+":CPL A1M\n"; break;
+  case coupling::D1M: cmd = location::get_string(channel)+":CPL D1M\n"; break;
+  case coupling::D50: cmd = location::get_string(channel)+":CPL D50\n"; break;
+  case coupling::GND: cmd = location::get_string(channel)+":CPL GND\n"; break;
+  default: throw exception::option_not_recognised();
+  }
+  send(cmd);
+}
+
+void
+L::lecroy_com::set_timebase(const double& timebase)
+{
+  send("TDIV "+ stringify(timebase)+"\n");
+}
+
+void
+L::lecroy_com::auto_calibrate(const bool& ac_on)
+{
+  if (ac_on) 
+    send("ACAL ON\n");
+  else 
+    send("ACAL OFF\n");
+}
+
+
+void
+L::lecroy_com::calibrate()
+{
+  std::string i = recv("*cal?\n");
+  //result should be *CAL 0
+  if (atoi(i.substr(5,1).c_str()) != 0) throw exception::calibration_failed_exception();
+}
+
+void
+L::lecroy_com::clear_memory(const int i)
+{
+  if (i<0 || i >4 ) throw exception::invalid_memory_option();
+  send("CLM M" + stringify(i) +"\n");
+}
+
+void
+L::lecroy_com::set_date()
+{
+  boost::posix_time::ptime t(boost::posix_time::second_clock::local_time());
+  std::string day = stringify(t.date().day());
+  std::string month = t.date().month().as_short_string();
+  std::string year = stringify(t.date().year());
+  std::ostringstream msg;
+  boost::posix_time::time_facet*const f=
+      new boost::posix_time::time_facet("%H,%M,%S\n");
+  msg.imbue(std::locale(msg.getloc(),f));
+  msg << "DATE "<<day <<","<<month<<","<<year<<","<< t<<"\n";
+  
+  send(msg.str());
+}
+
+void
+L::lecroy_com::set_vertical_offset(const int& channel, const double& offset)
+{
+  std::string cmd;
+  if (channel>4 || channel<1)  throw exception::channel_value_not_valid();
+  cmd = location::get_string(channel)+":OFST "+stringify(offset)+"V\n";
+  send(cmd);
+}
+
+void
+L::lecroy_com::vertical_offset_constant(const bool& off_const)
+{
+  if (off_const) 
+    send("OFCT DIV\n");
+  else
+    send("OFCT VOLTS\n");
+}
+
+void 
+L::lecroy_com::persistence(const bool& persist)
+{
+  if (persist) 
+    send("PERS ON\n");
+  else
+    send("PERS OFF\n");
+}
+
+void 
+L::lecroy_com::sequence(const int& segments, const double& max_samples)
+{
+  if (segments <= 1) 
+    send("SEQ OFF\n");
+  else
+    send("SEQ ON, "+stringify(segments) + ", "+stringify(max_samples) +"\n");
+  
+}
+
+void
+L::lecroy_com::store(const int& trace, const int& dest)
+{
+  send("STO "+location::get_string(trace) +","+ location::get_string(dest)+"\n");
+}
+void 
+L::lecroy_com::store_setup(const int& trace, const int& dest, const int& mode, const int& type
+)
+{
+  send("STST "+location::get_string(trace) + "," 
+       + location::get_string(dest)+",AUTO,"
+       + store_mode::get_string(mode)+",FORMAT,"
+       + store_format::get_string(type)+"\n");
+}
+
+void L::lecroy_com::toggle_trace(const int& trace)
+{
+  std::string ans = recv(location::get_string(trace)+":TRA?\n");
+  //returned anwer is, for example "C3:TRA ON"
+  if (ans.substr(7,2) =="ON")
+    send(location::get_string(trace)+":TRA OFF\n");
+  else
+    send(location::get_string(trace)+":TRA ON\n");
+}
+
+void L::lecroy_com::trigger_coupling(const int& channel, const int& coupling)
+{
+  std::string str_coupling;
+  switch (coupling) {
+  case coupling::DC:  str_coupling = "DC"; break;
+  case coupling::AC:  str_coupling = "AC"; break;
+  case coupling::A1M: str_coupling = "AC1M"; break;
+  case coupling::D1M: str_coupling = "DC1M"; break;
+  case coupling::D50: str_coupling = "DC50"; break;
+  default: throw exception::coupling_option_not_recognised();
+  }
+  send(location::get_string(channel)+":TRCP " + str_coupling +"\n");
+}
+
+void L::lecroy_com::trigger_delay(const double& delay)
+{
+  send("TRDL "+stringify(delay)+"\n");
+}
+
+void L::lecroy_com::trigger_level(const int& channel, const double& level)
+{
+  send(location::get_string(channel)+":TRLV "+stringify(level)+"\n");
+}
+void L::lecroy_com::trigger_select(const int& type,const int& source,const int& hold_type, const double& hold_value1, const double& hold_value2)
+{
+  std::string cmd;
+  cmd = "TRSE " + trigger_type::get_string(type) 
+    + ",SR," + location::get_string(source) 
+    + ",HT," + trigger_hold_type::get_string(source) 
+    + ",HV," + stringify(hold_value1);
+  //std::cout<<"cmd = "<<cmd<<std::endl;
+
+  if (( hold_type == trigger_hold_type::PULSE_WIDTH) ||  (hold_type ==trigger_hold_type::INTERVAL_WIDTH) ) 
+    cmd += "," +stringify(hold_value2);
+  cmd +="\n";
+  
+  //std::cout<<"cmd 2= "<<cmd<<std::endl;
+  send(cmd);
+}

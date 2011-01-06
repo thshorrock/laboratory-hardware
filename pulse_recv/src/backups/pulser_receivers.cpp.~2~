@@ -1,0 +1,90 @@
+#include "DPR500/pulser_receivers.hpp"
+
+ICR::pulser::RPL2::RPL2(
+			/* pulser */
+			const double& cal_fall_time  /*ns*/,
+			const double& cal_min_neg_pulse_amp /*V*/,
+			const double& cal_pulse_width  /*ns FWHM*/,
+			/* receiver */
+			const double& cal_gain /*db */,
+			const double& cal_high_freq_cut_off /*MHz*/
+			)
+  : pulser_receiver(), 
+    m_cmds(),
+    m_channel(channel::A),
+    attached_to_DPR500(false)
+{
+  m_gain = m_rf.gain(cal_gain, -13,66,1);
+  // m_hpf  = rf.hpf<command::>();
+  // m_lpf  = rf.lpf<command::>();
+	
+  // m_master = pf.master(true);
+  // m_prf    = pf.prf();
+  // m_voltage = pf.voltage(min,max);
+	
+  // m_internal_trig = m_pf.internal_trigger();
+  // m_external_trig = m_pf.external_trigger();
+	
+  //	attach_cmd(m_gain);
+  // attach_cmd(m_hpf);
+  // attach_cmd(m_lpf);
+  // attach_cmd(m_master);
+  // attach_cmd(m_prf);
+  // attach_cmd(m_voltage);
+  // attach_cmd(m_external_trig);
+	
+}
+
+void
+ICR::pulser::RPL2::attach_cmd(cmd_ptr c)
+{
+  m_cmds.push_back(c);
+  m_cmds.unique(); //remove duplicates
+};
+
+void
+ICR::pulser::RPL2::detach_cmd(cmd_ptr c)
+{
+  m_cmds.remove(c);
+};
+
+void ICR::pulser::RPL2::set_channel(const enum channel::type& channel)
+{
+  m_channel = channel;
+  attached_to_DPR500 = true;
+  notify(); //update the channel on all the attached commands.
+}
+
+void ICR::pulser::RPL2::detach()
+{
+  attached_to_DPR500 = false;
+}
+
+void ICR::pulser::RPL2::set_address(const char& address)
+{
+  m_address = address;
+  attached_to_DPR500 = true;
+  notify(); //update the channel on all the attached commands.
+}
+char
+ICR::pulser::RPL2::get_channel_char() const
+{ 
+  if ( !attached_to_DPR500 ) throw exceptions::pulser_receiver_not_attached_to_DPR500();
+  if ( m_channel == channel::A) 
+    return 0x41;
+  else
+    return 0x42;
+};
+
+char
+ICR::pulser::RPL2::get_address_char() const
+{ 
+  if ( !attached_to_DPR500 ) throw exceptions::pulser_receiver_not_attached_to_DPR500();
+  return m_address;
+};
+
+void
+ICR::pulser::RPL2::notify()
+{
+  for_each(m_cmds.begin(), m_cmds.end(), command::update_cmd);
+};

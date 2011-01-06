@@ -1,0 +1,26 @@
+
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+
+
+//! The main Institute of Cancer Research namespace
+namespace institute_of_cancer_research{
+
+
+  class BadConversion : public std::runtime_error {
+  public:
+    BadConversion(const std::string& s)
+      : std::runtime_error(s)
+    { }
+  };
+  
+  template<class T>
+  std::string stringify (T x)  {
+    std::ostringstream o;
+    if (!(o << x))
+      throw BadConversion("stringify()");
+    return o.str();
+  };
+
+} //namespace icr

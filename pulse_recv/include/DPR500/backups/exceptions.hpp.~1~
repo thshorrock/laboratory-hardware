@@ -1,0 +1,9 @@
+namespace ICR{
+
+  namespace pulser{
+    namespace exceptions{
+
+      struct invalid_query{};
+    }
+  }
+}

@@ -1,0 +1,46 @@
+#pragma once
+
+
+#include <iostream>
+#include <vector>
+#include <boost/optional.hpp>
+#include <boost/asio.hpp>
+#include <string>
+#include <boost/bind.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/array.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+namespace ICR{
+  namespace coms{
+    class IPmanager
+    {
+      typedef std::basic_string <unsigned char> ustring;
+      
+      boost::asio::io_service m_io_service;
+      boost::asio::ip::tcp::socket m_socket;
+      boost::system::error_code m_error;
+      
+      static
+      void set_result(boost::optional<boost::system::error_code>* a, boost::system::error_code b) 
+      { 
+	*a = b; 
+
+      } 
+    public:
+      IPmanager(const std::string& address, const std::string& port = "http");
+    
+      virtual ~IPmanager();
+    
+      virtual void send(const std::string& cmd);
+      
+      virtual std::string recv(const std::string& cmd, const unsigned int& buffsize = 128) ;
+      virtual std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5) ;
+
+      
+      template<class T>
+      std::vector<T> timed_recv(const std::vector<T>& cmd, const unsigned int& buffsize = 1);
+    };
+  }
+  
+}

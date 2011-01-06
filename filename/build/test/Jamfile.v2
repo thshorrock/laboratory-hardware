@@ -1,0 +1,33 @@
+
+import testing ;
+
+project icr/src/libs/general/get_filename/build//get_filename_test
+	: source-location ../../test 
+	: default-build <variant>releaseAMD64mp <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements 
+	  <include>../../include	
+	  <include>$(TOP)/boost_files
+	: requirements 
+	<include>../../include/
+	<include>$(TOP)/boost_files
+;
+
+
+unit-test  get_filename_test
+	  : filename_test.cpp
+	    ..//get_filename
+	    /lib/stringify 
+	    $(TOP)//gsl-library
+	    $(TOP)//testing-library
+	    $(TOP)//filesystem-library
+            $(TOP)//serialization-library 
+	  :
+	    <include>../../include/
+	    <include>$(TOP)/boost_files
+      	    <define>BOOST_TEST_DYN_LINK 
+	  ;
+
+
+
+

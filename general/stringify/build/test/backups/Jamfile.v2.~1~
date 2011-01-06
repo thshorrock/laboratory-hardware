@@ -1,0 +1,25 @@
+
+import testing ;
+
+project icr/src/libs/general/stringify//stringify_test
+	: source-location ../../test
+	: default-build <variant>releaseAMD64mp <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements 
+	  <include>../../include	
+	  <include>$(TOP)/boost_files
+	: requirements 
+	<include>../../include/
+	<include>$(TOP)/boost_files
+	#<warnings-as-errors>on
+;
+
+
+unit-test stringify_test
+	  : file_sentry_test.cpp 
+	    $(TOP)//testing-library
+	  :
+	    <include>../../include/
+	    <include>$(TOP)/boost_files
+      	    <define>BOOST_TEST_DYN_LINK 
+	  ;

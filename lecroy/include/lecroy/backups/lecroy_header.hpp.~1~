@@ -1,0 +1,232 @@
+#pragma once 
+
+#include "error.hpp"
+
+
+#include <file_sentry.hpp>
+
+#include <string>
+#include <vector>
+#include <stdexcept>
+#include <iostream>
+#include <fstream>
+
+#include <maths.hpp>
+
+
+namespace institute_of_cancer_research{
+
+  namespace hardware{
+
+    using std::string;
+    using std::vector;
+
+  
+    //! This stores the byte-locations of the various regions of the file
+    struct byte_locations
+    {
+      long begin,  //!< The beginning of the file
+	preamble, 
+	trig, 
+	ris, 
+	array_1, 
+	array_2;
+    };
+  
+#pragma pack(push, 4) // pack on 4-byte boundaries (Important!)
+    
+    
+
+
+    class lecroy{
+    private:
+      
+      string m_filename;
+
+      void load(string filename) throw (error::CannotOpenException) ;
+      void save(string filename) throw (error::CannotOpenException);
+      //clear descriptor of its size characteristics
+      void clear(void);
+
+      std::size_t size(void) const {return NOM_SUBARRAY_COUNT;};
+      std::size_t trace_size(void) const {return WAVE_ARRAY_COUNT/ NOM_SUBARRAY_COUNT;};
+
+
+      void load_z_block(std::string filename, char* );
+      void load_z2_block(std::string filename, char* );
+      void save_z_block(std::string filename,char*);
+      void save_z2_block(std::string filename,char*);
+
+      void increase_size(const int n);
+      void resize(const int n = 1);
+
+
+    
+      int begin_byte(void) const {return byte.begin;};
+      int preamble_byte(void) const {return byte.preamble;};
+      int trig_byte(void) const {return byte.trig;};
+      int ris_byte(void) const {return byte.ris;};
+      long array_1_byte(void) const {return byte.array_1;};
+      long array_2_byte(void) const {return byte.array_2;};
+
+      void begin_byte(long i){byte.begin = i;};
+      void preamble_byte(long i){byte.preamble = i;};
+      void trig_byte(long i){byte.trig = i;};
+      void ris_byte(long i){byte.ris = i;};
+      void array_1_byte(long i){byte.array_1 = i;};
+      void array_2_byte(long i){byte.array_2 = i;};
+      void set_byte_pos(void);
+
+      void set_trigger(unsigned long n, double intv, double off);
+      void set_gain(double, double);
+      double trigger_time(unsigned long n){if (n>= size()) return 0.0; else return trig_times[n].first;};
+      double trigger_offset(unsigned long n){if (n>= size()) return 0.0; else return trig_times[n].second;};
+      double ris_time(int n){return ris_times[n];};
+
+      void rev(int siz, char val[]);
+      
+    public:
+      lecroy(string filename);
+      ~lecroy();
+    
+
+
+      char DESCRIPTOR_NAME[16];
+      char TEMPLATE_NAME[16];
+      short COMM_TYPE;
+      short COMM_ORDER;
+      long WAVE_DESCRIPTOR;
+      long USER_TEXT;
+      long RES_DESC1;
+      long TRIGTIME_ARRAY;
+      long RIS_TIME_ARRAY;
+      long RES_ARRAY1;
+      long WAVE_ARRAY_1;
+      long WAVE_ARRAY_2;
+      long RES_ARRAY2;
+      long RES_ARRAY3;
+      char INSTRUMENT_NAME[16];
+      long INSTRUMENT_NUMBER;
+      char TRACE_LABEL[16];
+      short RESERVED1;
+      short RESERVED2;
+      long WAVE_ARRAY_COUNT;
+      long PNTS_PER_SCREEN;
+      long FIRST_VALID_PNT;
+      long LAST_VALID_PNT;
+      long FIRST_POINT;
+      long SPARSING_FACTOR;
+      long SEGMENT_INDEX;
+      long SUBARRAY_COUNT;
+      long SWEEPS_PER_ACQ;
+      short POINTS_PER_PAIR;
+      short PAIR_OFFSET;
+      float VERTICAL_GAIN;
+      float VERTICAL_OFFSET;
+      float MAX_VALUE;
+      float MIN_VALUE;
+      short NOMINAL_BITS;
+      short NOM_SUBARRAY_COUNT;
+      float HORIZ_INTERVAL;
+      double HORIZ_OFFSET;
+      double PIXEL_OFFSET;
+      char VERTUNIT[48];
+      char HORUNIT[48];
+      float HORIZ_UNCERTAINTY;
+      double TRIGGER_TIME_seconds;
+      char TRIGGER_TIME_minutes;
+      char TRIGGER_TIME_hours;
+      char TRIGGER_TIME_days;
+      char TRIGGER_TIME_months;
+      short TRIGGER_TIME_year;
+      short TRIGGER_TIME_unused;
+      float ACQ_DURATION;
+      short RECORD_TYPE;
+      short PROCESSING_DONE;
+      short RESERVED5;
+      short RIS_SWEEPS;
+      short TIMEBASE;
+      short VERT_COUPLING;
+      float PROBE_ATT;
+      short FIXED_VERT_GAIN;
+      short BANDWIDTH_LIMIT;
+      float VERTICAL_VERNIER;
+      float ACQ_VERT_OFFSET;
+      short WAVE_SOURCE;
+      short ENDBLOCK;
+      std::string PREAMBLE; //usertext at most 160 char
+  
+      //first bytes of each block
+
+      byte_locations byte;
+
+      std::vector<
+	std::pair<double,double>
+	> trig_times;
+    
+    std::vector<double> ris_times;
+      vec get_times() const;
+      vec get_trace(size_t i = 0) const;
+
+      string get_filename() const {return m_filename;};
+      //mat get_matrix();
+
+    };
+    inline 
+    std::ostream&  
+    operator<<(std::ofstream& out, const lecroy& lc)
+    {
+      out<<"filename = "<<lc.get_filename()
+	 <<"Descriptor = "<< lc.DESCRIPTOR_NAME;
+      
+      return out;
+    }
+   
+#pragma pack(pop)             // restore packing
+  
+    class aline
+    {
+      
+    private: 
+      vec m_t, m_trace;
+    public:
+      aline(vec t, vec trace): m_t(t), m_trace(trace) {};
+
+      vec get_times() const {return m_t;};
+      vec get_trace() const {return m_trace;};
+      size_t size() const {return m_t.size();};
+      
+    };
+
+    class lecroy_traces{
+    private:
+      vec m_times;
+      vector<vec> m_traces;
+    public:
+      lecroy_traces(const string filename);
+      lecroy_traces(const lecroy lcy) : m_times(), m_traces(){
+  push_back(lcy.get_filename());
+};
+      
+      void push_back(const string filename);
+      void push_back(const vec extra){m_traces.push_back(extra);}
+
+      vec get_times()  const {return m_times;}
+      void set_times(const vec & v)   { m_times = v;}
+      vec  get_trace(const size_t i) const {return m_traces[i];}
+      void set_trace(const vec & v, const size_t i) {m_traces[i] = v;}
+      vector<vec> get_traces() const {return m_traces;}
+
+      aline get_aline(const size_t i) const {return aline(get_times(), get_trace(i));}
+      void  set_aline(const aline& al, const size_t i)  {set_times(al.get_times()); set_trace(al.get_trace(),i);}
+      
+      aline operator()(size_t i) const {return get_aline(i);}
+      aline operator[](size_t i) const {return get_aline(i);}
+      size_t size() const {return m_traces.size();}
+    };
+    
+
+  }   //namespace hardware
+
+
+} //namespace icr

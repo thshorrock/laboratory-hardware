@@ -1,0 +1,581 @@
+
+
+
+#include "lecroy/lecroy-header.hpp"
+
+namespace icr = institute_of_cancer_research;
+
+void
+icr::hardware::lecroy::rev(int siz, char val[]){
+  //error::out("desc reverse called");
+  char tmp;
+  int ix;
+  
+  siz = siz - 1;
+  if (siz < 1) return;
+  for (ix=(siz-1)/2;ix>=0;ix=ix-1)
+    {
+      tmp = val[ix]; val[ix] = val[siz-ix]; val[siz-ix] = tmp;
+    }
+  
+}
+
+
+
+  icr::hardware::lecroy::lecroy(string filename)
+    : m_filename(filename),
+      DESCRIPTOR_NAME(), 
+      TEMPLATE_NAME(), 
+      COMM_TYPE(0), 
+      COMM_ORDER(0), 
+      WAVE_DESCRIPTOR(0), 
+      USER_TEXT(0), 
+      RES_DESC1(0), 
+      TRIGTIME_ARRAY(0), RIS_TIME_ARRAY(0), RES_ARRAY1(0), WAVE_ARRAY_1(0),
+      WAVE_ARRAY_2(0), RES_ARRAY2(0), RES_ARRAY3(0), 
+      INSTRUMENT_NAME(), INSTRUMENT_NUMBER(0), 
+      TRACE_LABEL(), 
+      RESERVED1(0), RESERVED2(0), 
+      WAVE_ARRAY_COUNT(0), 
+      PNTS_PER_SCREEN(0),
+      FIRST_VALID_PNT(0), 
+      LAST_VALID_PNT(0), 
+      FIRST_POINT(0), 
+      SPARSING_FACTOR(0), 
+      SEGMENT_INDEX(0), 
+      SUBARRAY_COUNT(0), 
+      SWEEPS_PER_ACQ(0), 
+      POINTS_PER_PAIR(0), 
+      PAIR_OFFSET(0),
+      VERTICAL_GAIN(0), 
+      VERTICAL_OFFSET(0), 
+      MAX_VALUE(0), 
+      MIN_VALUE(0), 
+      NOMINAL_BITS(0), 
+      NOM_SUBARRAY_COUNT(0), 
+      HORIZ_INTERVAL(0), HORIZ_OFFSET(0), 
+      PIXEL_OFFSET(0), VERTUNIT(), HORUNIT(), 
+      HORIZ_UNCERTAINTY(0), 
+      TRIGGER_TIME_seconds(0), TRIGGER_TIME_minutes(), TRIGGER_TIME_hours(), TRIGGER_TIME_days(), TRIGGER_TIME_months(), TRIGGER_TIME_year(0), TRIGGER_TIME_unused(0),
+      ACQ_DURATION(0), 
+      RESERVED5(0), 
+      RIS_SWEEPS(0), 
+      PROBE_ATT(0), 
+      VERTICAL_VERNIER(0), 
+      ACQ_VERT_OFFSET(0), 
+      ENDBLOCK(0), 
+      PREAMBLE(), 
+      byte()
+  {
+    try {
+      load(m_filename);
+      // std::cout<<"loaded okay!"<<std::endl;
+    }
+    catch( error::LecroyException e){
+      //std::cout<<"error found!"<<std::endl;
+      e.debug_print();
+    }
+  };
+  icr::hardware::lecroy::~lecroy()
+  {
+    try {
+      //save(m_filename);
+    }
+    catch( error::LecroyException e){
+      e.debug_print();
+    } 
+  }
+
+
+  void icr::hardware::lecroy::load(std::string filename) throw (error::CannotOpenException)
+  {
+    //std::cout<<"desc load called: "<<filename<<std::endl;
+    //input_file_sentry pIn(filename);
+    /*
+     * Scan the file for the "WAVEDESC" string because in
+     * some cases the .trc files may contain an initial def9 header before the
+     * data and then read in the descriptor.
+     */
+    try{
+      input_binary pIn(filename);
+    
+    pIn->seekg (0, std::ios::beg); 
+    char junk[256];
+    pIn->read(junk,256);
+    std::string sjunk = junk;
+    byte.begin = sjunk.find("WAVEDESC");
+    pIn->seekg (begin_byte(), std::ios::beg);  //not sure what these 11 chars are...
+    pIn->read(DESCRIPTOR_NAME,16); //sizeof(char)*16
+    pIn->read(TEMPLATE_NAME,16);
+    pIn->read((char*) &COMM_TYPE ,2);
+    pIn->read((char*) &COMM_ORDER,2);
+    pIn->read((char*) &WAVE_DESCRIPTOR,4);
+    pIn->read((char*) &USER_TEXT,4);
+    pIn->read((char*) &RES_DESC1,4);
+    pIn->read((char*) &TRIGTIME_ARRAY,4);
+    pIn->read((char*) &RIS_TIME_ARRAY,4);
+    pIn->read((char*) &RES_ARRAY1,4);
+    pIn->read((char*) &WAVE_ARRAY_1,4);
+    pIn->read((char*) &WAVE_ARRAY_2,4);
+    pIn->read((char*) &RES_ARRAY2,4);
+    pIn->read((char*) &RES_ARRAY3,4);
+    pIn->read((char*) &INSTRUMENT_NAME,16);
+    pIn->read((char*) &INSTRUMENT_NUMBER,4);
+    pIn->read((char*) &TRACE_LABEL,16);
+    pIn->read((char*) &RESERVED1,2);
+    pIn->read((char*) &RESERVED2,2);
+    pIn->read((char*) &WAVE_ARRAY_COUNT,4);
+    pIn->read((char*) &PNTS_PER_SCREEN,4);
+    pIn->read((char*) &FIRST_VALID_PNT,4);
+    pIn->read((char*) &LAST_VALID_PNT,4);
+    pIn->read((char*) &FIRST_POINT,4);
+    pIn->read((char*) &SPARSING_FACTOR,4);
+    pIn->read((char*) &SEGMENT_INDEX,4);
+    pIn->read((char*) &SUBARRAY_COUNT,4);
+    pIn->read((char*) &SWEEPS_PER_ACQ,4);
+    pIn->read((char*) &POINTS_PER_PAIR,2);
+    pIn->read((char*) &PAIR_OFFSET,2);
+    pIn->read((char*) &VERTICAL_GAIN,4);
+    pIn->read((char*) &VERTICAL_OFFSET,4);
+    pIn->read((char*) &MAX_VALUE,4);
+    pIn->read((char*) &MIN_VALUE,4);
+    pIn->read((char*) &NOMINAL_BITS,2);
+    pIn->read((char*) &NOM_SUBARRAY_COUNT,2);
+    pIn->read((char*) &HORIZ_INTERVAL,4);
+    pIn->read((char*) &HORIZ_OFFSET,8);
+    pIn->read((char*) &PIXEL_OFFSET,8);
+    pIn->read((char*) &VERTUNIT,48);
+    pIn->read((char*) &HORUNIT,48);
+    pIn->read((char*) &HORIZ_UNCERTAINTY,4);
+    pIn->read((char*) &TRIGGER_TIME_seconds,8);
+    pIn->read((char*) &TRIGGER_TIME_minutes,1);
+    pIn->read((char*) &TRIGGER_TIME_hours,1);
+    pIn->read((char*) &TRIGGER_TIME_days,1);
+    pIn->read((char*) &TRIGGER_TIME_months,1);
+    pIn->read((char*) &TRIGGER_TIME_year,2);
+    pIn->read((char*) &TRIGGER_TIME_unused,2);
+    pIn->read((char*) &ACQ_DURATION,4);
+    pIn->read((char*) &RECORD_TYPE,2);
+    pIn->read((char*) &PROCESSING_DONE,2);
+    pIn->read((char*) &RESERVED5,2);
+    pIn->read((char*) &RIS_SWEEPS,2);
+    pIn->read((char*) &TIMEBASE,2);
+    pIn->read((char*) &VERT_COUPLING,2);
+    pIn->read((char*) &PROBE_ATT,4);
+    pIn->read((char*) &FIXED_VERT_GAIN,2);
+    pIn->read((char*) &BANDWIDTH_LIMIT,2);
+    pIn->read((char*) &VERTICAL_VERNIER,4);
+    pIn->read((char*) &ACQ_VERT_OFFSET,4);
+    pIn->read((char*) &WAVE_SOURCE,2);
+  
+    if (USER_TEXT > 0)
+      pIn->read((char*) &PREAMBLE,USER_TEXT);
+    else
+      PREAMBLE="";
+  
+    for (int i = 0; i<NOM_SUBARRAY_COUNT; i++) {
+      double tmp1;
+      double tmp2;
+      pIn->read((char*) &tmp1,8);
+      pIn->read((char*) &tmp2,8);
+    
+      //std::cout<<"<t1,t2> = <"<<tmp1<<", "<< tmp2<<">"<<std::endl;
+      std::pair<double,double> tmp(tmp1,tmp2);
+      trig_times.push_back(tmp);
+    }
+    int ris = RES_DESC1; //The number of random interleaved sample/8?
+    //trigs
+    //std::cout<<"RIS SHOULD BE: "<<pIn->tellg()<<std::endl;
+    for (int i = 0; i<ris; i++) {
+      std::cout<<"RIS IS UNTESTED..."<<std::endl<<"... CHECK CAREFULLY EVERYTHING"<<std::endl;
+      double tmp1;
+      pIn->read((char*) &tmp1,8);
+      ris_times.push_back(tmp1);
+    }
+    pIn->close();
+
+    // std::cout<<"VERTUNIT "<<VERTUNIT<<std::endl;
+    //   std::cout<<"no lines "<<size()<<std::endl;
+    //   std::cout<<"source "<<WAVE_SOURCE<<std::endl;
+    //   std::cout<<"... read."<<std::endl;
+  
+  
+    if (COMM_ORDER == 0)
+      {
+	std::cout<<"REVERSE ORDER IS UNTESTED..."<<std::endl<<"... CHECK CAREFULLY EVERYTHING"<<std::endl;
+	rev(2, (char*) &COMM_TYPE);
+	rev(2, (char*) &COMM_ORDER);
+	rev(4, (char*) &WAVE_DESCRIPTOR);
+	rev(4, (char*) &USER_TEXT);
+	rev(4, (char*) &RES_DESC1);
+	rev(4, (char*) &TRIGTIME_ARRAY);
+	rev(4, (char*) &RIS_TIME_ARRAY);
+	rev(4, (char*) &RES_ARRAY1);
+	rev(4, (char*) &WAVE_ARRAY_1);
+	rev(4, (char*) &WAVE_ARRAY_2);
+	rev(4, (char*) &RES_ARRAY2);
+	rev(4, (char*) &RES_ARRAY3);
+	rev(4, (char*) &INSTRUMENT_NUMBER);
+	rev(2, (char*) &RESERVED1);
+	rev(2, (char*) &RESERVED2);
+	rev(4, (char*) &WAVE_ARRAY_COUNT);
+	rev(4, (char*) &PNTS_PER_SCREEN);
+	rev(4, (char*) &FIRST_VALID_PNT);
+	rev(4, (char*) &LAST_VALID_PNT);
+	rev(4, (char*) &FIRST_POINT);
+	rev(4, (char*) &SPARSING_FACTOR);
+	rev(4, (char*) &SEGMENT_INDEX);
+	rev(4, (char*) &SUBARRAY_COUNT);
+	rev(4, (char*) &SWEEPS_PER_ACQ);
+	rev(2, (char*) &POINTS_PER_PAIR);
+	rev(2, (char*) &PAIR_OFFSET);
+	rev(4, (char*) &VERTICAL_GAIN);
+	rev(4, (char*) &VERTICAL_OFFSET);
+	rev(4, (char*) &MAX_VALUE);
+	rev(4, (char*) &MIN_VALUE);
+	rev(2, (char*) &NOMINAL_BITS);
+	rev(2, (char*) &NOM_SUBARRAY_COUNT);
+	rev(4, (char*) &HORIZ_INTERVAL);
+	rev(8, (char*) &HORIZ_OFFSET);
+	rev(8, (char*) &PIXEL_OFFSET);
+	rev(4, (char*) &HORIZ_UNCERTAINTY);
+	rev(8, (char*) &TRIGGER_TIME_seconds);
+	rev(1, (char*) &TRIGGER_TIME_minutes);
+	rev(1, (char*) &TRIGGER_TIME_hours);
+	rev(1, (char*) &TRIGGER_TIME_months);
+	rev(1, (char*) &TRIGGER_TIME_days);
+	rev(2, (char*) &TRIGGER_TIME_year);
+	rev(2, (char*) &TRIGGER_TIME_unused);
+	rev(4, (char*) &ACQ_DURATION);
+	rev(2, (char*) &RECORD_TYPE);
+	rev(2, (char*) &PROCESSING_DONE);
+	rev(2, (char*) &RESERVED5);
+	rev(2, (char*) &RIS_SWEEPS);
+	rev(2, (char*) &TIMEBASE);
+	rev(2, (char*) &VERT_COUPLING);
+	rev(4, (char*) &PROBE_ATT);
+	rev(2, (char*) &FIXED_VERT_GAIN);
+	rev(2, (char*) &BANDWIDTH_LIMIT);
+	rev(4, (char*) &VERTICAL_VERNIER);
+	rev(4, (char*) &ACQ_VERT_OFFSET);
+	rev(2, (char*) &WAVE_SOURCE);
+      }
+    //std::cout<<"... here."<<std::endl;
+    byte.preamble  = begin_byte()    + WAVE_DESCRIPTOR;
+    byte.trig      = preamble_byte() + USER_TEXT;
+    byte.ris       = trig_byte()     + TRIGTIME_ARRAY ;
+    byte.array_1   = ris_byte()      + RIS_TIME_ARRAY;
+    byte.array_2   = array_1_byte()  + WAVE_ARRAY_1;
+  
+    //std::cout<<"... here2."<<std::endl;
+}
+    catch (error::CannotOpenException& e){
+      e.debug_print();
+    }
+  }
+
+  void icr::hardware::lecroy::save(std::string filename) throw (error::CannotOpenException)
+  {
+    std::cout<<"save called"<<std::endl;
+
+    output_binary pOut(filename);
+    /*
+     * Scan the file for the "WAVEDESC" string because in
+     * some cases the .trc files may contain an initial def9 header before the
+     * data and then read in the descriptor.
+     */ 
+      
+    pOut->seekp (0, std::ios::beg);  
+    std::string junk(begin_byte(),' ');
+    pOut->write((char*) junk.c_str(),begin_byte());
+    pOut->write((char*) DESCRIPTOR_NAME,16); //sizeof(char)*16
+    pOut->write((char*) TEMPLATE_NAME,16);
+    pOut->write((char*) &COMM_TYPE ,2);
+    pOut->write((char*) &COMM_ORDER,2);
+    pOut->write((char*) &WAVE_DESCRIPTOR,4);
+    pOut->write((char*) &USER_TEXT,4);
+    pOut->write((char*) &RES_DESC1,4);
+    pOut->write((char*) &TRIGTIME_ARRAY,4);
+    pOut->write((char*) &RIS_TIME_ARRAY,4);
+    pOut->write((char*) &RES_ARRAY1,4);
+    pOut->write((char*) &WAVE_ARRAY_1,4);
+    pOut->write((char*) &WAVE_ARRAY_2,4);
+    pOut->write((char*) &RES_ARRAY2,4);
+    pOut->write((char*) &RES_ARRAY3,4);
+    pOut->write((char*) &INSTRUMENT_NAME,16);
+    pOut->write((char*) &INSTRUMENT_NUMBER,4);
+    pOut->write((char*) &TRACE_LABEL,16);
+    pOut->write((char*) &RESERVED1,2);
+    pOut->write((char*) &RESERVED2,2);
+    pOut->write((char*) &WAVE_ARRAY_COUNT,4);
+    pOut->write((char*) &PNTS_PER_SCREEN,4);
+    pOut->write((char*) &FIRST_VALID_PNT,4);
+    pOut->write((char*) &LAST_VALID_PNT,4);
+    pOut->write((char*) &FIRST_POINT,4);
+    pOut->write((char*) &SPARSING_FACTOR,4);
+    pOut->write((char*) &SEGMENT_INDEX,4);
+    pOut->write((char*) &SUBARRAY_COUNT,4);
+    pOut->write((char*) &SWEEPS_PER_ACQ,4);
+    pOut->write((char*) &POINTS_PER_PAIR,2);
+    pOut->write((char*) &PAIR_OFFSET,2);
+    pOut->write((char*) &VERTICAL_GAIN,4);
+    pOut->write((char*) &VERTICAL_OFFSET,4);
+    pOut->write((char*) &MAX_VALUE,4);
+    pOut->write((char*) &MIN_VALUE,4);
+    pOut->write((char*) &NOMINAL_BITS,2);
+    pOut->write((char*) &NOM_SUBARRAY_COUNT,2);
+    pOut->write((char*) &HORIZ_INTERVAL,4);
+    pOut->write((char*) &HORIZ_OFFSET,8);
+    pOut->write((char*) &PIXEL_OFFSET,8);
+    pOut->write((char*) &VERTUNIT,48);
+    pOut->write((char*) &HORUNIT,48);
+    pOut->write((char*) &HORIZ_UNCERTAINTY,4);
+    pOut->write((char*) &TRIGGER_TIME_seconds,8);
+    pOut->write((char*) &TRIGGER_TIME_minutes,1);
+    pOut->write((char*) &TRIGGER_TIME_hours,1);
+    pOut->write((char*) &TRIGGER_TIME_days,1);
+    pOut->write((char*) &TRIGGER_TIME_months,1);
+    pOut->write((char*) &TRIGGER_TIME_year,2);
+    pOut->write((char*) &TRIGGER_TIME_unused,2);
+    //pOut->write((char*) &TRIGGER_TIME,6);
+    pOut->write((char*) &ACQ_DURATION,4);
+    pOut->write((char*) &RECORD_TYPE,2);
+    pOut->write((char*) &PROCESSING_DONE,2);
+    pOut->write((char*) &RESERVED5,2);
+    pOut->write((char*) &RIS_SWEEPS,2);
+    pOut->write((char*) &TIMEBASE,2);
+    pOut->write((char*) &VERT_COUPLING,2);
+    pOut->write((char*) &PROBE_ATT,4);
+    pOut->write((char*) &FIXED_VERT_GAIN,2);
+    pOut->write((char*) &BANDWIDTH_LIMIT,2);
+    pOut->write((char*) &VERTICAL_VERNIER,4);
+    pOut->write((char*) &ACQ_VERT_OFFSET,4);
+    pOut->write((char*) &WAVE_SOURCE,2);
+    //pOut->write((char*) &ENDBLOCK,2);
+      
+    pOut->write((char*) &PREAMBLE, USER_TEXT );
+      
+   
+  }
+
+
+
+
+  void icr::hardware::lecroy::increase_size(const int n)
+  {  
+    //set the appropriate variables for the new size
+    // std::cout<<"TRIGTIME_ARRAY "<<TRIGTIME_ARRAY<<std::endl;
+    //std::cout<<"WAVE_ARRAY_COUNT "<<WAVE_ARRAY_COUNT<<std::endl;
+    // std::cout<<"NOM_SUBARRAY_COUNT "<<NOM_SUBARRAY_COUNT<<std::endl;
+    // std::cout<<"WAVE_ARRAY_1 "<<WAVE_ARRAY_1<<std::endl;
+    // std::cout<<"WAVE_ARRAY_2 "<<WAVE_ARRAY_2<<std::endl;
+    // std::cout<<"COMM_TYPE "<<COMM_TYPE<<std::endl;
+
+    TRIGTIME_ARRAY += 16*n;
+    WAVE_ARRAY_COUNT += n*( WAVE_ARRAY_COUNT/NOM_SUBARRAY_COUNT) ;
+    NOM_SUBARRAY_COUNT += n;//space for one
+ 
+    WAVE_ARRAY_1 = WAVE_ARRAY_COUNT*(COMM_TYPE+1); //+
+    if (WAVE_ARRAY_2>0) WAVE_ARRAY_2 = WAVE_ARRAY_1; //+
+
+    set_byte_pos();
+    // std::cout<<"TRIGTIME_ARRAY "<<TRIGTIME_ARRAY<<std::endl;
+    //   std::cout<<"WAVE_ARRAY_COUNT "<<WAVE_ARRAY_COUNT<<std::endl;
+    //   std::cout<<"NOM_SUBARRAY_COUNT "<<NOM_SUBARRAY_COUNT<<std::endl;
+    //   std::cout<<"WAVE_ARRAY_1 "<<WAVE_ARRAY_1<<std::endl;
+    //   std::cout<<"WAVE_ARRAY_2 "<<WAVE_ARRAY_2<<std::endl;
+    //
+  }
+
+  void icr::hardware::lecroy::resize(const int n)
+  {  
+    //set the appropriate variables for the new size
+    TRIGTIME_ARRAY = 16*n;
+    WAVE_ARRAY_COUNT = n*( WAVE_ARRAY_COUNT/NOM_SUBARRAY_COUNT) ;
+    NOM_SUBARRAY_COUNT =n;//space for one
+  
+    WAVE_ARRAY_1 = WAVE_ARRAY_COUNT*(COMM_TYPE+1);
+    if (WAVE_ARRAY_2>0) WAVE_ARRAY_2 = WAVE_ARRAY_1;
+
+    set_byte_pos();
+ 
+  }
+
+  //clear the descriptor of its size characteristics only
+  void icr::hardware::lecroy::clear(void){
+    byte.begin = 0;
+  
+    TRIGTIME_ARRAY = 16;
+    RIS_TIME_ARRAY = 0;
+  
+    WAVE_ARRAY_COUNT = WAVE_ARRAY_COUNT/ NOM_SUBARRAY_COUNT;
+    //WAVE_ARRAY_COUNT = WAVE_DESCRIPTOR/ NOM_SUBARRAY_COUNT;
+    WAVE_ARRAY_1 = WAVE_ARRAY_COUNT;
+    if (WAVE_ARRAY_2>0) WAVE_ARRAY_2 = WAVE_ARRAY_1;
+    NOM_SUBARRAY_COUNT =1;//space for one
+  
+    set_byte_pos();
+    //   std::cout<<"byte.preamble "<<byte.preamble<<std::endl;
+    //   std::cout<<"byte.trig "<<byte.trig<<std::endl;
+    //   std::cout<<"byte.ris  "<<byte.ris <<std::endl;
+    //   std::cout<<"byte.array_1 "<<byte.array_1<<std::endl;
+    //   std::cout<<"byte.array_2 "<<byte.array_2<<std::endl;
+  };
+
+
+
+
+  void
+  icr::hardware::lecroy::set_byte_pos(void)
+  {
+    byte.preamble    = begin_byte()    + WAVE_DESCRIPTOR;
+    byte.trig        = preamble_byte() + USER_TEXT;
+    byte.ris         = trig_byte()     + TRIGTIME_ARRAY ;
+    byte.array_1     = ris_byte()      + RIS_TIME_ARRAY;
+  
+    byte.array_2     = array_1_byte()  + WAVE_ARRAY_1;
+
+  }
+
+  void
+  icr::hardware::lecroy::set_trigger(unsigned long n, double intv, double off)
+  {
+    std::pair<double,double> tmp(intv,off);
+    trig_times[n] = tmp;
+  }
+
+void
+icr::hardware::lecroy::set_gain( double zintv, double zoff)
+{
+  VERTICAL_GAIN   = zintv;
+    VERTICAL_OFFSET = zoff;
+  }
+
+vec 
+icr::hardware::lecroy::get_times( ) const
+{
+  double trace_size = WAVE_ARRAY_COUNT/NOM_SUBARRAY_COUNT;
+  
+  vec data;
+  data.set_size(trace_size);
+  for(size_t i=0;i<trace_size;++i){
+    data[i] = i*HORIZ_INTERVAL + HORIZ_OFFSET;
+  }
+  return data;
+
+}
+
+
+vec 
+icr::hardware::lecroy::get_trace( size_t i ) const
+{
+  input_binary IN(m_filename);
+  long trace_size = WAVE_ARRAY_COUNT/NOM_SUBARRAY_COUNT;
+  IN->seekg (array_1_byte()+ i *trace_size , std::ios::beg);
+  char* buffer = new char[trace_size];
+  IN->read (buffer,trace_size); 
+
+  //convert buffer to double.
+
+  vec data;
+  data.set_size(trace_size);
+  for(size_t i=0;i<trace_size;++i){
+    data[i] = ((double) buffer[i])*VERTICAL_GAIN+VERTICAL_OFFSET;
+    // data[i] *= VERTICAL_GAIN;
+    // data[i] += VERTICAL_OFFSET;
+  }
+  delete[] buffer;
+
+  return data;
+
+}
+
+
+void
+icr::hardware::lecroy::load_z_block(std::string filename, char* buffer)
+{
+    input_binary IN(filename);
+
+    IN->seekg (array_1_byte(), std::ios::beg);
+    long a1_size = array_2_byte() - array_1_byte(); 
+    //td::cout<<"a1_size "<<a1_size<<std::endl;
+    IN->read (buffer,a1_size);
+ 
+  }
+
+
+
+  void 
+  icr::hardware::lecroy::save_z_block(std::string filename,char* z_data)
+  {
+    io_binary pIO(filename);
+  
+    //Find the sizes of the  arrays
+    long a1_size = array_2_byte()  - array_1_byte(); 
+  
+    //read in the arrays
+    pIO->seekp(array_1_byte(),std::ios::beg);
+    pIO->write( (char*) &z_data[0], a1_size);  //array 1
+  
+  }
+
+
+
+
+  void
+  icr::hardware::lecroy::load_z2_block(std::string filename, char* z2_data)
+  {
+    io_binary pIO(filename);
+ 
+    //Find the sizes of the  arrays
+    pIO->seekg(0,std::ios::end);
+    long a2_size = (pIO->tellg()-array_2_byte()); //array
+  
+    //read in the arrays
+    pIO->seekg(array_2_byte(),std::ios::beg);
+    pIO->read( (char*) &z2_data[0],a2_size);  //array 2
+
+  }
+
+
+  void icr::hardware::lecroy::save_z2_block(std::string filename, char z2_data[0])
+  {
+
+    io_binary pIO(filename);
+
+    //Find the sizes of the  arrays
+    pIO->seekg(0,std::ios::end);
+    long a2_size = (pIO->tellg()-array_2_byte()); //array
+  
+    //read in the arrays
+    pIO->seekp( array_2_byte(),std::ios::beg);
+    pIO->write( (char*) &z2_data[0], a2_size);  //array 1
+  
+  }
+
+
+
+// icr::hardware::lecroy_traces::lecroy_traces(const lecroy lcy)
+//   : m_times(), m_traces()
+// {
+//   push_back(lcy.get_filename());
+// }
+
+ 
+icr::hardware::lecroy_traces::lecroy_traces(const string filename)
+  : m_times(), m_traces()
+{
+  push_back(filename);
+}
+
+void 
+icr::hardware::lecroy_traces::push_back(const string filename)
+{
+  lecroy l(filename);
+  m_times = l.get_times();
+  for(size_t i=0;i<l.SUBARRAY_COUNT;++i){
+    m_traces.push_back(l.get_trace(i));
+  }
+  
+  
+}

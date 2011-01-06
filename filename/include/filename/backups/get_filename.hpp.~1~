@@ -1,0 +1,24 @@
+
+
+#pragma once
+
+/** ICR namespace */
+namespace institute_of_cancer_research{
+  /** filename namespace */
+  namespace filename{
+    /**A class to obtain and analyse filenames.
+     * Often experimental variables written into filenames,
+     * this class extracts that information */
+    class filename{
+    
+    public:
+      /** A constructor.
+       *  The filename to analyse is provided as a string.
+       * @param filename. The filename to analyse.
+       */
+      filename(const string filename);
+
+    };
+ 
+  }
+}

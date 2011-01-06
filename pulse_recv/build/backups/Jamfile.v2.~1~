@@ -1,0 +1,24 @@
+
+project  DPR500CM
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+lib DPR500CM : lecroy_com_manager.cpp  lecroy_com.cpp
+     /lib/hardware-coms-manager	
+     /lib/stringify
+     $(TOP)//date_time-library
+              ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/agilent/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include  
+;
+
+install DPR500CM-lib : DPR500CM  :  <location>$(TOP)/lib   <install-type>LIB ;
+

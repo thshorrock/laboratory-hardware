@@ -1,0 +1,23 @@
+
+project  experiment1
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+#	<include>$(TOP)/boost_files/
+;
+
+
+exe experiment1 : experiment1.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+
+
+install experiment1-exe : experiment1 : <location>$(TOP)/bin ;

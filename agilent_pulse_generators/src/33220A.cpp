@@ -1,0 +1,207 @@
+
+#include <iostream>
+#include "agilent/33220A.hpp"
+#include "stringify.hpp"
+
+#define BUF_LEN 100000
+namespace WG = ICR::agilent;
+
+
+WG::WG33220A::WG33220A(const std::string& IPaddress)
+  : coms::IPmanager(IPaddress, "5025")
+{}
+WG::WG33220A::~WG33220A()
+{}
+
+void
+WG::WG33220A::load(const int option)
+{
+  std::string cmd;
+  switch (option) {
+  case WG::load::OHM50: cmd = "OUTP:LOAD 50\n";  break;
+  case WG::load::INFTY: cmd = "OUTP:LOAD INF\n"; break;
+  default: throw exception::option_not_recognised();
+  }
+  send(cmd);
+}
+
+void
+WG::WG33220A::frequency(const double f)
+{
+  std::string cmd = "FREQ "+stringify(f)+"\n";
+  send(cmd);
+}
+
+
+void
+WG::WG33220A::voltage(const double v)
+{
+  std::string cmd = "VOLT "+stringify(v)+"\n";
+  send(cmd);
+}
+
+void
+WG::WG33220A::offset(const double o)
+{
+  std::string cmd = "VOLT:OFFS "+stringify(o)+"\n";
+  std::cout<<cmd<<std::endl;
+
+  send(cmd);
+}
+
+void
+WG::WG33220A::duty_cycle(const double d)
+{
+  std::string cmd = "PULSe:DCYC "+ stringify(d)+"\n";
+
+  send(cmd);
+}
+
+
+void
+WG::WG33220A::cycles(const unsigned int cycles)
+{
+  // std::string state = recv("BM:STAT?\n"); //need to turn off if already on
+  // if (state == "1") burst_off();
+  // else
+  //   std::cout<<"state = "<<state<<std::endl;
+
+  std::string cmd = "BM:NCYC "+ stringify(cycles)+"\n";
+  send(cmd); 
+  // // state = recv("BM:STAT?\n"); //need to turn off if already on
+  // //   std::cout<<"state = "<<state<<std::endl;
+  // send("BM:STAT ON\n");
+}
+
+
+void
+WG::WG33220A::burst_on()
+{
+  send("BM:STAT ON\n");
+}
+
+void
+WG::WG33220A::burst_off()
+{
+  send("BM:STAT OFF\n");
+}
+
+
+void
+WG::WG33220A::phase(const double degrees)
+{
+  std::string cmd = "BM:PHAS "+ stringify(degrees)+"\n";
+  send(cmd);
+}
+
+void 
+WG::WG33220A::burst_int(const double rate)
+{
+  
+  std::string cmd = "BM:INT:RATE "+ stringify(rate)+"\n";
+  send(cmd);
+}
+
+void 
+WG::WG33220A::burst_ext()
+{
+  std::string cmd = "BM:SOUR EXT\n";
+  send(cmd);
+}
+
+void
+ WG::WG33220A::shape (const int option)
+{
+
+  std::string cmd;
+  switch (option) {
+  case WG::shape::SIN:    cmd = "FUNC:SHAP SIN\n"; break;
+  case WG::shape::SQUARE: cmd = "FUNC:SHAP SQU\n"; break;
+  case WG::shape::PULSE:  cmd = "FUNC:SHAP PULS\n"; break;
+  case WG::shape::TRIANGLE: cmd = "FUNC:SHAP TRI\n"; break;
+  case WG::shape::RAMP:    cmd = "FUNC:SHAP RAMP\n"; break;
+  case WG::shape::NOISE: cmd = "FUNC:SHAP NOIS\n"; break;
+  case WG::shape::DC: cmd = "FUNC:SHAP DC\n"; break;
+  case WG::shape::USER: cmd = "FUNC:SHAP USER\n"; break;
+  default: throw exception::option_not_recognised();
+  }
+  send(cmd);
+}
+
+
+void 
+WG::WG33220A::apply(const int shape, const double freq,const  double volts,const  double offset)
+{
+  std::string cmd;
+  switch (shape) {
+  case WG::shape::SIN:    cmd = "APPL:SIN "; break;
+  case WG::shape::SQUARE: cmd = "APPL:SQU "; break;
+  case WG::shape::PULSE:  cmd = "APPL:PULS "; break;
+  case WG::shape::TRIANGLE: cmd = "APPL:TRI "; break;
+  case WG::shape::RAMP:    cmd = "APPL:RAMP "; break;
+  case WG::shape::NOISE: cmd = "APPL:NOIS "; break;
+  case WG::shape::DC: cmd = "APPL:DC "; break;
+  case WG::shape::USER: cmd = "APPL:USER "; break;
+  default: throw exception::option_not_recognised();
+  }
+  cmd += stringify(freq)+", "+ stringify(volts) + ", " + stringify(offset) +"\n";
+  send(cmd);
+}
+
+void 
+WG::WG33220A::trigger(const int option)
+{
+  std::string cmd;
+  switch (option) {
+  case WG::trigger::IMMEDIATE: cmd = "TRIG:SOUR IMM\n"; break;
+  case WG::trigger::EXTERNAL:  cmd = "TRIG:SOUR EXT\n"; break;
+  case WG::trigger::BUS:       cmd = "TRIG:SOUR BUS\n"; break;
+  default: throw exception::option_not_recognised();
+  }
+  send(cmd);
+}
+
+std::string
+WG::WG33220A::error()
+{
+  std::string err = recv("SYS:ERR\n");
+  return err;
+
+}
+
+void 
+WG::WG33220A::reset()
+{
+  send("*RST;*CLS;\n");  //reset and clear error buffer
+  std::string i = recv("*OPC?\n"); //wait for errors to be cleared
+  if (atoi(i.c_str())!= 1) throw exception::failed_to_reset();
+}
+
+void
+WG::WG33220A::arb_wave(const std::string name, const float* data, const unsigned long size)
+{
+  std::cout<<"arb wave"<<std::endl;
+  std::ostringstream str;
+  str<<"DATA VOLATILE, ";
+  for(size_t i=0;i<size-1;++i){
+    str<< data[i]<<", ";
+  }
+  str<<data[size-1]<<"\n";
+  send(str.str());
+  send("DATA:COPY " +name +", VOLATILE\n");
+  send("FUNC:USER "+name+"\n");
+  send("FUNC:SHAP USER\n");
+
+
+}
+// void 
+// WG::WG33220A::arb_wave(const boost::array data)
+// {
+//   /* Download the waveform array to volatile memory.
+//      The function generator expects to receive the arb waveform data as
+//      one contiguous block. To do this, suppress the carriage return (CR)
+//      and line feed (LF) before downloading the data. */
+  
+//   // send("DATA VOLATILE, ");
+// }
+

@@ -1,0 +1,13 @@
+namespace ICR{
+  namespace coms{
+    
+    class coms_manager
+    {
+      virtual ~coms_manager(){};
+      virtual void send(const std::string& cmd);
+      virtual std::string recv(const std::string& cmd, const unsigned int& buffsize = 128) ;
+      virtual std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5) ;
+    }
+
+  }
+}

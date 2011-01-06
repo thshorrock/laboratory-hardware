@@ -1,0 +1,20 @@
+#include "lecroy.hpp"
+
+namespace L = ICR::lecroy;
+
+L::lecroy_com::lecroy_com(const std::string& IPaddress)
+  : lecroy_com_manager(IPaddress)
+{}
+
+template<int i>
+L::lecroy_com::set_coupling(int opt)
+{
+  std::string cmd;
+  switch (opt) {
+  case coupling::A1M: cmd = "C"+i+"CPL A1M\n"; break;
+  case coupling::D1M: cmd = "C"+i+"CPL D1M\n"; break;
+  case coupling::D50: cmd = "C"+i+"CPL D50\n"; break;
+  case coupling::CND: cmd = "C"+i+"CPL GND\n"; break;
+  default: throw exception:option_not_recognised();
+  }
+}

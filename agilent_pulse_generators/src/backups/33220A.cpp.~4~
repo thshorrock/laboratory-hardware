@@ -1,0 +1,51 @@
+
+#include <iostream>
+#include "agilent/33220A.hpp"
+
+#define BUF_LEN 100000
+namespace WG = ICR::agilent;
+
+
+WG::WG33220A::WG33220A(const std::string& IPaddress)
+  : coms::IPmanager(IPaddress, "5025")
+// : m_IP(IPaddress) 
+{
+  // std::cout<<"IP = "<<m_IP<<std::endl;
+  // clink = new CLINK;
+  // int ret = vxi11_open_device(m_IP.c_str(),clink);
+  // if (ret != 0) {
+  //   printf("Error: could not open device %s, quitting\n",m_IP.c_str());
+  //   exit(2);
+  // }
+  
+}
+WG::WG33220A::~WG33220A()
+{
+  // int ret;
+  // ret=vxi11_close_device(m_IP.c_str(),clink);
+};
+
+
+
+void
+WG::WG33220A::command(const std::string& cmd)
+{
+  // return *this;
+// long		bytes_returned;
+//   std::cout<<cmd<<std::endl;
+//   // cmd[strlen(cmd)-1] = 0;		// just gets rid of the \n
+//  char buf[BUF_LEN];
+//  memset(buf, 0, BUF_LEN);	// initialize buffer
+
+//   if (vxi11_send(clink, cmd.c_str()) < 0) return;
+//   if (strstr(cmd.c_str(), "?") != 0) {
+//     bytes_returned = vxi11_receive(clink, buf, BUF_LEN);
+//     if (bytes_returned > 0) {
+//       printf("%s\n",buf);
+//     }
+//     else if (bytes_returned == -15) {
+//       printf("*** [ NOTHING RECEIVED ] ***\n");
+//     }
+//     else	return;
+//   }
+}

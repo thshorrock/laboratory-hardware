@@ -1,0 +1,5 @@
+
+exe experiment1 : ../src/example1.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   				     
+     ;

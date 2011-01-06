@@ -1,0 +1,39 @@
+
+#define SERVER_PORT_NUM				1861	// port # registered with IANA for lecroy-vicp
+#define IO_NET_HEADER_SIZE			8		// size of network header
+#define ERR							(1<<15) // Error detected
+#define SMALL_DATA_BUFSIZE			8192
+#define CONNECT_TIMEOUT_SECS		2L					
+#define MAX_DEVICE_ADDR_LEN			255		// max. length of a device address string (dns address/dotted ip address)
+#define MAX_ERROR_MSG_LEN			255		// max. length of a device address string (dns address/dotted ip address)
+
+// VICP header 'Operation' bits
+#define OPERATION_DATA				0x80	
+#define OPERATION_REMOTE			0x40
+#define OPERATION_LOCKOUT			0x20
+#define OPERATION_CLEAR				0x10
+#define OPERATION_SRQ				0x08
+#define OPERATION_REQSERIALPOLL		0x04
+#define OPERATION_EOI				0x01
+
+// Header Version
+#define HEADER_VERSION1				0x01
+
+
+namespace ICR{
+
+  namespace lecroy {
+
+    class lecroy_com_manager 
+    {
+      
+
+    public:
+      send
+
+    };
+
+
+  }
+
+}

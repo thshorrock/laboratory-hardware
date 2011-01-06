@@ -1,0 +1,46 @@
+
+#include "lecroy/lecroy_com_manager.hpp"
+namespace L = ICR::lecroy;
+
+L::lecroy_com_manager::unsigned char GetNextSequenceNumber(unsigned char flags)
+{
+  // we'll return the current sequence number
+  m_lastSequenceNumber = m_nextSequenceNumber;
+
+  // which then gets incremented if this block is EOI terminated
+  if(flags & OPERATION_EOI)
+    {
+      ++m_nextSequenceNumber;
+      if(m_nextSequenceNumber >= 256)
+	m_nextSequenceNumber = 1;
+    }
+
+  return m_lastSequenceNumber;
+}
+
+L::lecroy_com_manager::add_header(const std::string& cmd)
+{
+  char* header[8];
+  header[0] = OPERATION_DATA;
+  if(eoiTermination)
+    header[0] |= OPERATION_EOI;
+  if(remoteMode)
+    header[0] |= OPERATION_REMOTE;
+  if(deviceClear)
+    header[0] |= OPERATION_CLEAR;
+  if(serialPoll)
+    header[0] |= OPERATION_REQSERIALPOLL;
+
+  header[1] = HEADER_VERSION1;
+  header[2] = GetNextSequenceNumber(header[0]);		// sequence number
+  header[3] = 0x00;	// unused
+  *((unsigned long *) &header[4]) =*((unsigned long *)  cmd.size());		// message size
+  return (std::string(header)+cmd);
+}
+
+
+L::lecroy_com_manager::send(const std::string& cmd)
+{
+  std::string full_command = add_header(cmd);
+  coms::IPmanager::send(full_command);
+}

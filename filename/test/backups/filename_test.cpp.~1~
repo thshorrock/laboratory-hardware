@@ -1,0 +1,38 @@
+
+#include <boost/progress.hpp>
+#include <boost/timer.hpp>
+
+#define BOOST_TEST_MODULE maths_tests
+#include <boost/test/unit_test.hpp>
+
+#include "maths.hpp"
+
+namespace icr = institute_of_cancer_research;
+
+using namespace icr;
+
+
+
+//____________________________________________________________________________//
+
+
+
+
+
+
+BOOST_AUTO_TEST_SUITE( FILENAME_SUITE )
+BOOST_AUTO_TEST_CASE( directory_test )
+{ 
+
+
+}
+
+
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+//____________________________________________________________________________//
+
+
+

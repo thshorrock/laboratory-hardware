@@ -1,0 +1,60 @@
+#pragma once;
+
+namespace ICR{
+
+  namespace pulser{
+    //forward declaration.
+    class DPR500;
+    
+    
+    /** Pulser receiver interface.
+     * An interface to all the pulsers and receivers that attach to the DPR500.
+     * Commands are attached and detached from the pulser / receiver.
+     * These are then called by the DPR500 by using the get_commands() member.
+     * Changes to the pulser-reveiver, such as a change of channel,
+     * are propagated to the attached commands via the notify method.
+     */
+    class pulser_receiver
+    {
+      /** A typdef to the the pulser receiver command pointer. */
+      typedef boost::shared_ptr<command::PulserReceiver_cmd> command_ptr;
+    protected:
+      /** Notify the commands attached to the pulser/receiver of 
+       * changes - such as a change in channel.
+       */
+      virtual void notify() = 0;
+      /** Attach a command to the pulser / receiver.
+       * @param command_ptr The command to be attached.
+       */
+      virtual void attach_cmd(command_ptr) = 0;
+      /** Detach a command to the pulser / receiver.
+       * @param command_ptr The command to be attached.
+       */
+      virtual void detach_cmd(command_ptr) = 0;
+	
+      /** Set the channel of the pulser / receiver.
+       * @param channel The channel.
+       */
+      virtual void set_channel(const enum channel::type& channel) = 0;
+      
+      /** Detach the pulser/receiver from the DPR500 */
+      virtual void detach() = 0;
+	
+      /** Set the channel of the pulser / receiver.
+       * @param address The address of the DPR500.
+       */
+      virtual void set_address(const char& address) = 0;
+      
+      /** Get the commands attached to the reveiver */
+      virtual std::list<boost::shared_ptr<command::PulserReceiver_cmd> > get_commands()=0;
+     
+      /** If attached to the DPR500, return the channel character @return the channel. */
+      virtual char get_channel_char() = 0;
+      
+      /** If attached to the DPR500, return the address character @return the address. */
+      virtual char get_address_char() = 0;
+    public:
+      friend class pulser::DPR500;
+    };
+  }
+}

@@ -1,0 +1,104 @@
+
+
+#pragma once
+#include <boost/regex.hpp>
+#include <iostream>
+#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include <string>
+#include <vector>
+#include <list>
+
+/** ICR namespace */
+namespace institute_of_cancer_research{
+  /** filename namespace */
+  namespace filename{
+    using std::string;
+    using std::vector;
+    using std::list;
+    /**A class to obtain and analyse filenames.
+     * Often experimental variables written into filenames,
+     * this class extracts that information */
+    class file{
+    boost::filesystem::path m_path;
+    public:
+      /** A constructor.
+       *  The filename to analyse is provided as a string.
+       * @param filename The filename to analyse.
+       */
+      file(const string filename);
+
+      /** Pull out the numbers within the filename.
+       * These often correspond to experimental variables.
+       */
+      vector<string>
+      decode(void);
+
+      /** Return the stub of the filename.
+       * (i.e. before the final . (dot) marking an extension.
+       * @return A string of the stub.
+       */
+      string 
+      stub() const {return m_path.stem();};
+
+      /** Return the extension of the filename.
+       * (i.e. after the final . (dot) marking an extension.
+       * @return A string of the extension.
+       */
+      string 
+      extension() const {return m_path.extension();};
+
+      /** Return the full directory of the filename.
+       * @return A string of the directory.
+       */
+      string 
+      get_directory() const {
+	if (m_path.parent_path().file_string()  != "") {
+	  return m_path.parent_path().file_string() + "/";
+	}
+	
+	return m_path.parent_path().file_string();
+      };
+
+      /** Return the full filename.
+       * @return A string of the full path.
+       */
+      string 
+      full() const {boost::filesystem::path p = boost::filesystem::system_complete(m_path); return p.file_string();};
+
+
+    };
+    /** A class to handle directory information.
+     */
+    class directory{
+      boost::filesystem::path m_path;
+    public:
+      /** A constructor.
+       * @param directory The directory to consider.
+       */
+      directory(const string directory);
+      
+      /** Get all the files in the directory.
+       * @return A vector containing all the filenames
+       */
+      list<string>
+      get_filenames() const;
+
+      /** Get the pathname of the directory.
+       */
+      string
+      get_directory() const {return m_path.file_string();};
+
+      /*  WISH-LIST Goto (and create if necessary the relative path.
+       * @param path the relative path
+       * @return The directory located in the requested path.
+       */
+      //directory& operator/= (const std::string path);
+
+    };
+
+    
+    
+  }
+}
+
+

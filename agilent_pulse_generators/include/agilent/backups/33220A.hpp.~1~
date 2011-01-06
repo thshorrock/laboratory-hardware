@@ -1,0 +1,17 @@
+
+
+namespace ICR {
+  namespace agilent{
+    
+    class WG33220A{
+      
+    public:
+      WG33220A() {};
+      ~WG33220A() {};
+      void command(const string& cmd);
+
+
+    }
+
+  }
+}

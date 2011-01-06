@@ -1,0 +1,16 @@
+#include "coms_manager/serial_manager.hpp"
+
+namespace ICR{
+
+  namespace pulser{
+    
+    class DPR500 : public ICR::coms::serial_manager
+    {
+
+
+
+    }
+
+  }
+
+}

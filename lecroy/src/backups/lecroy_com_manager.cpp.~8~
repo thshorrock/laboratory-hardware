@@ -1,0 +1,87 @@
+#include <bitset>
+#include <limits>
+#include <vector>
+#include "lecroy/lecroy_com_manager.hpp"
+namespace L = ICR::lecroy;
+
+void
+L::lecroy_header::set_operation()
+{
+  unsigned char       op = 0x00;
+  
+  if (m_data)         op |= ( 1 << 7 );
+
+  if (m_remote)       op |= ( 1 << 6 );
+  if (m_lockout)      op |= ( 1 << 5 );
+  if (m_clear)        op |= ( 1 << 4 );
+  if (m_srq)          op |= ( 1 << 3 );
+  if (m_serial_poll)  op |= ( 1 << 2 );
+  if (m_eoi)          op |= ( 1 << 0 );
+  m_header[0] = op;
+}
+
+L::lecroy_header::lecroy_header(const bool& eol, const bool& lock)
+  :  m_header(),
+     m_data(true), m_remote(true), m_lockout(lock),
+     m_clear(false), m_srq(false),
+     m_serial_poll(false), m_eoi(eol),
+     m_version(1),
+     m_sequence_number(0)
+{}
+
+void
+L::lecroy_header::set_length(const std::string& cmd)
+{
+  int VICP_HEADER_LSB_OFFSET = 7;
+  int VICP_HEADER_MSB_OFFSET = 4;
+  int i = VICP_HEADER_LSB_OFFSET;
+  unsigned long length = cmd.size();
+
+  for ( ; i >= VICP_HEADER_MSB_OFFSET; length >>= 8, i-- )
+        m_header[ i ] = length & 0xFF;
+
+}
+
+void
+L::lecroy_header::set_sequence(){
+  
+    if ( ++m_sequence_number == 0 )
+        m_sequence_number++;
+
+    m_header[2] = m_sequence_number;
+}
+
+void
+L::lecroy_header::set_version()
+{
+  /* The 'header_version' field is a number - currently only 1 is an acceptable
+     value (protocol version 1A is treated as a subversion of version 1). */
+  m_version = 1;
+  m_header[1] = m_version;
+}
+
+std::string 
+L::lecroy_header::add(const std::string& cmd)
+{
+  set_operation();
+  set_version();
+  set_sequence();
+  set_length(cmd);
+  
+  std::string header(" ", 8);
+  std::copy(m_header.begin(), m_header.end(), header.begin());
+  header.append(cmd);
+  //std::string full_cmd =  header+cmd;
+  return header; //full_cmd;
+}
+
+//std::string
+// L::lecroy_com_manager::serial_poll_byte() 
+// {
+//   //header.set_clear(true);
+//   ///serialPoll=true;
+//   //std::string ret = timed_recv("", 3, 3);
+//   //serialPoll=false;
+//   //return ret;
+
+// }

@@ -1,0 +1,88 @@
+#include "DPR500/pulser_receivers.hpp"
+
+boost::shared_ptr<ICR::pulser::RPL2> ICR::pulser::RPL2::m_instance; // = 0;
+
+ICR::pulser::RPL2::RPL2()
+  : pulser_receiver(), 
+    m_cmds(),
+    m_channel(channel::A),
+    attached_to_DPR500(false)
+{
+  m_gain = m_rf.gain(30, -13,66,1);
+  // m_hpf  = rf.hpf<command::>();
+  // m_lpf  = rf.lpf<command::>();
+	
+  // m_master = pf.master(true);
+  // m_prf    = pf.prf();
+  // m_voltage = pf.voltage(min,max);
+	
+  // m_internal_trig = m_pf.internal_trigger();
+  // m_external_trig = m_pf.external_trigger();
+	
+  //	attach_cmd(m_gain);
+  // attach_cmd(m_hpf);
+  // attach_cmd(m_lpf);
+  // attach_cmd(m_master);
+  // attach_cmd(m_prf);
+  // attach_cmd(m_voltage);
+  // attach_cmd(m_external_trig);
+	
+}
+
+ICR::pulser::RPL2*
+ICR::pulser::RPL2::Instance()
+{
+  if (m_instance == 0) 
+    m_instance =  boost::shared_ptr<RPL2>(new RPL2());
+  return m_instance.get();
+}
+
+void
+ICR::pulser::RPL2::attach_cmd(cmd_ptr c)
+{
+  c->set_pulser_receiver(this);
+  m_cmds.push_back(c);
+  m_cmds.unique(); //remove duplicates
+};
+
+void
+ICR::pulser::RPL2::detach_cmd(cmd_ptr c)
+{
+  m_cmds.remove(c);
+};
+
+void ICR::pulser::RPL2::set_state(const enum channel::type& channel, const char& address)
+{
+  m_channel = channel;
+  m_address = address;
+  attached_to_DPR500 = true;
+  notify(); //update the channel on all the attached commands.
+}
+
+void ICR::pulser::RPL2::detach()
+{
+  attached_to_DPR500 = false;
+}
+
+char
+ICR::pulser::RPL2::get_channel_char() const
+{ 
+  if ( !attached_to_DPR500 ) throw exceptions::pulser_receiver_not_attached_to_DPR500();
+  if ( m_channel == channel::A) 
+    return 0x41;
+  else
+    return 0x42;
+};
+
+char
+ICR::pulser::RPL2::get_address_char() const
+{ 
+  if ( !attached_to_DPR500 ) throw exceptions::pulser_receiver_not_attached_to_DPR500();
+  return m_address;
+};
+
+void
+ICR::pulser::RPL2::notify()
+{
+  for_each(m_cmds.begin(), m_cmds.end(), command::update_cmd);
+};

@@ -1,0 +1,85 @@
+#include "lecroy.hpp"
+#include "agilent.hpp"
+#include "DPR500.hpp"
+#include "filename.hpp"
+#include "readme.hpp"
+#include "stringify.hpp"
+#include "boost/progress.hpp"
+
+int
+main  (int ac, char **av)
+{
+  
+  //Equipment
+  lecroy_64Xi     scope("10.0.0.10");
+  WG33120A       bus_sync("/dev/ttyUSB0");
+  WG33220A<agilent::IP>  driving_pulse("10.0.0.20");
+
+
+  //BUS
+  bus_sync.shape(shape::SQUARE);
+  bus_sync.trigger(trigger::BUS);
+  bus_sync.burst_on();
+
+  int driving_cycles = 10;
+  double driving_frequency = 0.5e6;
+  double driving_offset = 0.0 ;
+  double driving_voltage = 0.01;
+  double driving_phase = 0.0;
+
+  //DRIVING PULSE
+  driving_pulse.shape(shape::SIN);
+  driving_pulse.frequency(driving_frequency);
+  driving_pulse.burst_ext(edge::POSITIVE);
+  driving_pulse.cycles(driving_cycles);
+  driving_pulse.phase(driving_phase);
+  driving_pulse.voltage(driving_voltage);  //range from 0.2 to 0.35
+  driving_pulse.offset(driving_offset);
+  driving_pulse.burst_on();
+  
+  //LECROY SETUP
+  scope.set_date();
+  scope.sequence(2,lecroy_samples);
+  scope.trigger_mode(trigger_mode::NORM);
+
+
+  try{
+    scope.demand_fresh_aquisition();
+  }
+  catch(ICR::lecroy::exception::could_not_get_fresh_aquisition& e){
+    /* missed the trigger for some reason, 
+     * retrigger.
+     */
+    std::cout<<"could not get aquisition, retrying"<<std::endl;
+    bus_sync.trigger_now();
+  }
+
+
+  
+  scope.auto_calibrate(false);
+
+
+  for(int i=0;i<repeats;++i){
+      
+    //Trigger	
+    bus_sync.trigger_now();
+    lecroy_file file;
+      
+    // scope.wait();
+    try{
+      //std::cout<<"getting waveform"<<std::endl;
+
+      file =  scope.get_waveform(C4);
+    }
+    catch(ICR::lecroy::exception::could_not_get_fresh_aquisition& e){
+      /* missed the trigger for some reason, 
+       * retrigger.
+       */
+      std::cout<<"could not get aquisition, retrying"<<std::endl;
+
+      bus_sync.trigger_now();
+	
+      file =  scope.get_waveform(C4);
+    }
+  }
+}

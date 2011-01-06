@@ -1,0 +1,424 @@
+#include "enums.hpp"
+
+namespace ICR{
+
+  namespace pulser{
+
+
+    namespace commands{
+      
+      struct cmd
+      {
+	virtual operator const std::string() = 0;
+      };
+
+      
+      struct recv_cmd : public cmd
+      {
+	virtual operator const std::string() = 0;
+	virtual size_t reply_size() = 0;
+	virtual std::string decode(const std::string) = 0;
+      };
+
+      class receiver_cmd
+      {
+      protected:
+	void update() = 0;
+      public:
+      }
+
+      
+
+      class initiate_address_assignment : public cmd{
+	std::string m_cmd;
+      public:
+	initiate_address_assignment();
+	operator const std::string() {return m_cmd;};
+      };
+
+      class end_address_assignment : public cmd{
+	std::string m_cmd;
+      public:
+	end_address_assignment(const char& address);
+	operator const std::string() {return m_cmd;};
+      };
+
+      class set_address: public cmd{
+	std::string m_cmd;
+      public:
+	set_address(const char&);
+	operator const std::string() {return m_cmd;};
+      };
+
+      class instrument_address : public recv_cmd{
+	std::string m_cmd;
+      public:
+	instrument_address();
+	operator const std::string() {return m_cmd;};
+	size_t reply_size() const {return 6;}
+	std::string decode(const std::string);
+      };
+      
+      class instrument_type : public recv_cmd{
+	std::string m_cmd;
+      public:
+	instrument_type();
+	operator const std::string() {return m_cmd;};
+	size_t reply_size() const {return 9;}
+	std::string decode(const std::string);
+      };
+
+      class instrument_serial_number : public recv_cmd{
+	std::string m_cmd;
+      public:
+	instrument_serial_number();
+	operator const std::string() {return m_cmd;};
+	size_t reply_size() const {return 9;}
+	std::string decode(const std::string);
+      };
+
+
+      class instrument_firmware : public recv_cmd{
+	std::string m_cmd;
+      public:
+	instrument_firmware();
+	operator const std::string() {return m_cmd;};
+	size_t reply_size() const {return 6;}
+	std::string decode(const std::string);
+      };
+
+
+      class DPR500_serial_number : public recv_cmd{
+	std::string m_cmd;
+      public:
+	DPR500_serial_number();
+	operator const std::string() {return m_cmd;};
+	size_t reply_size() const {return 9;}
+	std::string decode(const std::string);
+      };
+
+	
+      // class I_command{
+      // 	std::string m_cmd;
+      // public:
+      // 	I_command(const  char& i);
+      // 	operator const std::string() {return m_cmd;};
+      // };
+
+      
+      // class A_command{
+      // 	std::string m_cmd;
+      // public:
+      // 	A_command(const char& address) ;
+      // 	operator const std::string() {return m_cmd;};
+      // };
+
+      // class E_command{
+      // 	std::string m_cmd;
+      // public:
+      // 	E_command(const char& address) ;
+      // 	operator const std::string() {return m_cmd;};
+      // };
+      // class Function_command{
+      // 	std::string m_cmd;
+      // public:
+      // 	Function_command(const char& address, const char& command, const char& value, const char & channel = 0x00);
+	
+      // 	operator const std::string() {return m_cmd;};
+
+      // };
+      class Query_command{
+	std::string m_cmd;
+      public:
+	Query_command(const char& address, const char& command,  const  char& channel);
+	operator const std::string() {return m_cmd;};
+
+      };
+      
+      class QueryI_command{
+	std::string m_cmd;
+      public:
+	QueryI_command(const char& address, const char& command, const char& value, const char& channel, const char& channel_option);
+	operator const std::string() {return m_cmd;};
+
+      };
+      
+      
+      class gain : public recv_cmd, public receiver_cmd
+      {
+	boost::scoped_ptr<pulser_receiver> m_pr;  //reference to pulser-receiver that owns this gain command.
+	
+	short m_min, m_max, m_measured, m_step;
+	char m_gain_char;
+	char m_channel_char;
+	std::string m_cmd;
+
+      protected:
+	void update();
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p);
+	void set_cmd();
+      public:
+	gain(const short& measured, const short& min, const short& max, const short step = 1);
+	virtual void set(const short& gain);
+	  
+	virtual operator const std::string() {return m_cmd;}
+	virtual size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&);
+      };
+
+      class high_pass1{
+      public:
+	enum type {ten_KHz, one_MHz, twopointfive_MHz, five_MHz, sevenpointfive_MHz};
+      }
+
+      class low_pass1{
+      public:
+	enum type {sevenpointfive_MHz, ten_MHz, fifteen_MHz, twentytwopointfive_MHz, fiftyMHz};
+      }
+
+      template<class filter_option>
+      class high_pass_filter : public recv_cmd
+      {	
+	char m_filter_char;
+	char m_channel_char;
+	std::string m_cmd;
+	filter_option m_option;
+	
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update();
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p);
+	void set_cmd();
+      public:
+	high_pass_filter()
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&);
+      };
+
+      class low_pass_filter : public recv_cmd
+      {
+	char m_filter_char;
+	char m_channel_char;
+	std::string m_cmd;
+	filter_option m_option;
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update();
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p);
+	void set_cmd();
+      public:
+	low_pass_filter()
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&);
+      };
+
+      class master  : public recv_cmd
+      {
+	bool m_master;
+	char m_channel_char;
+	std::string m_cmd;
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update() {m_channel_char = m_pr->get_channel_char();}
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p){m_pr = p;}
+	void set_cmd();
+      public:
+	master(const bool& is_master);
+	set(const bool& is_master);
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&){ return stringify(atoi(ans[4]));}
+      };
+
+
+      class turn_on : public recv_cmd
+      {
+	char m_channel_char;
+	std::string m_cmd;
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update() {m_channel_char = m_pr->get_channel_char();};
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p){m_pr = p;}
+      public:
+	turn_on();
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&){ return stringify(atoi(ans[4]));};
+      };
+
+      class turn_off : public recv_cmd
+      {
+	char m_channel_char;
+	std::string m_cmd;  
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update(){m_channel_char = m_pr->get_channel_char();}
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p){m_pr = p;}
+      public:
+	turn_off();
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&){return stringify(atoi(ans[4]));}
+      };
+
+
+
+      class prf : public recv_cmd
+      {
+	boost::array<char,2> m_prf;
+	char m_channel_char;
+	std::string m_cmd;
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update() {m_channel_char = m_pr->get_channel_char();}
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p){m_pr = p;}
+	void set_cmd();
+      public:
+	prf();
+	set(const double& frequency);
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 6;};
+	virtual std::string decode(const std::string&);
+      };
+
+
+      class external_trigger : public recv_cmd
+      {
+	char m_channel_char;
+	std::string m_cmd;
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update() {m_channel_char = m_pr->get_channel_char();}
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p){m_pr = p;}
+      public:
+	external_trigger()
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&){return stringify(atoi(ans[4]));}
+      };
+
+      class internal_trigger : public recv_cmd
+      {
+	char m_channel_char;
+	std::string m_cmd;
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update() {m_channel_char = m_pr->get_channel_char();}
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p){m_pr = p;}
+      public:
+	external_trigger()
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 5;};
+	virtual std::string decode(const std::string&){return stringify(atoi(ans[4]));}
+      };
+
+
+      class voltage : public recv_cmd
+      {
+	boost::array<char,2> m_voltage;
+	double m_min, m_max;
+	char m_channel_char;
+	std::string m_cmd;
+	boost::scoped_ptr<pulser_receiver> m_pr;
+      protected:
+	void update() {m_channel_char = m_pr->get_channel_char();}
+	void set_pulser_receiver(boost::shared_pointer<pulse_receiver> p){m_pr = p;}
+	void set_cmd();
+      public:
+	voltage(const double& min, const double& max);
+	void set(const double& v);
+	operator const std::string() {return m_cmd;}
+	size_t reply_size() const {return 6;};
+	virtual std::string decode(const std::string&){return stringify(atoi(ans[4]));}
+      };
+
+      class InitiationFactory
+      {
+	
+	
+      public:
+	typedef boost::shared_ptr<cmd> cmd_ptr;
+	typedef boost::shared_ptr<recv_cmd> recv_cmd_ptr;
+	
+	boost::shared_ptr<initiate_address_assignment> 
+	initiate_address_assignment()  //cmd_ptr
+	{return boost::shared_ptr<initiate_address_assignment>( new initiate_address_assignment );}
+	
+	boost::shared_ptr<end_address_assignment> 
+	end_address_assignment() //cmd_ptr
+	{return boost::shared_ptr<end_address_assignment> ( new end_address_assignment );}
+	
+	boost::shared_ptr<set_address> 
+	set_address(const short int& i) //cmd_ptr
+	{return boost::shared_ptr<set_address> ( new set_address(i) );}
+	
+	boost::shared_ptr<instrument_address> 
+	instrument_address()
+	{return boost::shared_ptr<instrument_address>( new instrument_address );}
+	
+	boost::shared_ptr<instrument_type> 
+	instrument_type()
+	{return boost::shared_ptr<instrument_type> ( new instrument_type );}
+
+	boost::shared_ptr<instrument_serial_number> 
+	instrument_serial_number()
+	{return boost::shared_ptr<instrument_serial_number> ( new instrument_serial_number );}
+	
+	boost::shared_ptr<instrument_firmware> 
+	instrument_firmware()
+	{return boost::shared_ptr<instrument_firmware> ( new instrument_firmware );}
+	
+	boost::shared_ptr<DPR500_serial_number> 
+	DPR500_serial_number()
+	{return boost::shared_ptr<DPR500_serial_number> ( new DPR500_serial_number );}
+      }
+
+      
+	class ReceiverCommandFactory
+	{
+	public:
+	  typedef boost::shared_ptr<cmd> command;
+	  typedef boost::shared_ptr<command::recv_cmd> recv_cmd_ptr;
+
+	  ReceiveCommandFactory();
+	 
+	  boost::shared_ptr<command::gain>
+	  gain() 
+	  {return boost::shared_ptr<command::gain>();}
+	  
+	  return boost::shared_ptr<command::high_pass_filter>
+	  high_pass_filter() 
+	  {return boost::shared_ptr<command::high_pass_filter>(m_receiver);}
+	  
+	  boost::shared_ptr<command::low_pass_filter>
+	  low_pass_filter() 
+	  {return boost::shared_ptr<command::low_pass_filter>(m_receiver);}
+
+	  boost::shared_ptr<command::master>
+	  master() 
+	  {return boost::shared_ptr<command::master>(m_receiver);}
+	  
+	  boost::shared_ptr<command::on_off>
+	  on_off()
+	  {return boost::shared_ptr<command::on_off>(m_receiver);}
+	  
+	  boost::shared_ptr<command::prf>
+	  prf  
+	  {return boost::shared_ptr<command::prf>(m_receiver);}
+
+	  boost::shared_ptr<command::trigger>
+	  trigger()
+	  {return boost::shared_ptr<command::trigger>(m_receiver);}
+
+	  boost::shared_ptr<command::voltage>
+	  voltage()
+	  {return boost::shared_ptr<command::voltage>(m_receiver);}
+
+	
+	};
+
+    }
+  }
+}

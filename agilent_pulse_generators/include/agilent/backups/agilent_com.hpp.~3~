@@ -1,0 +1,110 @@
+#pragma once
+#include <string>
+#include <iostream>
+#include "coms_manager.hpp"
+//#include "agilent/vxi11_user.h"
+#define BUF_LEN 100000
+
+namespace ICR {
+  namespace agilent{
+    
+    
+    typedef ICR::coms::IPmanager IP;
+    typedef ICR::coms::serial_manager SERIAL;
+
+
+    namespace shape{
+      enum type {SIN, SQUARE, PULSE, TRIANGLE, RAMP, NOISE, DC, USER};
+    }
+    namespace load{
+      enum type {OHM50, INFTY}; 
+    }
+    namespace trigger{
+      enum  type {IMMEDIATE, EXTERNAL, BUS}; 
+    }
+    
+    namespace exception{
+      struct option_not_recognised{};
+      struct failed_to_reset{};
+      struct too_few_points{};
+      struct too_many_points{};
+    } 
+    
+    template<class com_method>
+    class agilent_com : public com_method {
+    public:
+      agilent_com(const std::string& IPaddress);
+      virtual ~agilent_com() ;
+
+      using com_method::send;
+      using com_method::recv;
+      
+      virtual std::string error();
+      virtual void apply(const shape::type shape, const double freq,const  double volts,const  double offset);
+      
+      virtual void load(const load::type);
+      virtual void duty_cycle(const double); // square wave only
+
+      virtual void frequency(const double frequency);
+      virtual void voltage(const double V);
+      virtual void offset(const double offset);
+
+      //burst commands
+      virtual void cycles(const unsigned int cycles);
+      virtual void burst_on(void);
+      virtual void burst_off(void);
+      virtual void phase(const double degrees);
+      virtual void burst_int(const  double  rate);
+      virtual  void burst_ext();
+
+      virtual void trigger(const trigger::type source);
+      virtual void trigger_now() {send("*TRG");};
+
+      virtual void shape (const shape::type);
+      virtual  void arb_wave(const std::string& name, const float*, const unsigned long& size);
+      //void arb_wave(vector<double> data);
+
+      virtual void reset();
+
+    };
+    
+    template<class com_method>
+    void 
+    apply_waveform(agilent_com<com_method>* generator,const std::string& name, const double& sampling_freq, const  float* voltages, const unsigned long& num_points);
+
+  }
+}
+
+
+namespace ICR {
+  namespace agilent{
+    
+    template<class com_method>
+    agilent_com<com_method>::agilent_com(const std::string& device)
+    {}
+
+    template<class com_method>
+    agilent_com<com_method>::~agilent_com() {};
+
+    template<>
+    agilent_com<coms::IPmanager>::agilent_com(const std::string& IPaddress)
+      : coms::IPmanager(IPaddress, "5025")
+    {}
+
+    template<>
+    agilent_com<coms::serial_manager>::agilent_com(const std::string& port)
+      : coms::serial_manager(port, 9600, ICR::coms::flow_control::hardware,ICR::coms::parity::none,ICR::coms::stop_bits::two,8)
+    {
+      //send("SYST:RWL\n");
+      
+
+    }
+    template<>
+    agilent_com<coms::serial_manager>::~agilent_com()
+    {
+      
+      //send("SYST:LOC\n");
+
+    }
+  }
+}

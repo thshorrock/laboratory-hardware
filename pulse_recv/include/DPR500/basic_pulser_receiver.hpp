@@ -1,0 +1,85 @@
+#pragma once
+
+#include "commands.hpp"
+#include "exceptions.hpp"
+#include "enums.hpp"
+#include <boost/smart_ptr.hpp>
+
+#include <list>
+
+namespace ICR{
+
+  namespace pulser{
+    //forward declaration.
+    class DPR500;
+    
+    namespace command{
+      //forward declaration
+      class PulserReceiver_cmd;
+    }
+    
+    /** Pulser receiver interface.
+     * An interface to all the pulsers and receivers that attach to the DPR500.
+     * Commands are attached and detached from the pulser / receiver.
+     * These are then called by the DPR500 by using the get_commands() member.
+     * Changes to the pulser-reveiver, such as a change of channel,
+     * are propagated to the attached commands via the notify method.
+     */
+    class pulser_receiver
+    {
+      /** A typdef to the the pulser receiver command pointer. */
+      typedef boost::shared_ptr<command::PulserReceiver_cmd> cmd_ptr;
+
+    protected:
+
+      std::list<cmd_ptr> m_cmds;
+      enum channel::type m_channel;
+      char m_address;
+      bool attached_to_DPR500;
+
+      /** Notify the commands attached to the pulser/receiver of 
+       * changes - such as a change in channel.
+       */
+      virtual void notify() ;
+      /** Attach a command to the pulser / receiver.
+       * @param cmd_ptr The command to be attached.
+       */
+      virtual void attach_cmd(cmd_ptr);
+      /** Detach a command to the pulser / receiver.
+       * @param cmd_ptr The command to be attached.
+       */
+      virtual void detach_cmd(cmd_ptr);
+	
+
+
+      /** Set the channel and address of the pulser / receiver.
+       * @param channel The channel.
+       * @param address The address of the DPR500.
+       */
+      virtual void set_state(const enum channel::type& channel, const char& address);
+      
+      /** Detach the pulser/receiver from the DPR500 */
+      virtual void detach();
+	
+      
+      /** Get the commands attached to the reveiver */
+      virtual std::list<boost::shared_ptr<command::PulserReceiver_cmd> > 
+      get_commands() const {return m_cmds;}
+     
+    public:
+      pulser_receiver();
+
+      /** Let the DPR500 access these methods. */
+      friend class pulser::DPR500;
+      
+      /** If attached to the DPR500, return the channel character @return the channel. */
+      virtual char get_channel_char() const ;
+      
+      /** If attached to the DPR500, return the address character @return the address. */
+      virtual char get_address_char() const ;
+      
+      virtual short get_gain() const = 0;
+      virtual std::string get_serial_number() const = 0;
+    };
+  }
+}

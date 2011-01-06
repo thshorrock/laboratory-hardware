@@ -1,0 +1,98 @@
+#include "coms_manager/serial_manager.hpp"
+#include <string>
+namespace ICR{
+
+  namespace pulser{
+    namespace exceptions{
+      struct invalid_query{};
+    }
+    namespace commands{
+      class D_command{
+	std::string m_cmd;
+      public:
+	D_command();
+	operator const std::string() {return m_cmd;};
+      };
+      class I_command{
+	std::string m_cmd;
+      public:
+	I_command(const  char& i);
+	operator const std::string() {return m_cmd;};
+      };
+
+      
+      class A_command{
+	std::string m_cmd;
+      public:
+	A_command(const char& address) ;
+	operator const std::string() {return m_cmd;};
+      };
+
+      class E_command{
+	std::string m_cmd;
+      public:
+	E_command(const char& address) ;
+	operator const std::string() {return m_cmd;};
+      };
+      class Function_command{
+	std::string m_cmd;
+      public:
+	Function_command(const char& address, const char& command, const char& value, const char & channel = 0x00);
+	
+	operator const std::string() {return m_cmd;};
+
+      };
+      class Query_command{
+	std::string m_cmd;
+      public:
+	Query_command(const char& address, const char& command,  const  char& channel);
+	operator const std::string() {return m_cmd;};
+
+      };
+      
+      class QueryI_command{
+	std::string m_cmd;
+      public:
+	QueryI_command(const char& address, const char& command, const char& value, const char& channel, const char& channel_option);
+	operator const std::string() {return m_cmd;};
+
+      };
+      
+    }
+
+
+    class DPR500_com : public ICR::coms::serial_manager
+    {
+      char m_address;
+      std::string attach_header(const std::string& cmd);
+    public:
+      DPR500_com(const std::string& port);
+      /** The distructor.*/
+      virtual ~DPR500_com();
+      /** Send a command to the scope.  Most of the time this will be null terminated @param cmd The command string.*/
+      virtual void send(const std::string& cmd);
+      
+      /** Send a request to the scope.  Most of the time this will be null terminated 
+       * @param cmd The request string 
+       * @param buffsize The size of the buffer to collect.  The returned string can be shorter than this size.
+       * @return The returned string from the scope (missing the header). */
+      virtual std::string recv(const std::string& cmd, const unsigned int& buffsize = 128) ;
+      virtual std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5) ;
+    };
+
+      
+    class DPR500 : public DPR500_com
+    {
+      
+    public:
+      DPR500(const std::string& port);
+      using DPR500_com::send;
+      using DPR500_com::recv;
+      
+      void blink(const short& speed);
+      void impendance(
+    };
+
+  }
+
+}

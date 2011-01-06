@@ -1,0 +1,13 @@
+#include "coms_manager/serial_manager.hpp"
+
+namespace IC = ICR::coms;
+
+IC::serial_manager::serial_manager(const std::string& name,
+				   )
+{
+  m_SerialPort.open(m_io_service, name);
+  m_SerialPort.set_option(boost::asio::serial_port::baud_rate(baud_rate));
+  m_SerialPort.set_option(boost::asio::serial_port::flow_control(
+							       boost::asio::serial_port::flow_control::hardware 
+
+}

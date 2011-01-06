@@ -1,0 +1,26 @@
+
+
+#include "filename.hpp"
+
+
+ICR::readme::readme(std::string path)
+  :  m_filename()
+{
+  ICR::directory d;
+  try{
+    d.cd(path); //try to go to the path
+    ICR::file f(d, "README");
+    pOut = boost::shared_ptr<std::fstream>
+      (new std::fstream(f.full().c_str(), std::ios_base::out ));
+	
+  }
+  catch(exception::filename_exception& e){
+    e.debug_print();
+  }
+}
+
+
+ICR::readme::~readme()
+{
+  pOut->close();
+}

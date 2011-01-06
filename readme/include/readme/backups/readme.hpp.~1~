@@ -1,0 +1,16 @@
+#pragma once
+
+#include "filename.hpp"
+
+
+#include <string>
+
+namespace ICR{
+
+  class readme{
+  public:
+    readme(std::string directory)
+    
+  }
+
+}

@@ -1,0 +1,3 @@
+#include "lecroy.hpp"
+
+namespace L = ICR::lecroy;

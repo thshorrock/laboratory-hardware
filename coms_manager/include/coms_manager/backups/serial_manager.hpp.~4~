@@ -1,0 +1,55 @@
+#pragma once
+#include "coms_manager.hpp"
+#include <boost/optional.hpp>
+#include <boost/asio.hpp>
+#include <boost/asio/serial_port.hpp> 
+#include <string>
+namespace ICR{
+  namespace coms{
+    /** flow_control: Acceptable options;
+     * flow_contrl::type none, software, hardware;
+     */
+    typedef boost::asio::serial_port_base::flow_control flow_control ;
+    /** parity: Acceptable options;
+     * parity::type none, odd, even;
+     */
+    typedef boost::asio::serial_port_base::parity parity ;
+    /** stop_bits: Acceptable options;
+     * stop_bits::type one, onepointfive, two;
+     */
+    typedef boost::asio::serial_port_base::stop_bits stop_bits ;
+    
+    class serial_manager : public coms_manager
+    {
+      
+      boost::asio::io_service m_io_service;
+      boost::asio::serial_port  m_SerialPort;
+      boost::system::error_code m_error;
+      
+      static
+      void set_result(boost::optional<boost::system::error_code>* a, 
+		      boost::system::error_code b)
+      { 
+	*a = b; 
+      } 
+    public:
+      serial_manager(const std::string& name, 
+		     const unsigned int& baud_rate  = 19200,
+		     const enum flow_control::type&   flow_control  = flow_control::none,
+		     const enum parity::type&         parity        = parity::none,
+		     const enum stop_bits::type&      stop_bits     = stop_bits::one,
+		     const unsigned int& char_size  = 8
+		     ) ;
+    
+      virtual ~serial_manager();
+    
+      virtual void send(const std::string& cmd);
+      
+      virtual std::string recv(const std::string& cmd, const unsigned int& buffsize = 128) ;
+      virtual std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5) ;
+
+      
+    };
+  }
+  
+}
