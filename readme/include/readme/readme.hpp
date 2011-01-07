@@ -18,7 +18,7 @@ namespace ICR{
     /** A constructor.
      * @param path The directory path 
      * @attention To enter a Windows (backslash path), double backslashes are required. 
-     * For example @code readme("C:\\data\\2011_1_1 ") @endcode
+     * For example @code readme("C:\\data\\2011_1_1 "); @endcode
      */
     readme(const std::string path);
     /** A copy constructor. @param other The file that you wish to copy */

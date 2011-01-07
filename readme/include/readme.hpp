@@ -6,7 +6,7 @@
 /**
  * @mainpage Readme Documentation
  * @author Tom Shorrock (t.h.shorrock@gmail.com)
- * @date   December, 2010
+ * @date   January, 2011
  * @section purpose_sec Purpose
  * 
  * Provide a convenient way of creating a "README" text file within a folder.
@@ -23,7 +23,7 @@ main  (int ac, char **av)
   using namespace ICR;
   
     //create a readme file in the specified directory.
-    readme README("The/directory/you/want/to/use);
+    readme README("The/directory/you/want/to/use");
 
     //write the relevent info.
     README
@@ -37,6 +37,8 @@ main  (int ac, char **av)
     
 }
 @endcode
+If you want to specify a Windows directy then you need to use double backslashes, for example
+@code readme("C:\\data\\2011_1_1 "); @endcode
  
 \section dependancies_sec Dependancies.
  This library uses the Boost c++ libraries.  These are already included in the distribution.
