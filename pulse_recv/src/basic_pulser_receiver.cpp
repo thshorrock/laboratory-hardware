@@ -36,7 +36,7 @@ void ICR::pulser::pulser_receiver::detach()
 char
 ICR::pulser::pulser_receiver::get_channel_char() const
 { 
-  if ( !attached_to_DPR500 ) throw exceptions::pulser_receiver_not_attached_to_DPR500();
+  if ( !attached_to_DPR500 ) throw ICR::exception::pulser_receiver_not_attached_to_DPR500();
   if ( m_channel == channel::A) 
     return 0x41;
   else
@@ -46,7 +46,7 @@ ICR::pulser::pulser_receiver::get_channel_char() const
 char
 ICR::pulser::pulser_receiver::get_address_char() const
 { 
-  if ( !attached_to_DPR500 ) throw exceptions::pulser_receiver_not_attached_to_DPR500();
+  if ( !attached_to_DPR500 ) throw ICR::exception::pulser_receiver_not_attached_to_DPR500();
   return m_address;
 };
 

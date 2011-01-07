@@ -42,13 +42,13 @@ namespace ICR{
        */
       virtual void notify() ;
       /** Attach a command to the pulser / receiver.
-       * @param cmd_ptr The command to be attached.
+       * @param p The command to be attached.
        */
-      virtual void attach_cmd(cmd_ptr);
+      virtual void attach_cmd(cmd_ptr p);
       /** Detach a command to the pulser / receiver.
-       * @param cmd_ptr The command to be attached.
+       * @param p The command to be attached.
        */
-      virtual void detach_cmd(cmd_ptr);
+      virtual void detach_cmd(cmd_ptr p);
 	
 
 
@@ -67,9 +67,10 @@ namespace ICR{
       get_commands() const {return m_cmds;}
      
     public:
+      /** A constructor */
       pulser_receiver();
 
-      /** Let the DPR500 access these methods. */
+      /* Let the DPR500 access these methods. */
       friend class pulser::DPR500;
       
       /** If attached to the DPR500, return the channel character @return the channel. */
@@ -78,7 +79,14 @@ namespace ICR{
       /** If attached to the DPR500, return the address character @return the address. */
       virtual char get_address_char() const ;
       
+      /** Obtain the gain of the preamp. @return The preamp's gain*/
       virtual short get_gain() const = 0;
+      
+      /** Optain the serial number of the pulser - receiver.
+       * When you call the DPR500::attach_A() the serial number is verified 
+       * to make sure the attachment made in hardware is the same as that made in software.
+       * @return The serial number.
+       */
       virtual std::string get_serial_number() const = 0;
     };
   }

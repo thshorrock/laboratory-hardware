@@ -378,7 +378,7 @@ ICR::pulser::command::gain::gain(const char& addr, const enum channel::type& cha
     m_gain_char((short)(max-min)/2),
      m_address(addr)
 {
-  if (max<min) throw exceptions::incorrect_input_to_gain_command();
+  if (max<min) throw ICR::exception::incorrect_input_to_gain_command();
   if ( channel == channel::A) 
     m_channel_char =  0x41;
   else
@@ -413,7 +413,7 @@ ICR::pulser::command::gain::set(const short& g)
 {
   const short actual_gain = g-m_measured;
   if (actual_gain<m_min || actual_gain>m_max) 
-    throw exceptions::requested_gain_out_of_bounds();
+    throw ICR::exception::requested_gain_out_of_bounds();
   m_gain_char = (char) (actual_gain - m_min);
   set_cmd();
 };
@@ -630,7 +630,7 @@ void
 ICR::pulser::command::voltage::set(const double& voltage)
 {
   //round value to nearest integer
-  if (voltage<m_min || voltage>m_max)  throw exceptions::voltage_out_of_bounds();
+  if (voltage<m_min || voltage>m_max)  throw ICR::exception::voltage_out_of_bounds();
   short s = (short) (voltage+0.5 );
   m_voltage[1] = s; //least significant
   m_voltage[0] = s>>8; //most significant

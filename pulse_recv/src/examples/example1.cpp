@@ -20,7 +20,7 @@ main  (int ac, char **av)
     
     dpr500.notify();
   }
-  catch (exceptions::failed_to_contact_DPR500_device& e)    {
+  catch (ICR::exception::failed_to_contact_DPR500_device& e)    {
     std::cout<<"could not open DPR500 device"<<std::endl;
     
   }

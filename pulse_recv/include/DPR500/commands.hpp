@@ -60,16 +60,15 @@ namespace ICR{
       public:
 	/** Constructor */
 	PulserReceiver_cmd(); 
-	/** allow update_cmd access to the update method. 
+	/* allow update_cmd access to the update method. 
 	 * @param command The command to be updated. */
-	
 	friend void update_cmd(boost::shared_ptr<command::PulserReceiver_cmd>& command);
 	friend class ICR::pulser::pulser_receiver;
 	virtual operator const std::string() {return m_cmd;}
       };
       
       /** Update of of the pulser / receiver commands. 
-       * @param commamd.  The command to be updated.
+       * @param command The command to be updated.
        */
       inline void update_cmd(boost::shared_ptr<command::PulserReceiver_cmd>& command){command-> update();};
 
@@ -236,6 +235,7 @@ namespace ICR{
       // };
       
       
+      /** Command that requests the serial number of the pulser.*/
       class pulser_serial_number :  public  DPR500_recv_cmd
       {
 
@@ -245,12 +245,16 @@ namespace ICR{
       protected:
       	void set_cmd();
       public:
+	/** Constructor.
+	 *   @param addr The address of the DPR500.
+	 *   @param channel The channel of the DPR500 specified by the address */
       	pulser_serial_number(const char& addr, const enum channel::type& channel);
 	operator const std::string() {return m_cmd;};
       	virtual size_t reply_size() const {return 9;};
       	virtual std::string decode(const std::string&);
       };
 
+      /** Command that sets the gain of the DPR500 channel.*/
       class gain :  public  DPR500_recv_cmd
       {
       	
@@ -263,6 +267,14 @@ namespace ICR{
       protected:
       	void set_cmd();
       public:
+	/** Constructor.
+	 *   @param addr The address of the DPR500.
+	 *   @param channel The channel of the DPR500 specified by the address
+	 *   @param measured The measured preamp gain
+	 *   @param min The min gain
+	 *   @param max The max gain
+	 *   @param step The step size of the gain 
+	 */
       	gain(const char& addr, const enum channel::type& channel,const short& measured, const short& min, const short& max, const short step = 1);
       	virtual void set(const short& gain);
 	operator const std::string() {return m_cmd;};
@@ -271,6 +283,7 @@ namespace ICR{
       };
 
 	
+      /** Command that sets the high pass filter on the DPR500. */
       template<class filter_option>
       class high_pass_filter : public  DPR500_recv_cmd
       {	
@@ -316,6 +329,7 @@ namespace ICR{
       };
       
     	
+      /** Command that sets the low pass filter on the DPR500. */
       template<class filter_option>
       class low_pass_filter : public  DPR500_recv_cmd
       {	
@@ -362,6 +376,7 @@ namespace ICR{
       
 
 
+      /** Command that sets the master / slave triggering on the pulser receiver .*/
       class master  : public PulserReceiver_cmd
       {
       	bool m_master;
@@ -374,7 +389,7 @@ namespace ICR{
       	virtual std::string decode(const std::string& ans){return stringify((int) *ans.substr(3,1).c_str());}
       };
 
-
+      /** Command turns on a channel on the DPR500 */
       class turn_on :  public DPR500_recv_cmd
       {
 	std::string m_cmd;
@@ -388,6 +403,7 @@ namespace ICR{
 	operator const std::string() {return m_cmd;};
       };
 
+      /** Command turns off a channel on the DPR500 */
       class turn_off : public DPR500_recv_cmd
       {
 	std::string m_cmd;
@@ -403,6 +419,7 @@ namespace ICR{
 
 
 
+      /** Command sets the pulse repetition frequency on the pulser  */
       class prf : public PulserReceiver_cmd
       {
       	boost::array<char,2> m_prf;
@@ -424,6 +441,7 @@ namespace ICR{
       };
 
 
+      /** Command sets external triggering on a pulser  */
       class external_trigger : public PulserReceiver_cmd
       {
       protected:
@@ -434,6 +452,7 @@ namespace ICR{
       	virtual std::string decode(const std::string& ans){return stringify((int) *ans.substr(3,1).c_str());}
       };
 
+      /** Command sets internal triggering on a pulser  */
       class internal_trigger : public PulserReceiver_cmd
       {
       protected:
@@ -445,6 +464,7 @@ namespace ICR{
       };
 
 
+      /** Command sets the voltage on a pulser  */
       class voltage : public PulserReceiver_cmd
       {
       	boost::array<char,2> m_voltage;
@@ -459,6 +479,7 @@ namespace ICR{
       };
 
 
+      /** Command that queries the voltage on a pulser  */
       class query_voltage : public PulserReceiver_cmd
       {
       	boost::array<char,2> m_voltage;
@@ -472,6 +493,7 @@ namespace ICR{
       };
 
 
+      /** Command that sets the pulser mode */
       template<class damping_policy>
       class pulser_mode : public PulserReceiver_cmd
       {
@@ -738,7 +760,9 @@ namespace ICR{
 	
 	
       public:
+	/** A command pointer */
 	typedef boost::shared_ptr<cmd>      cmd_ptr;
+	/** A receive command pointer */
 	typedef boost::shared_ptr<recv_cmd> recv_cmd_ptr;
 
 	/** Start the address assignment phase.
@@ -768,7 +792,7 @@ namespace ICR{
 	 *   {}
 	 *   ++count;
 	 * }
-	 * if(failed_to_open) throw exceptions::failed_to_contact_DPR500_device();
+	 * if(failed_to_open) throw ICR::exception::failed_to_contact_DPR500_device();
 	 * @endcode.
 	 */
 	virtual
@@ -827,51 +851,84 @@ namespace ICR{
 	boost::shared_ptr<command::DPR500_serial_number> 
 	DPR500_serial_number() const;
       };
+      
+      /** A factory for generating DPR500 commands */
       class DPR500CommandFactory
       {
 	char m_address;
       public:
-
+	/** A constructor.
+	 * @param addr The address of the DPR500 */
 	DPR500CommandFactory(const char& addr) : m_address(addr) {}
+	/* Set the address of the DPR500.
+	 * @param addr The address. */
 	void set_address(const char& addr) {m_address = addr;}
 
+	/** A receive command pointer */
       	typedef boost::shared_ptr<command::DPR500_recv_cmd> recv_cmd_ptr;
 
 
-
+	/** Generate a blink command. 
+	 * @param speed The speed of the blinking.
+	 * @return A blink command pointer */
 	virtual
 	boost::shared_ptr<command::blink> 
-	blink(const char& address, const short& speed = 100)
+	blink( const short& speed = 100)
 	{return  boost::shared_ptr<command::blink>(new command::blink(m_address,speed));}
   
 
+
+	/** Generate a turn on command. 
+	 * @param c The channel to turn on
+	 * @return The command */
       	virtual
       	boost::shared_ptr<command::turn_on>
       	turn_on(const enum channel::type& c)
       	{return boost::shared_ptr<command::turn_on>(new command::turn_on(m_address, c));}
 	  
+	/** Generate a turn off command. 
+	 * @param c The channel to turn off
+	 * @return The command */
       	virtual
       	boost::shared_ptr<command::turn_off>
       	turn_off(const enum channel::type& c)
       	{return boost::shared_ptr<command::turn_off>(new command::turn_off(m_address, c));}
 	  
+	/** Generate a gain command. 
+	 * @param channel The channel
+	 * @param measured The measured preamp gain
+	 * @param min The minimum acceptable voltage
+	 * @param max The maximum acceptable voltage
+	 * @param step The step size
+	 * @return The command */
       	virtual
       	boost::shared_ptr<command::gain>
       	gain(const channel::type& channel, const short& measured, const short& min, const short& max, const short step = 1) 
       	{return boost::shared_ptr<command::gain>(new command::gain(m_address, channel, measured,min,max,step));}
 	  
-	  
+	/** Generate a high pass filter command.
+	 * @param ch The channel
+	 * @return The command
+	 */
       	template<class filter_option>
       	boost::shared_ptr<command::high_pass_filter<filter_option> >
       	high_pass_filter(const enum channel::type& ch) 
       	{return boost::shared_ptr<command::high_pass_filter<filter_option> >(new command::high_pass_filter<filter_option> (m_address, ch));}
 	  
 	  
+	/** Generate a high pass filter command.
+	 * @param ch The channel
+	 * @return The command 
+	 */
       	template<class filter_option>
       	boost::shared_ptr<command::low_pass_filter<filter_option> >
       	low_pass_filter(const enum channel::type& ch) 
       	{return boost::shared_ptr<command::low_pass_filter<filter_option> >(new command::low_pass_filter<filter_option> (m_address, ch));}
 	  
+	/** Generate a pulser serial number command.
+	 * @param c The channel
+	 * @return The command
+	 */
 	virtual
 	boost::shared_ptr<command::pulser_serial_number> 
 	pulser_serial_number(const enum channel::type& c)
@@ -879,39 +936,60 @@ namespace ICR{
   
       };
 
+      
+      /** Factory for producing pulser commands */
       class PulserCommandFactory 
       {
       public:
       	typedef boost::shared_ptr<command::recv_cmd> recv_cmd_ptr;
 	
-      	// template<int damping_policy, int energy_policy, int receiver_policy>
+	/** Generate a pulser mode command 
+	 */
       	template<class damping_policy>
 	boost::shared_ptr<command::pulser_mode<damping_policy> >
 	pulser_mode()
 	{return boost::shared_ptr<command::pulser_mode<damping_policy>  > (new command::pulser_mode<damping_policy> ());}
-
-
+	
+	/** Generate a master command 
+	 * @param is_master true or false.
+	 * @return The command 
+	 */
       	virtual
       	boost::shared_ptr<command::master>
       	master(const bool& is_master) 
       	{return boost::shared_ptr<command::master>(new command::master(is_master));}
 	  
+	/** Generate a pulse repitition frequency command 
+	 * @param max_prf The maximum prf
+	 * @return The command 
+	 */
       	virtual
       	boost::shared_ptr<command::prf>
       	prf(const unsigned short& max_prf)  
       	{return boost::shared_ptr<command::prf>(new command::prf(max_prf));}
 
-	  
+	   
+	/** Generate an internal trigger command
+	 * @return The command 
+	 */
       	virtual
       	boost::shared_ptr<command::internal_trigger>
       	internal_trigger()
       	{return boost::shared_ptr<command::internal_trigger>(new command::internal_trigger());}
 
+	/** Generate an external trigger command
+	 * @return The command 
+	 */
       	virtual
       	boost::shared_ptr<command::external_trigger>
       	external_trigger()
       	{return boost::shared_ptr<command::external_trigger>(new command::external_trigger());}
-
+  
+	/** Generate a set voltage command
+	 * @param min The min voltage
+	 * @param max The max voltage 
+	 * @return The command 
+	 */
       	virtual
       	boost::shared_ptr<command::voltage>
       	voltage(const double& min, const double& max)
@@ -920,18 +998,6 @@ namespace ICR{
 
       };
       
-
-      // class ReceiverCommandFactory
-      // {
-      // 	char m_address;
-      // public:
-      // 	typedef boost::shared_ptr<command::recv_cmd> recv_cmd_ptr;
-
-      // 	ReceiverCommandFactory(const char& addr) : m_address(addr) {}
-      // 	void set_address(const char& addr) {m_address = addr;}
-	 
-	
-      // };
 
     }
   }

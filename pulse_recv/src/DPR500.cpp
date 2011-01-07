@@ -76,7 +76,7 @@
 //   case ((int) 'P'): command = 0xF0; break;
 //   case ((int) 'T'): command = 0xF4; break;
 //   case ((int) 'V'): command = 0xF6; break;
-//   default: throw exceptions::invalid_query(); break;
+//   default: throw ICR::exception::invalid_query(); break;
 //   }
 //   char channel = cmd[1];
 //   if (cmd[0] != 'I'){ 
@@ -151,7 +151,7 @@
 // char 
 // ICR::pulser::RPL2::get_channel_char(){
   
-//   if ( !attached_to_DPR500 ) throw exceptions::gain_command_not_attached_to_DPR500();
+//   if ( !attached_to_DPR500 ) throw ICR::exception::gain_command_not_attached_to_DPR500();
 //   if (m_pr->get_channel_char() == channel::A) 
 //     m_channel_char = 0x41;
 //   else
@@ -176,7 +176,7 @@
   init(); 
 };
 void
-ICR::pulser::DPR500::init() throw(exceptions::failed_to_contact_DPR500_device)
+ICR::pulser::DPR500::init() throw(ICR::exception::failed_to_contact_DPR500_device)
 {
   command::InitiationFactory f;
 
@@ -229,7 +229,7 @@ ICR::pulser::DPR500::init() throw(exceptions::failed_to_contact_DPR500_device)
   // if(failed_to_open) 
   //   {
       
-  //     throw exceptions::failed_to_contact_DPR500_device();
+  //     throw ICR::exception::failed_to_contact_DPR500_device();
   //   }
 }
 void
@@ -500,7 +500,7 @@ ICR::pulser::DPR500::attach_A(pulser_receiver* p)
   std::string actual_serial_number = timed_recv(serial_request);
   
   if (actual_serial_number!=supposed_serial_number) {
-    throw exceptions::incorrect_serial_number_for_pulser();
+    throw ICR::exception::incorrect_serial_number_for_pulser();
   }
     
   A_attached = true; 
@@ -523,7 +523,7 @@ ICR::pulser::DPR500::attach_B(pulser_receiver* p)
   std::string actual_serial_number = timed_recv(serial_request);
   
   if (actual_serial_number!=supposed_serial_number) {
-    throw exceptions::incorrect_serial_number_for_pulser();
+    throw ICR::exception::incorrect_serial_number_for_pulser();
   }
 
 
