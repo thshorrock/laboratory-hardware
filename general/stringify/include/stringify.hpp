@@ -12,7 +12,7 @@
  * 
  * \code
  #include "stringify.hpp"
- #include <iostream>"
+ #include <iostream>
  int
  main  (int ac, char **av[])
  {

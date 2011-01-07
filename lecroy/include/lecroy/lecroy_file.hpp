@@ -12,8 +12,6 @@
 #include <boost/serialization/array.hpp>
 namespace ICR{
 
-  namespace lecroy{
-
     namespace exception{
       /** Alines are not the same size. */
       struct alines_not_of_same_size {};
@@ -22,6 +20,9 @@ namespace ICR{
        */
       struct aline_does_not_exist {};
     }
+  
+  namespace lecroy{
+
 
     /** A class wrapping a single aline */
     class aline
@@ -58,8 +59,6 @@ namespace ICR{
        */
       aline& operator=(const aline& other);
 
-      // double* get_times() const {return m_t.get();};
-      // double* get_trace() const {return m_trace.get();};
 
       
       /** Get the size of the aline.
@@ -95,8 +94,6 @@ namespace ICR{
       double& time(const size_t& i)             {return m_t[i];}
 
 
-      void save_ascii(const std::string filename);
-
       /** Add an aline to the present aline. 
        * @param other The aline to add to the preset.
        * @return The resultant aline.
@@ -117,9 +114,17 @@ namespace ICR{
       
     };
     
+    /** Save the aline in binary format @param a The aline to save @param filename The filename to use */
     void save(const aline& a, const std::string filename);
+    /** Load the aline in binary format  @param a The aline to save @param filename The filename to use*/
     void load(aline& a, const std::string filename);
 
+    /** Save the aline in ascii format. @param a The aline to save @param filename The filename to use */
+    void save_ascii(const aline& a, const std::string filename);
+
+    /** Save the aline in gnuplot format. @param a The aline to save @param filename The filename to use */
+    void save_gnuplot(const aline& a, const std::string filename);
+    
     template<class Archive>
     void
     aline::save(Archive  & ar, const unsigned int version) const
@@ -160,13 +165,26 @@ namespace ICR{
       // 	ar& m_trace[i];
       // }
     }
-
-  aline 
+    
+    /** Add two alines together
+     * @param a The first aline.
+     * @param b The second aline.
+     * @return The resultant aline.
+     */
+    aline 
     operator+(const aline& a, const aline& b);
 
+    /** Subtract two alines.
+     * @param a The first aline.
+     * @param b The second aline.
+     * @return The resultant aline.
+     */
     aline 
     operator-(const aline& a, const aline& b);
 
+    /** The lecroy_file class.
+     * This class holds the data from the lecroy scope and enables you to pull individual alines.
+     */
     class lecroy_file
     {
     private:
@@ -182,21 +200,38 @@ namespace ICR{
       lecroy_file();
       /** Constructor.
        *  @param lh The lecroy_header.
+       * Use this constructor if you have the header but have not yet collected the data.
+       * For example when you issue a "WF? DESC\n" command only.
        */
       lecroy_file(const lecroy_header& lh);
-
+      
+      /** Decode the entire file (stored in a string. 
+       * The string is expected to contain the header and all the data.
+       * For example, the string that results from a "WF? ALL\n" remote command
+       * @param lh The lecroy header.
+       */
       void decode_string(const std::string& file);
-
+      
+      /** Save the file in lecroy binary format. @param filename The filename to use */
       void save(const std::string filename);
+
+      
       // void load(const std::string filename);
       
+      /** Set the data to array one. @param data1 The data array*/
       void set_data1( const double* data1);
+      /** Set the data to array two. @param data2 The data array */
       void set_data2( const double* data2);
       
+      /** The number of points in the first array. @return The number of points. */
       size_t size1() const {return m_header.wave_array_1();}
+      /** The number of points in the second array. @return the number of points. */
       size_t size2() const {return m_header.wave_array_2();}
       
-
+      /** Get data from array 1.
+       * @param i the sequence number (if in sequence mode).
+       * @return The ICR::lecroy::aline that contains the data.
+       */
       aline get_data1(size_t i = 0) const;
       // const double& operator[](const size_t& i) const {return m_data1[i];}
       // double& operator[](const size_t& i){return m_data1[i];}

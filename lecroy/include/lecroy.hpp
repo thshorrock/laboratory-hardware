@@ -8,7 +8,7 @@
  * 
  * Provide a cross platform c++ interface to the Lecroy Waverunner oscilloscope.
  *
- * This is provided curtosy of the ICR::lecroy::lecroy_com class.
+ * This is provided curtosy of the ICR::lecroy::lecroy_com class and, more specifically, the ICR::lecroy::lecroy_64Xi class.
  *
  * @section example_sec Example:
 @code

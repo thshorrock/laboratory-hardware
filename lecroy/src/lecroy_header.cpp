@@ -255,15 +255,15 @@ void ICR::lecroy::lecroy_header::decode(boost::shared_ptr<std::iostream>& pIn)
 
 }
 
-ICR::lecroy::lecroy_header::operator const std::string() 
-{
+// ICR::lecroy::lecroy_header::operator const std::string() 
+// {
   
-  std::string header;
+//   std::string header;
     
-  boost::scoped_ptr<std::ostringstream> pOut(new std::ostringstream(header));
+//   boost::scoped_ptr<std::ostringstream> pOut(new std::ostringstream(header));
 
-  return header;
-}
+//   return header;
+// }
 
 
 boost::shared_ptr<std::iostream>&

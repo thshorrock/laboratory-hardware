@@ -35,18 +35,55 @@ ICR::lecroy::aline::operator=(const aline& other)
 }
 
 void 
-ICR::lecroy::aline::save_ascii(const std::string filename)
+ICR::lecroy::save_ascii(const aline& a, const std::string filename)
 {
   boost::scoped_ptr<std::fstream> 
     pOut(new std::fstream(filename.c_str(), std::ios_base::out ));
 	
   //char array1
-  const size_t size1 = m_size;
+  const size_t size1 =a.size();
   for(size_t i=0;i<size1;++i){
-    *pOut  <<  m_t[i] <<"  "<< m_trace[i] <<"\n";
+    *pOut  <<  a.time(i) <<"  "<< a[i] <<"\n";
   }
   pOut->close();
 }
+void 
+ICR::lecroy::save_gnuplot(const aline& a, const std::string filename)
+{
+  boost::scoped_ptr<std::fstream> 
+    pOut(new std::fstream(filename.c_str(), std::ios_base::out ));
+
+  
+  size_t count=0;
+  const size_t sf= sizeof(float);
+  const size_t vec_size = a.size();
+  const size_t points_per_row = vec_size+1;
+  const size_t no_rows = 1; //time
+  const size_t no_bytes   = sf*(no_rows*points_per_row);
+      
+  float* buffer = new float[no_rows*points_per_row];//no_bytes
+    
+  buffer[0] = static_cast<float> (vec_size);
+	
+  for (size_t i = 0; i<vec_size; ++i)
+    buffer[++count] = static_cast<float>(a.time(i));
+	
+  pOut->write(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+	
+  //start buffer again
+  count = 0;
+  buffer[count] = static_cast<float> (0); //the y axis
+  //add the offsets and the radius
+  for (size_t i = 0; i<vec_size; ++i)
+    buffer[++count] = static_cast<float> (a[i]);
+  pOut->write(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  
+  delete[] buffer;
+
+  pOut->close();
+}
+
+
 
 void 
 ICR::lecroy::save(const aline& a, const std::string filename)

@@ -1,11 +1,7 @@
 #pragma once 
 
-// #include "error.hpp"
-
-
 #include <boost/smart_ptr.hpp>
 #include <sstream>
-// #include <file_sentry.hpp>
 
 #include <string>
 #include <vector>
@@ -13,7 +9,6 @@
 #include <iostream>
 #include <fstream>
 
-// #include <maths.hpp>
 
 
 namespace ICR{
@@ -26,22 +21,23 @@ namespace ICR{
     //forward declaration
     class lecroy_file; 
   
-    //! This stores the byte-locations of the various regions of the file
+    /** This stores the byte-locations of the various regions of the file */
     struct byte_locations
     {
-      long begin,  //!< The beginning of the file
-	preamble, 
-	trig, 
-	ris, 
-	array_1, 
-	array_2;
+      long begin,  //!< The begining of the file
+	preamble,  //!< The begining of the preable
+	trig,      //!< The begining of the trigger section
+	ris,       //!< The begining of the RIS section
+	array_1,   //!< The begining of the first array
+	array_2;   //!< The begining of the second array
     };
   
 #pragma pack(push, 4) // pack on 4-byte boundaries (Important!)
     
     
 
-
+    /** The lecroy header class. 
+     * This class contains all the information regarding the waveform */
     class lecroy_header{
     private:
       
@@ -50,23 +46,8 @@ namespace ICR{
       
       void decode(boost::shared_ptr<std::iostream>& pIn);
 
-      // void load(string filename) throw (error::CannotOpenException) ;
-      // void save(string filename) throw (error::CannotOpenException);
-      // //clear descriptor of its size characteristics
-      // void clear(void);
 
       std::size_t size(void) const {return NOM_SUBARRAY_COUNT;};
-      // std::size_t trace_size(void) const {return WAVE_ARRAY_COUNT/ NOM_SUBARRAY_COUNT;};
-
-
-      // void load_z_block(std::string filename, char* );
-      // void load_z2_block(std::string filename, char* );
-      // void save_z_block(std::string filename,char*);
-      // void save_z2_block(std::string filename,char*);
-
-      // void increase_size(const int n);
-      // void resize(const int n = 1);
-
 
     
       int begin_byte(void) const {return byte.begin;};
@@ -170,17 +151,20 @@ namespace ICR{
       operator<<(boost::shared_ptr<std::iostream>& pOut, const lecroy_header& lc);
 
       friend class lecroy_file;
-
+      
+      /** Decode the header from an string.
+       * This function is typically used in remote mode when a "WF? DESC\n" request has been made
+       */
       void decode_string(const std::string& header)
       {
 	boost::shared_ptr<std::iostream> pIn(new std::stringstream(header));
 	decode(pIn);
       }
 
-      operator const std::string();
+      //operator const std::string();
       
       
-      
+      /** A destructor. */
       ~lecroy_header();
     
 
@@ -465,58 +449,21 @@ namespace ICR{
 
     };
 
-    boost::shared_ptr<std::iostream>&
-    operator<<(boost::shared_ptr<std::iostream>& out, const lecroy_header& lc);
-   
+
+    // boost::shared_ptr<std::iostream>&
+    // operator<<(boost::shared_ptr<std::iostream>& out, const lecroy_header& lc);
+    
+    /** Output the header to a stream.
+     * This displays all of the header info in ascii format.
+     */
     std::ostream&  
     operator<<(std::ostream& out, const lecroy_header& lc);
 
 #pragma pack(pop)             // restore packing
   
 
-//     class aline
-//     {
-      
-//     private: 
-//       vec m_t, m_trace;
-//     public:
-//       aline(vec t, vec trace): m_t(t), m_trace(trace) {};
 
-//       vec get_times() const {return m_t;};
-//       vec get_trace() const {return m_trace;};
-//       size_t size() const {return m_t.size();};
-      
-//     };
-
-//     class lecroy_traces{
-//     private:
-//       vec m_times;
-//       vector<vec> m_traces;
-//     public:
-//       lecroy_traces(const string filename);
-//       lecroy_traces(const lecroy lcy) : m_times(), m_traces(){
-//   push_back(lcy.get_filename());
-// };
-      
-//       void push_back(const string filename);
-//       void push_back(const vec extra){m_traces.push_back(extra);}
-
-//       vec get_times()  const {return m_times;}
-//       void set_times(const vec & v)   { m_times = v;}
-//       vec  get_trace(const size_t i) const {return m_traces[i];}
-//       void set_trace(const vec & v, const size_t i) {m_traces[i] = v;}
-//       vector<vec> get_traces() const {return m_traces;}
-
-//       aline get_aline(const size_t i) const {return aline(get_times(), get_trace(i));}
-//       void  set_aline(const aline& al, const size_t i)  {set_times(al.get_times()); set_trace(al.get_trace(),i);}
-      
-//       aline operator()(size_t i) const {return get_aline(i);}
-//       aline operator[](size_t i) const {return get_aline(i);}
-//       size_t size() const {return m_traces.size();}
-    // };
-    
-
-  }   //namespace hardware
+  }   //namespace lecroy
 
 
 } //namespace icr
