@@ -1,6 +1,6 @@
 #include "filename/get_filename.hpp"
 
-/** \mainpage get_filename Documentation 
+/** \mainpage filename Documentation 
  *
  *  \section Purpose
  *
@@ -39,7 +39,7 @@
  * // test the extension of the string of the filename
  * bool not_a_dat_file (const string& filename) { 
  *   //make a file object so extention may be tested
- *   ICR::filename::file f(filename);
+ *   ICR::file f(filename);
  *   //test to see if the extention of the string is not a ".dat", return true in this case.
  *   if (f.extension()!=".dat") return true; else return false; 
  * }
@@ -52,7 +52,7 @@
  *   string dir = "/mirror/progs/cpp/icr-10.02/src/libs/general/get_filename/test/" ;
  *
  *   //create a directory object to analyse the directory
- *   ICR::filename::directory d(dir);
+ *   ICR::directory d(dir);
  *
  *   //create a list of all the filenames in the directory
  *   list<string> files = d.get_filenames();
@@ -65,7 +65,7 @@
  *   while(pfilename!=files.end()){  //to the end
  *
  *     //put the current file in a file object
- *     ICR::filename::file f(*pfilename); 
+ *     ICR::file f(*pfilename); 
  *
  *     //decode the filename into a vector of strings
  *     std::vector<string> f_decode = f.decode();  
