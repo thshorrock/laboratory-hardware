@@ -16,7 +16,7 @@
  *
  * @section example_sec Example:
 @code
-#include ".hpp"
+#include "agilent.hpp"
 int
 main  (int ac, char **av)
 {

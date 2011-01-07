@@ -20,7 +20,7 @@ int
 main  (int ac, char **av)
 {
 //use the ICR namespace
-  using namespace ICR
+  using namespace ICR;
   
     //create a readme file in the specified directory.
     readme README("The/directory/you/want/to/use);

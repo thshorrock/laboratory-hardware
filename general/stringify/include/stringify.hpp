@@ -19,7 +19,7 @@
      double a_number = 1.3;
      std::string a_string = "The number is ";
      //use the stringify function
-     a_string += institute_of_cancer_research::stringify(a_number);
+     a_string += ICR::stringify(a_number);
      //print result
      std::cout<<a_string<<std::endl;     
  }
