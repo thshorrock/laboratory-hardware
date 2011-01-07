@@ -129,6 +129,12 @@ Then go to the "hardware" folder in which the repository is located and type, fo
 bjam release toolset=gcc
 @endcode
 
+@section usage_sec Using the Library.
+
+Your operating system know where the library is located.
+For help with this, please see the wiki at
+http://us-physics/wiki/Library_path
+
 @section bugs_sec Bugs
 
 If you find a bug or would like to request a feature, then please use the bug tracking tool located at

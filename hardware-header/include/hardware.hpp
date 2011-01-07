@@ -14,9 +14,17 @@
  * Please see the individual project pages for more information.
  * @htmlonly
  * <UL>
+ * <LI> <a href="./com_manager/index.html"> General Communication Manager</a>
  * <LI> <a href="./lecroy/index.html"> Lecroy</a>
  * <LI> <a href="./DPR500/index.html"> DPR500</a>
  * <LI> <a href="./agilent/index.html"> Agilent</a>
+ * </UL>
+ *
+ * The following auxillary libraries can also be helpful
+ * <UL>
+ * <LI> <a href="./stringify/index.html"> Stringify </a>
+ * <LI> <a href="./filename/index.html"> File management </a>
+ * <LI> <a href="./readme/index.html"> Create a README file </a>
  * </UL>
  * @endhtmlonly
 \section dependancies_sec Dependancies.
@@ -84,6 +92,12 @@ Then go to the "hardware" folder in which the repository is located and type, fo
 @code
 bjam release toolset=gcc
 @endcode
+
+@section usage_sec Using the Library.
+
+Your operating system know where the library is located.
+For help with this, please see the wiki at
+http://us-physics/wiki/Library_path
 
 @section bugs_sec Bugs
 

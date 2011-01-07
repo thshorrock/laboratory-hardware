@@ -69,14 +69,78 @@ This means that a wrapper to the c++ library is easily created for any of the fo
 \section dependancies_sec Dependancies.
  This library uses the Boost c++ libraries.  These are already included in the distribution.
 
+
 \section git_repo_sec Location of the Repository
+
+The library source code is stored in a git repository.
+For more information on how to get up and running with git please see the wiki page
+http://us-physics/wiki/Git
+
+The Git repository is located at 
+@verbatim
+/mirror/progs/hardware/.git
+@endverbatim
+To clone the repository type in a terminal ( or in the git bash terminal if you are using windows):
+@code
+git clone cu@us-physics:/mirror/progs/hardware/.git
+@endcode
+This will install a folder called "hardware" at the location in which you typed the command.
+
+
 
 \section installation_sec Installation
 
-This library is most conveniently installed with bjam (on both Windows and Linux based operating systems).
- - First setup bjam (which can be downloaded from http://www.boost.org/)
- - go to the root directory and type:
-  \code bjam --v2 \endcode
+This library is most conveniently installed with bjam.
+Bjam is a cross platform installation tool.
+
+For more help with bjam please see the wiki
+http://us-physics/wiki/Bjam
+
+\subsection windows_install_sec Windows
+
+A precomiled Windows executable is included in the repository.
+To use it open up a DOS command prompt (not the git bash terminal) 
+and go to windows directory that is within the cloned  "hardware" directory. For example
+@code
+cd C:\progs\hardware\windows
+@endcode
+Then simply type
+@code
+bjam ../
+@endcode
+This should install a debug version of the libraries in the folder
+@verbatim
+C:\progs\hardware\lib
+@endverbatim
+
+You may pass additional options to bjam. For example
+@code
+bjam release toolset=msvc -j2 ../
+@endcode
+specifies that 
+  - the release rather than the debug version of the library (profile is also a valid option)
+  - the microsoft compiler should be used.  You can change this if you have other compilers on your system
+  - the compilation should be carried out in 2 threads.
+
+\subsection linux_install_sec linux
+On Debian systems obtaining bjam is trivial, and so it is not included in the repository.
+Simply type
+@code
+sudo apt-get install bjam
+@endcode
+Then go to the "hardware" folder in which the repository is located and type, for example, 
+@code
+bjam release toolset=gcc
+@endcode
+
+@section usage_sec Using the Library.
+
+Your operating system know where the library is located.
+For help with this, please see the wiki at
+http://us-physics/wiki/Library_path
+
+
+
 
 @section licence_sec Licence
 Since the library uses the Boost c++ libraries, the Boost lisence applies.

@@ -145,7 +145,10 @@ build-project ./coms_manager/build/docs ;
 build-project ./lecroy/build/docs ;
 build-project ./pulse_recv/build/docs ;
 build-project ./agilent_pulse_generators/build/docs ;
-#build-project ./filename/build/docs ;
 build-project ./hardware-header/build/docs ;
+
+build-project ./filename/build/docs ;
+build-project ./readme/build/docs ;
+build-project ./general/stringify/build/docs ;
 
 
