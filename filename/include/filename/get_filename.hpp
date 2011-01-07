@@ -12,21 +12,29 @@
 namespace ICR{
 
   namespace exception{
+    /** A general filename exception.*/
     struct filename_exception{
       virtual void debug_print(){std::cerr<<"general filename exception\n";}
     };
+    /** The file does not exist */
     struct file_does_not_exist : public filename_exception 
     {
       virtual void debug_print(){std::cerr<<"file does not exist\n";}
     };
-    
+    /** The directory does not exist */
     struct directory_does_not_exist : public filename_exception 
     {
       virtual void debug_print(){std::cerr<<"directory does not exist\n";}
     };
+    
+    /**The path is not a directory.
+     * The path exists but is a filetype that is not a directory 
+     */
     struct path_is_not_a_directory  : public filename_exception {
       virtual void debug_print(){std::cerr<<"path exists but is not a directory\n";}
     };
+    
+    /** Cannot pop out of directory. You attempted to pop back into a directly without a push */
     struct push_list_empty : public filename_exception {};
   }
   using std::string;

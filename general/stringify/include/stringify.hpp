@@ -12,6 +12,7 @@
  * 
  * \code
  #include "stringify.hpp"
+ #include <iostream>"
  int
  main  (int ac, char **av[])
  {
@@ -20,11 +21,14 @@
      std::string a_string = "The number is ";
      //use the stringify function
      a_string += ICR::stringify(a_number);
+     
+     std::string another_string = ICR::stringify_with_zeros(13,4);
      //print result
      std::cout<<a_string<<std::endl;     
+     std::cout<<another_string<<std::endl;
  }
  * \endcode 
- * will print "The number is 1.3".
+ * will print "The number is 1.3" and "0013".
  * \section Acknowledgements
  * Based on the answer to the frequently asked question by Marshall
  * Cline, 
@@ -82,8 +86,29 @@ namespace ICR{
       throw error::BadConversion("stringify()");
     return o.str();
   }
+  
+  /*! Stringify a function with preceeding zeros.
 
-  /** Turn a string into another (template specified) type. */
+    \tparam T The type (declaired implicitly) to be converted into a
+    string
+    \param x The value to be converted into a string
+    @param width The width of the resulting string
+    \return The stringified result
+   */
+  template<class T>
+  std::string stringify_with_zeros (T x, size_t width) throw(error::BadConversion)  {
+    std::ostringstream o;
+    o.fill('0');
+    o.width(width);
+    if (!(o <<  x))
+      throw error::BadConversion("stringify()");
+    return o.str();
+  }
+
+  /** Turn a string into another (template specified) type. 
+   * @tparam The type to return.
+   * @param s The string to destringify.
+   * @return The type requested */
   template<class T>
   T destringify (std::string s) throw(error::BadConversion)  {
     std::istringstream stream(s);

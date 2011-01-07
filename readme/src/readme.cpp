@@ -1,10 +1,10 @@
 
 #include "readme/readme.hpp"
-#include "filename.hpp"
 
 
 
-ICR::readme::readme(const std::string path)
+ICR::readme::readme(const std::string path) throw  (ICR::exception::directory_does_not_exist,
+						  ICR::exception::path_is_not_a_directory)
 {
   init(path);
 }
@@ -15,7 +15,8 @@ ICR::readme::readme(const readme& other)
 }
 
 void
-ICR::readme::init(const std::string& path)
+ICR::readme::init(const std::string& path) throw (ICR::exception::directory_does_not_exist,
+						  ICR::exception::path_is_not_a_directory)
 {
   m_filename = path;
   ICR::directory d;
@@ -28,6 +29,7 @@ ICR::readme::init(const std::string& path)
   }
   catch(exception::filename_exception& e){
     e.debug_print();
+    throw;
   }
 }
 
