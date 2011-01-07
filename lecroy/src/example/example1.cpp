@@ -1,20 +1,19 @@
 #include "lecroy.hpp"
 
 using namespace ICR::lecroy;
-using namespace ICR::lecroy::location;
 int
 main  (int ac, char **av)
 {
   
-  lecroy_64Xi lc("10.0.0.10");
+  // lecroy_64Xi lc("10.0.0.10");
   
 
   //lc.reset();
   //lc.sequence(2,500);
   
   
-  lecroy_file file = 
-    lc.get_waveform(C2);
+  // lecroy_file file = 
+  //   lc.get_waveform(location::C2);
   // // file.save("test.dat");
   
   // aline a = file.get_data1(0);

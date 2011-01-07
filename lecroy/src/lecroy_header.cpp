@@ -221,7 +221,7 @@ void ICR::lecroy::lecroy_header::decode(boost::shared_ptr<std::iostream>& pIn)
   read(pIn, (char*) &WAVE_SOURCE,2);
   
   if (USER_TEXT > 0)
-    (pIn, (char*) &PREAMBLE,USER_TEXT);
+    read(pIn, (char*) &PREAMBLE, USER_TEXT);
   else
     PREAMBLE="";
   

@@ -140,6 +140,8 @@ namespace ICR{
 
       lecroy_header();
       
+      /** Input a header from the string.
+       * @param header the header string.  It includes the DESC and the TIME information. */
       void operator>>(const std::string& header)
       {
 	boost::shared_ptr<std::iostream> pIn(new std::stringstream(header));
@@ -154,6 +156,7 @@ namespace ICR{
       
       /** Decode the header from an string.
        * This function is typically used in remote mode when a "WF? DESC\n" request has been made
+       * @param header The header. It includes the DESC and the TIME information.
        */
       void decode_string(const std::string& header)
       {
@@ -168,110 +171,145 @@ namespace ICR{
       ~lecroy_header();
     
 
-      /** Description - always WAVEDESC. */
+      /** Description - always WAVEDESC. 
+       * @return The variable's value.*/
       std::string  descriptor_name()    const {return std::string(DESCRIPTOR_NAME);}
-      /** Template name. */
+      /** Template name.
+       * @return The variable's value. */
       std::string  template_name()      const {return std::string(TEMPLATE_NAME);}
       /**Communication format. Set by COMM_FORMAT command. 
        *   - 0:  byte
-       *   - 1:  word */
+       *   - 1:  word 
+       * @return The variable's value.*/
       short        comm_type()          const {return COMM_TYPE;}
       /**The Byte ordering. 
        * An enumeration:
        *   - 0: HIFIRST
        *   - 1: LOWFIRST
+       * @return The variable's value.
        */
       short        comm_order()         const {return COMM_ORDER;}
-      /** Number of bytes of descriptor name.*/
+      /** Number of bytes of descriptor name.
+       * @return The variable's value.*/
       long         wave_descriptor()    const {return WAVE_DESCRIPTOR;}
-      /** Number of bytes of user text.*/
+      /** Number of bytes of user text.
+       * @return The variable's value.*/
       long         user_text()          const {return USER_TEXT;}
-      /** Number of bytes of trigger time array.*/
+      /** Number of bytes of trigger time array.
+       * @return The variable's value.*/
       long         trigtime_array()     const {return TRIGTIME_ARRAY;}
-      /** Number of bytes of random interleaved sampling array.*/
+      /** Number of bytes of random interleaved sampling array.
+       * @return The variable's value.*/
       long         ris_time_array()     const {return RIS_TIME_ARRAY;}
       /** Number of bytes of first data array.  
-	  In transmitted waveform represents the NP parameter of the WFSU command.*/
+	  In transmitted waveform represents the NP parameter of the WFSU command.
+       * @return The variable's value.*/
       long         wave_array_1()       const {return WAVE_ARRAY_1;}
-      /** Number of bytes of first data array. */
+      /** Number of bytes of first data array.
+       * @return The variable's value. */
       long         wave_array_2()       const {return WAVE_ARRAY_2;}
-      /** The instrument name. */
+      /** The instrument name.
+       * @return The variable's value. */
       std::string  instrument_name()    const {return std::string(INSTRUMENT_NAME);}
-      /** The instrument number. */
+      /** The instrument number. 
+       * @return The variable's value.*/
       long         instrument_number()  const {return INSTRUMENT_NUMBER;}
-      /** The trace label. Identifies the waveform. */
+      /** The trace label. Identifies the waveform.
+       * @return The variable's value. */
       std::string  trace_label()        const {return std::string(TRACE_LABEL);}
       /** The number of data points in the data array. 
        *  If there are two data arrays (FFT or Extrema), 
-       *  this number applies to each array separately. */
+       *  this number applies to each array separately. 
+       * @return The variable's value.*/
       long         wave_array_count()   const {return WAVE_ARRAY_COUNT;}
-      /** Number of points on the screen. */
+      /** Number of points on the screen. @return The variable's value.*/
       long         pnts_per_screen()    const {return PNTS_PER_SCREEN;}
       /** The number of points to skip untill the first good poing.
-       *  This is usually zero for normal waveforms. */
+       *  This is usually zero for normal waveforms. 
+       * @return The variable's value.*/
       long         first_valid_pnt()    const {return FIRST_VALID_PNT;}
 
       /** The index of last good data point in record before padding (blanking) was started.
        *  LAST_VALID_POINT = WAVE_ARRAY_COUNT-1 except for aborted sequence
-       *  and rollmode acquisitions. */
+       *  and rollmode acquisitions. 
+       * @return The variable's value.*/
       long         last_valid_pnt()     const {return LAST_VALID_PNT;}
 
       /** For input and output, indicates the offset relative to 
        *  the beginning of the trace buffer.
-       *  Value is the same as the FP parameter of the WFSU remote command. */
+       *  Value is the same as the FP parameter of the WFSU remote command.
+       * @return The variable's value. */
       long         first_point  ()      const {return FIRST_POINT;}
       /** For input and output, indicates the sparsing into the transmitted data block.
-       *  Value is the same as the SP parameter of the WFSU remote command. */
+       *  Value is the same as the SP parameter of the WFSU remote command. 
+       * @return The variable's value.*/
       long         sparsing_factor ()   const {return SPARSING_FACTOR;}
  
      /** For input and output, indicates the; index of the transmitted segment.
-       *  Value is the same as the SN parameter of the WFSU remote command. */
+       *  Value is the same as the SN parameter of the WFSU remote command. 
+       * @return The variable's value.*/
       long         segment_index ()     const {return SEGMENT_INDEX;}
 
       /** The acquired segment count. Between 0 and NOM_SUBARRAY_COUNT.
-       *  @see nom_subarray_count(). */
+       *  @see nom_subarray_count().
+       * @return The variable's value. */
       long         subarray_count ()    const {return SUBARRAY_COUNT;}
-      /** For Average or Extrema, number of sweeps accumulated;  else 1 */
+      /** For Average or Extrema, number of sweeps accumulated;  else 1 
+       * @return The variable's value.*/
       long         sweeps_per_acq()     const {return SWEEPS_PER_ACQ;}
 
       /** For Peak Dectect waveforms (which always include data points in DATA_ARRAY_1
        *  and min/max pairs in DATA_ARRAY_2).
        *  Value is the number of data points for each min/max pair.
-       * @return Value is the number of data points for each min/max pair. */
+       * @return Value is the number of data points for each min/max pair.
+       * @return The variable's value. */
       short        points_per_pair()    const {return POINTS_PER_PAIR;}
       /** For Peak Dectect waveforms only. 
        *  Value is the number of data points by which the first min/max pair in
-       *  DATA_ARRAY_2 is offset relative to the first data value in DATA_ARRAY_1. */
+       *  DATA_ARRAY_2 is offset relative to the first data value in DATA_ARRAY_1.
+       * @return The variable's value. */
       short        pair_offset()        const {return PAIR_OFFSET;}
-      /** Vertical gain. */
+      /** Vertical gain. 
+       * @return The variable's value.*/
       float        vertical_gain()      const {return VERTICAL_GAIN;}
       /** Vertical Offset.
        *  To get values from raw data use: 
-       *  true value = VERTICAL_GAIN * data - VERTICAL_OFFSET */
+       *  true value = VERTICAL_GAIN * data - VERTICAL_OFFSET 
+       * @return The variable's value.*/
       float        vertical_offset()    const {return VERTICAL_OFFSET;}
-      /** Maximum value.*/
+      /** Maximum value.
+       * @return The variable's value.*/
       float        max_value()          const {return MAX_VALUE;}
-      /** Minium value */
+      /** Minium value 
+       * @return The variable's value.*/
       float        min_value()          const {return MIN_VALUE;}
       /** A measure of the intrinsic precision
-       *  of the observation: ADC data is 8 bit; averaged data is 10-12 bit, etc. */
+       *  of the observation: ADC data is 8 bit; averaged data is 10-12 bit, etc. 
+       * @return The variable's value.*/
       short        nominal_bits()       const {return NOMINAL_BITS;}
       /** For sequence, the nominal segment count, otherwise 1.  
-       * \see @subarray_count() */
+       * \see subarray_count()
+       * @return The variable's value. */
       short        nom_subarray_count() const {return NOM_SUBARRAY_COUNT;}
-      /** Sampling interval for time domain waveforms. */
+      /** Sampling interval for time domain waveforms. 
+       * @return The variable's value.*/
       float        horiz_interval()     const {return HORIZ_INTERVAL;}
       /** Trigger offset for first sweep of trigger.
-       * Seconds between the trigger and the first data point. */
+       * Seconds between the trigger and the first data point. 
+       * @return The variable's value.*/
       double       horiz_offset()       const {return HORIZ_OFFSET;}
-      /** Units of the vertical axis. */
+      /** Units of the vertical axis.
+       * @return The variable's value. */
       std::string  vertunit()           const {return std::string(VERTUNIT);}
-      /** Units of the horizontal axis. */
+      /** Units of the horizontal axis.
+       * @return The variable's value. */
       std::string  horunit()            const {return std::string(HORUNIT);}
-      /** Uncertainty from one acquisition to the next, of the horizontal offset in seconds. */
+      /** Uncertainty from one acquisition to the next, of the horizontal offset in seconds. 
+       * @return The variable's value.*/
       float        horiz_uncertainty()  const {return HORIZ_UNCERTAINTY;}
       /** Duration of the acquisition (in sec) in multi-trigger waveforms.
-       *  (e.g. sequence, RIS, or averaging) */
+       *  (e.g. sequence, RIS, or averaging)
+       * @return The variable's value. */
       float        acq_duration()       const {return ACQ_DURATION;}
       /** Record type.
        *  An enumeration as follows 
@@ -285,6 +323,7 @@ namespace ICR{
        *    - 7: sequence_obsolete
        *    - 8: centered_RIS
        *    - 9: peak_detect
+       * @return The variable's value.
        */
       short        record_type()        const {return RECORD_TYPE;}
       /** Processing done.
@@ -297,9 +336,10 @@ namespace ICR{
        *    - 5: no_result
        *    - 6: rolling
        *    - 7: cumulative
+       * @return The variable's value.
        */
       short        processing_done ()   const {return PROCESSING_DONE;}
-      /** For RIS, the number of sweeps; else 1. */
+      /** For RIS, the number of sweeps; else 1. * @return The variable's value.*/
       short        ris_sweeps()         const {return RIS_SWEEPS;}
       /** Timebase enumeration.
        *  Enumeration is as follows
@@ -352,6 +392,7 @@ namespace ICR{
        *    - 46: 2_ks/div
        *    - 47: 5_ks/div
        *    - 100 EXTERNAL
+       * @return The variable's value.
        */
       short        timebase()           const {return TIMEBASE;}
       /** The vertical coupling.
@@ -361,9 +402,11 @@ namespace ICR{
        *    - 2: DC_1MOhm
        *    - 3: ground
        *    - 4: AC_1MOhm
+       * @return The variable's value.
        */
       short        vert_coupling()      const {return VERT_COUPLING;}
-      /** The probe attenuation. */
+      /** The probe attenuation. 
+       * @return The variable's value.*/
       float        probe_att()          const {return PROBE_ATT;}
 
       /** The vertical gain.
@@ -396,6 +439,7 @@ namespace ICR{
        *    - 25: 200_V/div
        *    - 26: 500_V/div
        *    - 27: 1_kV/div
+       * @return The variable's value.
        */
       short        fixed_vert_gain()    const {return FIXED_VERT_GAIN;}
 
@@ -403,11 +447,14 @@ namespace ICR{
        * An enumeration:
 	 *    - 0: off
 	 *    - 1: on
+       * @return The variable's value.
        */
       short        bandwidth_limit()    const {return BANDWIDTH_LIMIT;}
-      /** The vertical vernier scale */
+      /** The vertical vernier scale
+       * @return The variable's value. */
       float        vertical_vernier()   const {return VERTICAL_VERNIER;}
-      /** The vertical offset.  */
+      /** The vertical offset. 
+       * @return The variable's value. */
       float        acq_vert_offset()    const {return ACQ_VERT_OFFSET;}
 
       /** The channel.
@@ -417,15 +464,19 @@ namespace ICR{
        *    - 2: CHANNEL_3
        *    - 3: CHANNEL_4
        *    - 9: UNKNOWN
+       * @return The variable's value.
        */
       short        wave_source()        const {return WAVE_SOURCE;}
       /**  The text submitted by the user. 
        * At most 160 characters long.
+       * @return The variable's value.
        */
       std::string  text()           const {return std::string(PREAMBLE);} //usertext at most 160 char
 
   
-
+      /** Set the preamble text.
+       * @param text The preamble text 
+       */
       void set_preamble(const std::string& text)
       {
 	PREAMBLE = text;
@@ -455,6 +506,9 @@ namespace ICR{
     
     /** Output the header to a stream.
      * This displays all of the header info in ascii format.
+     * @param out The output stream
+     * @param lc The lecroy header
+     * @return A reference to the output stream
      */
     std::ostream&  
     operator<<(std::ostream& out, const lecroy_header& lc);

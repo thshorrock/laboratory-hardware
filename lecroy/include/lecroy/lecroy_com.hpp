@@ -25,105 +25,158 @@
 /** Institute of Cancer Research Namespace. */
 namespace ICR{
 
+    namespace exception{ 
+      /** General lecroy exception. */
+      struct lecroy_exception{};
+      /** Option not recognised. */
+      struct option_not_recognised : public lecroy_exception {};
+      
+      /** Scope failed to reset. */
+      struct failed_to_reset : public lecroy_exception {};
+      
+      /**Channel value not valid. */
+      struct channel_value_not_valid : public lecroy_exception {}; 
+
+      /** store mode not valid. */
+      struct store_mode_not_valid : public lecroy_exception {};  
+      
+      /** store format not valid. */
+      struct store_format_not_valid : public lecroy_exception {};
+      
+      /** coupling option not recognised. */
+      struct coupling_option_not_recognised : public lecroy_exception {};  
+      
+      /**trigger mode not recognised. */
+      struct trigger_mode_not_recognised : public lecroy_exception {};
+
+      /**  trigger state not recognised. */
+      struct trigger_state_not_recognised : public lecroy_exception {}; 
+      
+      /**trigger type not recognised. */
+      struct trigger_type_not_recognised : public lecroy_exception {};  
+      
+      /**  trigger hold type not recognised. */
+      struct trigger_hold_type_not_recognised : public lecroy_exception {};
+
+      /** Scope calibration failed. */
+      struct calibration_failed_exception : public lecroy_exception {}; 
+
+      /** Invalid memory option.*/
+      struct invalid_memory_option : public lecroy_exception {};
+
+      /** More than 160 characters in the waveform description */
+      struct waveform_description_too_long : public lecroy_exception {};
+
+      /** Could not get fresh aquisition. */
+      struct could_not_get_fresh_aquisition : public lecroy_exception {};
+    } 
+
   /** Lecroy Namespace. */
   namespace lecroy{
     /** Namespace containg locations of data  
      *  This contains both physical channels such as C1, C2, Ex, Ex10; but also memory channels such as M1, M2, etc. and the hard disk HDD*/
-    namespace location{
+    struct location{
       /** An enumeration that contains channels. */
-      enum{C1, //!< Channel 1
-	   C2, //!< Channel 2
-	   C3, //!< Channel 3
-	   C4, //!< Channel 4
-	   F1,F2,F3,F4,F5,F6,F7,F8,M1,M2,M3,M4,ALL_DISPLAYED, EX, EX10,ETM10, FILE, HDD};
+      enum type{C1, //!< Channel 1
+		C2, //!< Channel 2
+		C3, //!< Channel 3
+		C4, //!< Channel 4
+		F1, //!< Function 1
+		F2, //!< Function 2
+		F3, //!< Function 3
+		F4, //!< Function 4
+		F5, //!< Function 5
+		F6, //!< Function 6
+		F7, //!< Function 7
+		F8, //!< Function 8
+		M1, //!< Memory 1
+		M2, //!< Memory 2
+		M3, //!< Memory 3
+		M4, //!< Memory 4
+		ALL_DISPLAYED, //!< All displayed traces
+		EX, //!< External
+		EX10, //!< Ext 10
+		ETM10, //!< Not sure
+		FILE,  //!< File
+		HDD    //!< Hard disk drive
+      };
       /**  Return a string containing the channel.
        * @param code The location code. @return The location string.
        *   For example \code using namespace ICR::lecroy; std::string channel_str = ICR::lecroy::location::get_string(ICR::lecroy::location::C1); \endcode
        */
-      std::string get_string(const int& code);
-    } 
+      static std::string get_string(const enum location::type& code);
+    } ;
     /** Namespace containg the destination channels.  */
    
-    namespace store_mode{
-      enum {NO_AUTOSAVE, FILL, WRAP};
-      std::string get_string(const int&);
-    }
-    namespace store_format{
-      enum {ASCII, BINARY, EXCEL, MATHCAD,MATLAB};
-      std::string get_string(const int&);
-    }
+    struct store_mode{
+      enum  type{NO_AUTOSAVE, //!< NO autosave
+		 FILL,        //!< Fill
+		 WRAP         //!< Wrap
+      };
+      static std::string get_string(const enum store_mode::type&);
+    };
+    struct store_format{
+      enum  type{ASCII,   //!< Ascii format
+		 BINARY,  //!< Binary  format
+		 EXCEL,   //!< Excel format
+		 MATHCAD, //!< Mathcad format
+		 MATLAB   //!< Matlab format
+      };
+      static std::string get_string(const enum store_format::type&);
+    };
 
     
-    namespace coupling{
-      enum {DC, AC, A1M, D1M, D50, GND};
-      std::string get_string(const int&);
-    }
+    struct coupling{
+      enum  type{DC,  //!< DC coupling
+		 AC,  //!< AC coupling
+		 A1M, //!< AC coupling (1 MOhm)
+		 D1M, //!< DC coupling (1 MOhm)
+		 D50, //!< DC coupling (50 Ohm)
+		 GND  //!< Ground
+      };
+      static std::string get_string(const enum coupling::type&);
+    };
 
-    namespace trigger_mode{
-      enum {AUTO, NORM, SINGLE, STOP};
-      std::string get_string(const int&);
-    }
+    struct trigger_mode{
+      enum type {AUTO,    //!< Auto aquisition.
+		 NORM,    //!< Normal aquisition
+		 SINGLE,  //!< Single aquisition
+		 STOP     //!< Stop aquisitioning
+      };
+      static std::string get_string(const enum trigger_mode::type&);
+    };
     // namespace trigger_state{
     //   enum {LOW, HIGH};
-    //   std::string get_string(const int&);
+    //   static std::string get_string(const enum ::type);
     // }
-    namespace trigger_type{
-      enum {DROPOUT, EDGE, GLITCH, INTERVAL, STD,SINGLE_SOURCE ,STATE_QUALIFIED,EDGE_QUALIFIED };
-      std::string get_string(const int&);
-    }
-    namespace trigger_hold_type{
-      enum {TIME_GREATER_THAN, TIME_WIDTH, EVENTS,
-	    PULSE_SMALLER_THAN, PULSE_GREATER_THAN, 
-	    INTERVAL_SMALLER_THAN, INTEVAL_GREATER_THAN, 
-	    PULSE_WIDTH,INTERVAL_WIDTH, NO_HOLD};
-      std::string get_string(const int&);
-    }
+    struct trigger_type{
+      enum type {DROPOUT, 
+		  EDGE, 
+		  GLITCH,
+		  INTERVAL,
+		  STD,
+		  SINGLE_SOURCE ,
+		  STATE_QUALIFIED,
+		  EDGE_QUALIFIED 
+      };
+      static std::string get_string(const enum trigger_type::type&);
+    };
+    struct trigger_hold_type{
+      enum type {TIME_GREATER_THAN,
+		  TIME_WIDTH, 
+		  EVENTS,
+		  PULSE_SMALLER_THAN, 
+		  PULSE_GREATER_THAN, 
+		  INTERVAL_SMALLER_THAN,
+		  INTEVAL_GREATER_THAN, 
+		  PULSE_WIDTH,
+		  INTERVAL_WIDTH, 
+		  NO_HOLD
+      };
+      static std::string get_string(const enum trigger_hold_type::type&);
+    };
 
     
-    namespace exception{ 
-      /** Option not recognised. */
-      struct option_not_recognised{};
-      
-      /** Scope failed to reset. */
-      struct failed_to_reset{};
-      
-      /**Channel value not valid. */
-      struct channel_value_not_valid{}; 
-
-      /** store mode not valid. */
-      struct store_mode_not_valid{};  
-      
-      /** store format not valid. */
-      struct store_format_not_valid{};
-      
-      /** coupling option not recognised. */
-      struct coupling_option_not_recognised{};  
-      
-      /**trigger mode not recognised. */
-      struct trigger_mode_not_recognised{};
-
-      /**  trigger state not recognised. */
-      struct trigger_state_not_recognised{}; 
-      
-      /**trigger type not recognised. */
-      struct trigger_type_not_recognised{};  
-      
-      /**  trigger hold type not recognised. */
-      struct trigger_hold_type_not_recognised{};
-
-      /** Scope calibration failed. */
-      struct calibration_failed_exception{}; 
-
-      /** Invalid memory option.*/
-      struct invalid_memory_option{};
-
-      /** More than 160 characters in the waveform description */
-      struct waveform_description_too_long{};
-
-      /** Could not get fresh aquisition. */
-      struct could_not_get_fresh_aquisition{};
-    } 
-    /* @endinternal */
  
     /** Interface for communicating with the Lecroy Waverunner scope.
      *
@@ -189,7 +242,7 @@ namespace ICR{
        * @todo check for errors in the input and throw appropriately.
        */
       virtual  void
-      set_coupling(const int& channel, const int& opt);
+      set_coupling(const enum location::type& channel, const enum coupling::type& opt);
 
       /** Set the timebase to the scope (seconds per division).
        *  @param timebase The seconds per divisiton
@@ -251,7 +304,7 @@ namespace ICR{
        * lc.clear_memory(3);
        * @endcode
        */
-      virtual void clear_memory(const int mem);
+      virtual void clear_memory(const location::type& mem);
 
       /** Restarts the cumulative processing functions.
        *  For example summed or continuous average, extrema, FFT power
@@ -306,7 +359,7 @@ namespace ICR{
 
       /** Set vertical offset (in volts) to a channel.
        * Note this essentially a dc offset, it is not the volts per divisiton. 
-       * @see volts_per_div(const int& channel,const double& v)
+       * @see volts_per_div(const enum location::type& channel,const double& v)
        *
        * Example: Set offset channel 3 by 2 volts
        * @param channel  Acceptable values are ICR::lecroy::location::C1, ICR::lecroy::location::C2, ICR::lecroy::location::C3 and ICR::lecroy::location::C4.
@@ -316,7 +369,7 @@ namespace ICR{
        * lc.set_vertical_offset(ICR::lecroy::location::C3, 2);
        * @endcode
        */
-      virtual void set_vertical_offset(const int& channel, const double& offset);
+      virtual void set_vertical_offset(const enum location::type& channel, const double& offset);
       
       /**  Specifiy whether the vertical offset is scaled as you change the gain.
        * @param scale_with_gain true or false.
@@ -387,7 +440,7 @@ namespace ICR{
        * @endcode
        * @see trigger_mode
       */
-      virtual void store(const int& trace, const int& dest);
+      virtual void store(const enum location::type& trace, const enum location::type& dest);
       
       /** Setup the way the data is stored.
        * @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4, ICR::lecroy::location::F1, ... ICR::lecroy::location::F9, ICR::lecroy::location::ALL_DISPLAYED.
@@ -412,7 +465,7 @@ namespace ICR{
        * lc.store(ICR::lecroy::location::C1, ICR::lecroy::location::HDD, store_mode::FILL, store_format::BINARY);
        * @endcode
        */
-      virtual void store_setup(const int& trace, const int& dest, const int& mode, const int& type);
+      virtual void store_setup(const enum location::type& trace, const enum location::type& dest, const enum store_mode::type& mode, const enum store_format::type& type);
 
       /** Toggle trace on/off.
        * @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
@@ -425,7 +478,7 @@ namespace ICR{
        * @see trace_on
        * @see trace_off
        */
-      virtual void toggle_trace(const int& trace);
+      virtual void toggle_trace(const enum location::type& trace);
       /** Turn trace on.
        *  @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
        *
@@ -437,7 +490,7 @@ namespace ICR{
        * @see toggle_trace
        * @see trace_off
        */
-       virtual void trace_on(const int& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA ON\n");}
+       virtual void trace_on(const enum location::type& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA ON\n");}
        
       /** Turn trace off.
        *  @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
@@ -450,7 +503,7 @@ namespace ICR{
        * @see toggle_trace
        * @see trace_on
        */
-      virtual void trace_off(const int& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA OFF\n");}
+      virtual void trace_off(const enum location::type& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA OFF\n");}
 
       //virtual void transfer_file(const std::string& filename){send("TRFL DISK,HDD,FILE,'"+filename+"'\n");}
       
@@ -472,7 +525,7 @@ namespace ICR{
        * @endcode
        * \see trigger_delay, trigger_level, trigger_mode
        */
-      virtual void trigger_coupling(const int& channel, const int& coupling);
+      virtual void trigger_coupling(const enum location::type& channel, const enum coupling::type& coupling);
        /** Set the trigger delay.
 	* Negative numbers indicate a post trigger.
        * @param delay Time in seconds. Negative numbers indicate a post trigger.
@@ -496,7 +549,7 @@ namespace ICR{
        * @endcode
        * @see trigger_coupling, trigger_delay, trigger_mode
        */
-      virtual void trigger_level(const int& channel, const double& level);
+      virtual void trigger_level(const enum location::type& channel, const double& level);
       
       /** Set the trigger mode.
        * @param mode Acceptible values
@@ -512,7 +565,7 @@ namespace ICR{
        * @endcode
        * @see stop
        */
-      virtual void trigger_mode(const int& mode) {send("TRMD "+trigger_mode::get_string(mode)+"\n");}
+      virtual void trigger_mode(const enum trigger_mode::type& mode) {send("TRMD "+trigger_mode::get_string(mode)+"\n");}
 
       /**  Define a trigger pattern,
        *  The command specifies the logic level of the pattern sources (Channel 1,
@@ -587,7 +640,7 @@ namespace ICR{
        * @see trigger_positive_edge
        * @see trigger_negative_edge
       */
-      virtual void trigger_select(const int& type,const int& source,const int& hold_type, const double& hold_value1, const double& hold_value2 = 0.0);
+      virtual void trigger_select(const enum trigger_type::type& type,const enum location::type& source,const enum trigger_hold_type::type& hold_type, const double& hold_value1, const double& hold_value2 = 0.0);
       
       /** Trigger on positive edge of selected channel.
        * @param channel  Acceptable values
@@ -606,7 +659,7 @@ namespace ICR{
        * @see trigger_negative_edge
        * @see trigger_select
        */
-      virtual void trigger_positive_edge(const int& channel){send(ICR::lecroy::location::get_string(channel)+":TRSL POS\n");}
+      virtual void trigger_positive_edge(const enum location::type& channel){send(ICR::lecroy::location::get_string(channel)+":TRSL POS\n");}
       /** Trigger on negative edge of selected channel.
        * @param channel  Acceptable values
        * - ICR::lecroy::location::C1, 
@@ -624,7 +677,7 @@ namespace ICR{
        * @see trigger_positive_edge
        * @see trigger_select
        */
-      virtual void trigger_negative_edge(const int& channel){send(ICR::lecroy::location::get_string(channel)+":TRSL NEG\n");}
+      virtual void trigger_negative_edge(const enum location::type& channel){send(ICR::lecroy::location::get_string(channel)+":TRSL NEG\n");}
       /** Set the volts per division.
        * @param channel  Acceptable values
        * - ICR::lecroy::location::C1, 
@@ -639,26 +692,26 @@ namespace ICR{
        * @endcode
        * @see set_timebase
        */
-      virtual void volts_per_div(const int& channel,const double& volts) {send(ICR::lecroy::location::get_string(channel)+":VDIV "+stringify(volts)+"\n");}
+      virtual void volts_per_div(const enum location::type& channel,const double& volts) {send(ICR::lecroy::location::get_string(channel)+":VDIV "+stringify(volts)+"\n");}
       
-      /** Wait for current aquisition to complete before processing new commands.
+      /* Wait for current aquisition to complete before processing new commands.
        *
        * @code  
        * lecroy_com lc("ip_address");
        * lc.wait(); 
        * @endcode
        */
-      virtual void wait(const unsigned int& secs= 0) {
-	std::string cmd = "WAIT "+stringify(secs)+"\n";
-	send(cmd,true);
-      }
+      // virtual void wait(const unsigned int secs= 0) {
+      // 	std::string cmd = "WAIT "+stringify(secs)+"\n";
+      // 	send(cmd,true);
+      // }
 
 
       virtual void demand_fresh_aquisition();
 
-      virtual lecroy_file get_waveform(const int& channel);
+      virtual lecroy_file get_waveform(const enum location::type& channel);
 
-      virtual std::string get_waveform_text(const int& channel);
+      virtual std::string get_waveform_text(const enum location::type& channel);
 
       /** Annotate waveform with text.
        * @param text Text description of the waveform. Upto 160 characters permitted.
@@ -668,7 +721,7 @@ namespace ICR{
        * lc.waveform_text(ICR::lecroy::location::C1, "Aquired on 21/09/2010"); 
        * @endcode
        */
-      virtual void waveform_text(const int& channel,const std::string& text) 
+      virtual void waveform_text(const enum location::type& channel,const std::string& text) 
 	throw(exception::waveform_description_too_long);
       
       /** Display the XY plot on the scope

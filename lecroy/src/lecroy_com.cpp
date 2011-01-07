@@ -7,7 +7,7 @@
 #include <boost/thread.hpp>
 namespace L = ICR::lecroy;
 std::string
-L::coupling::get_string(const int& opt)
+L::coupling::get_string(const enum coupling::type& opt)
 {
   switch (opt) {
   case coupling::DC: return std::string("DC"); break;
@@ -21,7 +21,7 @@ L::coupling::get_string(const int& opt)
 }
 
 std::string
-L::trigger_mode::get_string(const int& opt)
+L::trigger_mode::get_string(const enum trigger_mode::type& opt)
 {
   switch (opt) {
   case trigger_mode::AUTO: return std::string("AUTO"); break;
@@ -33,7 +33,7 @@ L::trigger_mode::get_string(const int& opt)
 }
 
 // std::string
-// L::trigger_state::get_string(const int& opt)
+// L::trigger_state::get_string(const enum ::type& opt)
 // {
 //   switch (opt) {
 //   case coupling::LOW return std::string("L"); break;
@@ -45,7 +45,7 @@ L::trigger_mode::get_string(const int& opt)
 // }
 
 std::string
-L::trigger_type::get_string(const int& opt)
+L::trigger_type::get_string(const enum trigger_type::type& opt)
 {
   switch (opt) {
   case DROPOUT: return std::string("DROP"); break;
@@ -61,7 +61,7 @@ L::trigger_type::get_string(const int& opt)
 }
 
 std::string
-L::trigger_hold_type::get_string(const int& opt)
+L::trigger_hold_type::get_string(const enum trigger_hold_type::type& opt)
 {
   switch (opt) {
   case TIME_GREATER_THAN: return std::string("TI"); break;
@@ -78,7 +78,7 @@ L::trigger_hold_type::get_string(const int& opt)
   }
 }
 std::string
-L::location::get_string(const int& opt)
+L::location::get_string(const enum location::type& opt)
 {
   switch(opt) {
   case C1: return std::string("C1"); break;
@@ -108,7 +108,7 @@ L::location::get_string(const int& opt)
   
 }
 // std::string
-// L::destination::get_string(const int& opt)
+// L::destination::get_string(const enum ::type& opt)
 // {
 //   switch(opt) {
 //   case M1: return std::string("M1"); break;
@@ -122,7 +122,7 @@ L::location::get_string(const int& opt)
 // }
 
 std::string
-L::store_mode::get_string(const int& opt)
+L::store_mode::get_string(const enum store_mode::type& opt)
 {
   switch(opt) {
   case NO_AUTOSAVE: return std::string("OFF"); break;
@@ -133,7 +133,7 @@ L::store_mode::get_string(const int& opt)
 }
 
 std::string
-L::store_format::get_string(const int& opt)
+L::store_format::get_string(const enum store_format::type& opt)
 {
   switch(opt) {
   case ASCII: return std::string("ASCII"); break;
@@ -158,7 +158,7 @@ L::lecroy_com<coms_method>::lecroy_com(const std::string& device)
 
 template<class coms_method>
 void
-L::lecroy_com<coms_method>::set_coupling(const int& channel, const int& opt)
+L::lecroy_com<coms_method>::set_coupling(const enum location::type& channel, const enum coupling::type& opt)
 {
   std::string cmd;
   switch (opt) {
@@ -196,10 +196,10 @@ L::lecroy_com<coms_method>::calibrate()
 }
 
 template<class coms_method> void
-L::lecroy_com<coms_method>::clear_memory(const int i)
+L::lecroy_com<coms_method>::clear_memory(const location::type& mem)
 {
-  if (i<0 || i >4 ) throw exception::invalid_memory_option();
-  send("CLM M" + stringify(i) +"\n");
+  // if (i<0 || i >4 ) throw exception::invalid_memory_option();
+  send("CLM " + location::get_string(mem) +"\n");
 }
 
 template<class coms_method> void
@@ -220,7 +220,7 @@ L::lecroy_com<coms_method>::set_date()
 }
 
 template<class coms_method> void
-L::lecroy_com<coms_method>::set_vertical_offset(const int& channel, const double& offset)
+L::lecroy_com<coms_method>::set_vertical_offset(const enum location::type& channel, const double& offset)
 {
   std::string cmd;
   if (channel>4 || channel<1)  throw exception::channel_value_not_valid();
@@ -262,12 +262,12 @@ L::lecroy_com<coms_method>::sequence(const int& segments, const double& max_samp
 }
 
 template<class coms_method> void
-L::lecroy_com<coms_method>::store(const int& trace, const int& dest)
+L::lecroy_com<coms_method>::store(const enum location::type& trace,const enum location::type& dest)
 {
   send("STO "+location::get_string(trace) +","+ location::get_string(dest)+"\n");
 }
 template<class coms_method> void 
-L::lecroy_com<coms_method>::store_setup(const int& trace, const int& dest, const int& mode, const int& type
+L::lecroy_com<coms_method>::store_setup(const enum location::type& trace,const enum location::type& dest, const enum store_mode::type& mode, const enum store_format::type& type
 )
 {
   send("STST "+location::get_string(trace) + "," 
@@ -276,7 +276,7 @@ L::lecroy_com<coms_method>::store_setup(const int& trace, const int& dest, const
        + store_format::get_string(type)+"\n");
 }
 
-template<class coms_method> void L::lecroy_com<coms_method>::toggle_trace(const int& trace)
+template<class coms_method> void L::lecroy_com<coms_method>::toggle_trace(const enum location::type& trace)
 {
   std::string ans = recv(location::get_string(trace)+":TRA?\n");
   //returned anwer is, for example "C3:TRA ON"
@@ -286,7 +286,7 @@ template<class coms_method> void L::lecroy_com<coms_method>::toggle_trace(const 
     send(location::get_string(trace)+":TRA ON\n");
 }
 
-template<class coms_method> void L::lecroy_com<coms_method>::trigger_coupling(const int& channel, const int& coupling)
+template<class coms_method> void L::lecroy_com<coms_method>::trigger_coupling(const enum location::type& channel, const enum coupling::type& coupling)
 {
   std::string str_coupling;
   switch (coupling) {
@@ -305,16 +305,16 @@ template<class coms_method> void L::lecroy_com<coms_method>::trigger_delay(const
   send("TRDL "+stringify(delay)+"\n");
 }
 
-template<class coms_method> void L::lecroy_com<coms_method>::trigger_level(const int& channel, const double& level)
+template<class coms_method> void L::lecroy_com<coms_method>::trigger_level(const enum location::type& channel, const double& level)
 {
   send(location::get_string(channel)+":TRLV "+stringify(level)+"\n");
 }
-template<class coms_method> void  L::lecroy_com<coms_method>::trigger_select(const int& type,const int& source,const int& hold_type, const double& hold_value1, const double& hold_value2)
+template<class coms_method> void  L::lecroy_com<coms_method>::trigger_select(const trigger_type::type& type,const enum location::type& source,const enum trigger_hold_type::type& hold_type, const double& hold_value1, const double& hold_value2)
 {
   std::string cmd;
   cmd = "TRSE " + trigger_type::get_string(type) 
     + ",SR," + location::get_string(source) 
-    + ",HT," + trigger_hold_type::get_string(source) 
+    + ",HT," + trigger_hold_type::get_string(hold_type) 
     + ",HV," + stringify(hold_value1);
   //std::cout<<"cmd = "<<cmd<<std::endl;
 
@@ -362,7 +362,7 @@ L::lecroy_com<coms_method>::demand_fresh_aquisition()
 
 template<class coms_method> 
 L::lecroy_file
-L::lecroy_com<coms_method>::get_waveform(const int& channel)
+L::lecroy_com<coms_method>::get_waveform(const enum location::type& channel)
 {
 
   
@@ -477,7 +477,7 @@ L::lecroy_com<coms_method>::get_waveform(const int& channel)
 }
 template<class coms_method> 
 std::string
-L::lecroy_com<coms_method>::get_waveform_text(const int& channel)
+L::lecroy_com<coms_method>::get_waveform_text(const enum location::type& channel)
 {
   return recv(location::get_string(channel)+":WF? TEXT\n",160);
 
@@ -488,7 +488,7 @@ L::lecroy_com<coms_method>::get_waveform_text(const int& channel)
 
 template<class coms_method> 
 void 
-L::lecroy_com<coms_method>::waveform_text(const int& channel, const std::string& text) 
+L::lecroy_com<coms_method>::waveform_text(const enum location::type& channel, const std::string& text) 
   throw(exception::waveform_description_too_long)
 {
   if (text.size()>160)  throw exception::waveform_description_too_long();

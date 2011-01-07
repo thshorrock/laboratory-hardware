@@ -13,7 +13,8 @@ using namespace ICR;
 using namespace ICR::lecroy;
 using namespace ICR::pulser;
 using namespace ICR::agilent;
-using namespace ICR::lecroy::location;
+
+
 
 
 double pulse_offset(double imaging_echo_time_to_rear,
@@ -128,7 +129,7 @@ main  (int ac, char **av)
   try{
     scope.demand_fresh_aquisition();
   }
-  catch(ICR::lecroy::exception::could_not_get_fresh_aquisition& e){
+  catch(ICR::exception::could_not_get_fresh_aquisition& e){
     /* missed the trigger for some reason, 
      * retrigger.
      */
@@ -207,9 +208,9 @@ main  (int ac, char **av)
       try{
 	//std::cout<<"getting waveform"<<std::endl;
 
-	file =  scope.get_waveform(C4);
+	file =  scope.get_waveform(location::C4);
       }
-      catch(ICR::lecroy::exception::could_not_get_fresh_aquisition& e){
+      catch(ICR::exception::could_not_get_fresh_aquisition& e){
 	/* missed the trigger for some reason, 
 	 * retrigger.
 	 */
@@ -217,7 +218,7 @@ main  (int ac, char **av)
 
 	bus_sync.trigger_now();
 	
-	file =  scope.get_waveform(C4);
+	file =  scope.get_waveform(location::C4);
       }
       //	std::cout<<"got waveform"<<std::endl;
       //std::cout<<"got wave"<<std::endl;

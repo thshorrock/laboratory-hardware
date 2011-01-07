@@ -198,6 +198,7 @@ namespace ICR{
     public:
       /** Constructor. */
       lecroy_file();
+      
       /** Constructor.
        *  @param lh The lecroy_header.
        * Use this constructor if you have the header but have not yet collected the data.
@@ -208,7 +209,7 @@ namespace ICR{
       /** Decode the entire file (stored in a string. 
        * The string is expected to contain the header and all the data.
        * For example, the string that results from a "WF? ALL\n" remote command
-       * @param lh The lecroy header.
+       * @param file The lecroy header.
        */
       void decode_string(const std::string& file);
       

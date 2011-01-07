@@ -10,7 +10,6 @@ using namespace ICR;
 using namespace ICR::lecroy;
 using namespace ICR::pulser;
 using namespace ICR::agilent;
-using namespace ICR::lecroy::location;
 int
 main  (int ac, char **av)
 {
@@ -47,6 +46,6 @@ main  (int ac, char **av)
     bus_sync.trigger_now();
     lecroy_file file;
       
-    file =  scope.get_waveform(C4);
+    file =  scope.get_waveform(location::C4);
   }
 }
