@@ -11,11 +11,15 @@
 #include <bitset>
 
 namespace ICR{
-
+  
+  namespace exception{
+    
+    /** General lecroy exception. */
+    struct lecroy_exception{};
+    /** Invalid communiciation method */
+    struct invalid_communication_method : public lecroy_exception{};
+  }
   namespace lecroy {
-    namespace exceptions{
-      struct invalid_communication_method{};
-    }
     /** A class handling the VICP header to the Lecroy scope */
     class lecroy_com_header
     {
@@ -35,57 +39,61 @@ namespace ICR{
       void set_sequence(void);
       void set_version(void);
     public:
-      lecroy_com_header(const bool& eol=true,const bool& lock = false );
+      /** Constuctor. 
+       *@param eol whether to terminate with an end of line character ("\n").
+       *@param lock whether to attempt to lock the scope.
+       */
+      lecroy_com_header(const bool& eol=true,
+			const bool& lock = false );
+     
+      /** A desructor */
       virtual ~lecroy_com_header(){};
-      std::string add(const std::string& cmd);
-      void set_clear(const bool& b) {m_clear = b; }
-      void set_lockout(const bool& b) {m_lockout = b; }
-      void set_eoi(const bool& b) {m_eoi = b; ;}
-      void set_remote(const bool& b) {m_remote = b;}
-      void set_data(const bool& b) {m_data = b; }
+      
+      /** Add the VICP  header to the command 
+       * @param cmd The naked command
+       * @return the command with the header.
+       */
+      std::string 
+      add(const std::string& cmd);
 
-      unsigned long get_length(const std::string& header)
-      {
-	// int i = 4;
-	// unsigned long val = 0;
+      /** Set whether to add a clear bit to the header.
+       * @param b True or false */
+      void 
+      set_clear(const bool& b) {m_clear = b; }
+      
+      /** Set whether to add a lockout bit to the header.
+       * @param b True or false */
+      void 
+      set_lockout(const bool& b) {m_lockout = b; }
+      
+      /** Set whether to add an end of input bit to the header.
+       * @param b True or false */
+      void 
+      set_eoi(const bool& b) {m_eoi = b; ;}
+      
+      /** Set whether to add a remote bit to the header.
+       * @param b True or false */
+      void 
+      set_remote(const bool& b) {m_remote = b;}
+      
+      /** Set whether to add a "containing data" bit to the header.
+       * @param b True or false */
+      void 
+      set_data(const bool& b) {m_data = b; }
 
-	// for  ; i <= 7; i++ )
-	//   val = ( val << 8 ) | header[ i ];
+      /** Get the number of data bits transmitted (following the header)
+       * @param header The header to be read
+       * @return the number of bits
+       */
+      unsigned long 
+      get_length(const std::string& header);
+      
+      /** Is the eoi bit set in the header.
+       * @param header The header.
+       * @return true or false. */
 
-	std::bitset<32> bits; bits.reset();
-	std::bitset<8> byte1(header[4]);
-	std::bitset<8> byte2(header[5]);
-	std::bitset<8> byte3(header[6]);
-	std::bitset<8> byte4(header[7]);
-
-	
-	for(size_t i=0;i<8;++i){
-	  bits.set(i, byte4.test(i));
-	}
-
-	for(size_t i=0;i<8;++i){
-	  bits.set(i+8, byte3.test(i));
-	}
-	for(size_t i=0;i<8;++i){
-	  bits.set(i+16, byte2.test(i));
-	}
-
-	for(size_t i=0;i<8;++i){
-	  bits.set(i+24, byte1.test(i));
-	}
-	
-	// for(size_t i=0;i<16;++i){
-	//   std::cout<<"bits ["<<i<<"] = "<<bits.test(i)<<std::endl;
-	// }
-
-	return bits.to_ulong();
-      }
-      bool is_eoi(const std::string& header) const
-      {
-	//operation bit
-	char op = header[0];
-	return op & ( 1 << 0 );
-      }
+      bool 
+      is_eoi(const std::string& header) const;
 
     };
     
@@ -104,22 +112,33 @@ namespace ICR{
     protected:
     public:
       /** Open a communication with the lecroy scope.
-       * @param IPaddress The IP address of the lecroy scope.
+       * @param device The locaton of the device.
        */
       lecroy_com_manager(const std::string& device);
       /** The distructor.*/
       virtual ~lecroy_com_manager();
-      /** Send a command to the scope.  Most of the time this will be null terminated @param cmd The command string.*/
-      void send(const std::string& cmd, const bool& wait = false);
+      /** Send a command to the scope.  Most of the time this will be null terminated 
+       *  @param cmd The command string.
+       *  @throws boost::system::system_error A boost asio error occured.*/
+      void send(const std::string cmd) 
+	throw (boost::system::system_error) ;
       
       /** Send a request to the scope.  Most of the time this will be null terminated 
        * @param cmd The request string 
        * @param buffsize The size of the buffer to collect.  The returned string can be shorter than this size.
        * @param exact If exactly buffsize characters are to be collected
-       * @return The returned string from the scope (missing the header). */
-      std::string recv(const std::string& cmd, const unsigned int& buffsize = 128, const bool& exact=false) ;
+       * @return The returned string from the scope (missing the header).
+       *  @throws boost::system::system_error A boost asio error occured. */
+      std::string recv(const std::string cmd, const unsigned int& buffsize = 128, const bool& exact=false)
+	throw (boost::system::system_error)   ;
+      
+      /** receive surplus bits.
+       * If a communication fails the sometimes there are bits backed up.
+       * this function reads until and end of file bit.
+       * @return The surplus bits.
+       */
       std::string recv_surp() ;
-      std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5, const bool& exact=false) ;
+      // std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5, const bool& exact=false) ;
       void clear();
 
       /** Send a wait command.
@@ -147,7 +166,7 @@ namespace ICR{
     inline lecroy_com_manager<T>::lecroy_com_manager(const std::string& device)
       : T(device)
     {
-      throw ICR::lecroy::exceptions::invalid_communication_method();
+      throw ICR::exception::invalid_communication_method();
     }
 
     template<class T>

@@ -26,8 +26,6 @@
 namespace ICR{
 
     namespace exception{ 
-      /** General lecroy exception. */
-      struct lecroy_exception{};
       /** Option not recognised. */
       struct option_not_recognised : public lecroy_exception {};
       
@@ -73,7 +71,7 @@ namespace ICR{
 
   /** Lecroy Namespace. */
   namespace lecroy{
-    /** Namespace containg locations of data  
+    /** Locations of data  
      *  This contains both physical channels such as C1, C2, Ex, Ex10; but also memory channels such as M1, M2, etc. and the hard disk HDD*/
     struct location{
       /** An enumeration that contains channels. */
@@ -106,27 +104,33 @@ namespace ICR{
        */
       static std::string get_string(const enum location::type& code);
     } ;
-    /** Namespace containg the destination channels.  */
-   
+    /**The storage mode.  */
     struct store_mode{
+      /** Enumeration of the storate mode.*/
       enum  type{NO_AUTOSAVE, //!< NO autosave
 		 FILL,        //!< Fill
 		 WRAP         //!< Wrap
       };
-      static std::string get_string(const enum store_mode::type&);
+      /** The string variable of the option. @param code @return what the code represents */
+      static std::string get_string(const enum store_mode::type& code);
     };
+
+    /** The file format. */
     struct store_format{
+      /** The valid options.*/
       enum  type{ASCII,   //!< Ascii format
 		 BINARY,  //!< Binary  format
 		 EXCEL,   //!< Excel format
 		 MATHCAD, //!< Mathcad format
 		 MATLAB   //!< Matlab format
       };
-      static std::string get_string(const enum store_format::type&);
+      /** The string variable of the option. @param code @return what the code represents */
+      static std::string get_string(const enum store_format::type& code);
     };
 
-    
+    /** The couplings */
     struct coupling{
+      /** The valid options.*/
       enum  type{DC,  //!< DC coupling
 		 AC,  //!< AC coupling
 		 A1M, //!< AC coupling (1 MOhm)
@@ -134,46 +138,56 @@ namespace ICR{
 		 D50, //!< DC coupling (50 Ohm)
 		 GND  //!< Ground
       };
-      static std::string get_string(const enum coupling::type&);
+      /** The string variable of the option. @param code @return what the code represents */
+      static std::string get_string(const enum coupling::type& code);
     };
-
+    /** The trigger mode.*/
     struct trigger_mode{
+      /** The valid options.*/
       enum type {AUTO,    //!< Auto aquisition.
 		 NORM,    //!< Normal aquisition
 		 SINGLE,  //!< Single aquisition
 		 STOP     //!< Stop aquisitioning
       };
-      static std::string get_string(const enum trigger_mode::type&);
+      /** The string variable of the option. @param code @return what the code represents */
+      static std::string get_string(const enum trigger_mode::type& code);
     };
     // namespace trigger_state{
     //   enum {LOW, HIGH};
     //   static std::string get_string(const enum ::type);
     // }
+    /** The trigger types */
     struct trigger_type{
-      enum type {DROPOUT, 
-		  EDGE, 
-		  GLITCH,
-		  INTERVAL,
-		  STD,
-		  SINGLE_SOURCE ,
-		  STATE_QUALIFIED,
-		  EDGE_QUALIFIED 
+      /** The valid options.*/
+      enum type {DROPOUT,           //!< Dropout triggering
+		 EDGE,              //!< Edge triggering 
+		 GLITCH,            //!<Glitch triggering
+		 INTERVAL,          //!<Interval triggering
+		 STD,               //!<Std tringgering (not sure what this is)
+		 SINGLE_SOURCE ,    //!<Single source
+		 STATE_QUALIFIED,   //!<State qualified
+		 EDGE_QUALIFIED     //!Edge qualified.
       };
-      static std::string get_string(const enum trigger_type::type&);
+      /** The string variable of the option. @param code @return what the code represents */
+      static std::string get_string(const enum trigger_type::type& code);
     };
+    
+    /** The trigger hold options */
     struct trigger_hold_type{
-      enum type {TIME_GREATER_THAN,
-		  TIME_WIDTH, 
-		  EVENTS,
-		  PULSE_SMALLER_THAN, 
-		  PULSE_GREATER_THAN, 
-		  INTERVAL_SMALLER_THAN,
-		  INTEVAL_GREATER_THAN, 
-		  PULSE_WIDTH,
-		  INTERVAL_WIDTH, 
-		  NO_HOLD
+      /** The valid options.*/
+      enum type {TIME_GREATER_THAN,       //!< Greater than option
+		 TIME_WIDTH,              //!< Time width option
+		 EVENTS,                  //!< Number of events option
+		 PULSE_SMALLER_THAN,      //!< Pulse smaller than option
+		 PULSE_GREATER_THAN,      //!< Pulse greater than option
+		 INTERVAL_SMALLER_THAN,   //!< Interval smaller than option
+		 INTEVAL_GREATER_THAN,    //!< Inverval greater than option
+		 PULSE_WIDTH,             //!< Pulse width option
+		 INTERVAL_WIDTH,          //!< Interval width option
+		 NO_HOLD                  //!< No hold option 
       };
-      static std::string get_string(const enum trigger_hold_type::type&);
+      /** The string variable of the option. @param code @return what the code represents */
+      static std::string get_string(const enum trigger_hold_type::type& code);
     };
 
     
@@ -222,7 +236,7 @@ namespace ICR{
        * @endcode
       */
        using lecroy_com_manager<coms_method>::recv;
-       using lecroy_com_manager<coms_method>::timed_recv;
+      //       using lecroy_com_manager<coms_method>::timed_recv;
       
        using lecroy_com_manager<coms_method>::recv_surp;
       /** Set the coupling for a channel on the scope.
@@ -714,6 +728,7 @@ namespace ICR{
       virtual std::string get_waveform_text(const enum location::type& channel);
 
       /** Annotate waveform with text.
+       * @param channel The channel to write the text to.
        * @param text Text description of the waveform. Upto 160 characters permitted.
        *
        * @code  
@@ -747,7 +762,7 @@ namespace ICR{
       lecroy_64Xi(const std::string device) : lecroy_com<IP>(device) {}
       using lecroy_com<IP>::send;
       using lecroy_com<IP>::recv;
-      using lecroy_com<IP>::timed_recv;
+      //      using lecroy_com<IP>::timed_recv;
       using lecroy_com<IP>::set_coupling;
       using lecroy_com<IP>::set_timebase;
       using lecroy_com<IP>::arm;

@@ -52,6 +52,43 @@ L::lecroy_com_header::lecroy_com_header(const bool& eol, const bool& lock)
   set_version();
 }
 
+
+unsigned long 
+L::lecroy_com_header::get_length(const std::string& header)
+{
+
+  std::bitset<32> bits; bits.reset();
+  std::bitset<8> byte1(header[4]);
+  std::bitset<8> byte2(header[5]);
+  std::bitset<8> byte3(header[6]);
+  std::bitset<8> byte4(header[7]);
+
+	
+  for(size_t i=0;i<8;++i){
+    bits.set(i, byte4.test(i));
+  }
+
+  for(size_t i=0;i<8;++i){
+    bits.set(i+8, byte3.test(i));
+  }
+  for(size_t i=0;i<8;++i){
+    bits.set(i+16, byte2.test(i));
+  }
+
+  for(size_t i=0;i<8;++i){
+    bits.set(i+24, byte1.test(i));
+  }
+	
+  return bits.to_ulong();
+}
+bool
+L::lecroy_com_header::is_eoi(const std::string& header) const
+      {
+	//operation bit
+	char op = header[0];
+	return op & ( 1 << 0 );
+      }
+
 void
 L::lecroy_com_header::set_length(const std::string& cmd)
 {
@@ -118,7 +155,8 @@ L::lecroy_com_header::add(const std::string& cmd)
 
 template<class coms_method>
 void
-ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string& cmd, const bool& wait)
+ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd) 
+	throw (boost::system::system_error) 
 {
   // bool not_completed = true;
   // while(not_completed){
@@ -140,7 +178,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string& cmd, const
      e.debug_print();
      clear();
      std::cout<<"cmd = "<<cmd<<std::endl;
-     send(cmd,wait); //retry
+     send(cmd); //retry
    }
   //     std::cout<<"command not completed, retry..."<<std::endl;   
   //   }
@@ -172,7 +210,8 @@ ICR::lecroy::lecroy_com_manager<coms_method>::clean_string(std::string& str, con
 }
 template<class coms_method>
 std::string
-ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string& cmd, const unsigned int& buffsize, const bool& exact ) 
+ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const unsigned int& buffsize, const bool& exact )  
+  throw (boost::system::system_error) 
 {
 
   //std::cout<<"start recv"<<std::endl;
@@ -181,51 +220,51 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string& cmd, const
   std::string rec ;
   
   // for(;;){ //infinite loop
-     try{
-      std::string full_command = header.add(cmd);
-      coms_method::send(full_command);
+  try{
+    std::string full_command = header.add(cmd);
+    coms_method::send(full_command);
 
-      size_t attempts = 0;
-      while (attempts < 500){
-	//	std::cout<<"attempts = "<<attempts<<std::endl;
+    size_t attempts = 0;
+    while (attempts < 500){
+      //	std::cout<<"attempts = "<<attempts<<std::endl;
 
-	std::string h = coms_method::timed_recv(8,2,true);
-	//std::cout<<"h = "<<h<<std::endl;
-	// if (attempts<=1) {
-	//   for(size_t i=0;i<h.size();++i){
-	//     std::cout<<"header["<<i<<"] = "<<(int) h[i]<<std::endl;
+      std::string h = coms_method::timed_recv(8,2,true);
+      //std::cout<<"h = "<<h<<std::endl;
+      // if (attempts<=1) {
+      //   for(size_t i=0;i<h.size();++i){
+      //     std::cout<<"header["<<i<<"] = "<<(int) h[i]<<std::endl;
 	    
-	//   }
-	// }
+      //   }
+      // }
 
-	size_t size = header.get_length(h);
-	//	if (attempts<=1) 
-	  //	std::cout<<"size = "<<size<<std::endl;
-	if (header.is_eoi(h)){
-	  // std::cout<<"eoi"<<std::endl;
-	  rec.append( coms_method::recv(size+1));
-	  // std::cout<<"ret = "<<rec<<std::endl;
+      size_t size = header.get_length(h);
+      //	if (attempts<=1) 
+      //	std::cout<<"size = "<<size<<std::endl;
+      if (header.is_eoi(h)){
+	// std::cout<<"eoi"<<std::endl;
+	rec.append( coms_method::recv(size+1));
+	// std::cout<<"ret = "<<rec<<std::endl;
 
-	  return rec;
-	}
-	//std::cout<<"not eoi"<<std::endl;
-	rec.append(coms_method::recv(size, true));
-	// if (attempts==1) 
-	//   std::cout<<"rec = "<<rec<<std::endl;
-	++attempts;
+	return rec;
       }
-      throw("could not read\n") ;
-     }
+      //std::cout<<"not eoi"<<std::endl;
+      rec.append(coms_method::recv(size, true));
+      // if (attempts==1) 
+      //   std::cout<<"rec = "<<rec<<std::endl;
+      ++attempts;
+    }
+  }
     
-      catch(exception::timeout_exceeded& e){
-	e.debug_print();
+  catch(exception::timeout_exceeded& e){
+    e.debug_print();
 	
-	std::cout<<"send = "<<cmd<<std::endl;
-	clear();
-	recv(cmd, buffsize, exact ) ; //try again
+    std::cout<<"send = "<<cmd<<std::endl;
+    clear();
+    recv(cmd, buffsize, exact ) ; //try again
 	
     //   std::cout<<"recv command not completed, retry..."<<std::endl;   
-     }
+  }
+  throw("could not read\n") ;
   // }
 }
    
@@ -328,40 +367,40 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string& cmd, const
 //   // return rec_no_head;
 // }
 
-template<class coms_method>
-std::string
-ICR::lecroy::lecroy_com_manager<coms_method>::timed_recv(const std::string& cmd, const unsigned int& buffsize , const double& seconds, const bool& exact) 
-{ 
+// template<class coms_method>
+// std::string
+// ICR::lecroy::lecroy_com_manager<coms_method>::timed_recv(const std::string& cmd, const unsigned int& buffsize , const double& seconds, const bool& exact) 
+// { 
 
-  std::string rec ;
-  std::string full_command = header.add(cmd);
-  coms_method::send(full_command);
-  std::cout<<"cmd = "<<cmd<<std::endl;
+//   std::string rec ;
+//   std::string full_command = header.add(cmd);
+//   coms_method::send(full_command);
+//   std::cout<<"cmd = "<<cmd<<std::endl;
 
-  std::cout<<"cmd size = "<<header.get_length(full_command)<<std::endl;
-  size_t attempts = 0;
-  while (attempts < 500){
-    std::cout<<"attempts = "<<attempts<<std::endl;
+//   std::cout<<"cmd size = "<<header.get_length(full_command)<<std::endl;
+//   size_t attempts = 0;
+//   while (attempts < 500){
+//     std::cout<<"attempts = "<<attempts<<std::endl;
 
-    std::string h = coms_method::timed_recv(8, 3, true);
-    std::cout<<"h = "<<h<<std::endl;
+//     std::string h = coms_method::timed_recv(8, 3, true);
+//     std::cout<<"h = "<<h<<std::endl;
 
-    size_t size = header.get_length(h);
-   std::cout<<"size = "<<size<<std::endl;
-    if (header.is_eoi(h)){
-      std::cout<<"eoi"<<std::endl;
-      rec.append( coms_method::timed_recv(size+1, 3));
-      std::cout<<"ret = "<<rec<<std::endl;
+//     size_t size = header.get_length(h);
+//    std::cout<<"size = "<<size<<std::endl;
+//     if (header.is_eoi(h)){
+//       std::cout<<"eoi"<<std::endl;
+//       rec.append( coms_method::timed_recv(size+1, 3));
+//       std::cout<<"ret = "<<rec<<std::endl;
 
-      return rec;
-    }
-    std::cout<<"not eoi"<<std::endl;
-    rec.append(coms_method::timed_recv(size, 3, true));
-    std::cout<<"rec = "<<rec<<std::endl;
-    ++attempts;
-  }
-  throw("could not read\n") ;
-}
+//       return rec;
+//     }
+//     std::cout<<"not eoi"<<std::endl;
+//     rec.append(coms_method::timed_recv(size, 3, true));
+//     std::cout<<"rec = "<<rec<<std::endl;
+//     ++attempts;
+//   }
+//   throw("could not read\n") ;
+// }
 // std::string rec ;
 
 // // //first go
