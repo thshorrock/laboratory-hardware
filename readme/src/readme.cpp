@@ -21,7 +21,7 @@ ICR::readme::init(const std::string& path)
   ICR::directory d;
   try{
     d.cd(path); //try to go to the path
-    ICR::file f(d, "README");
+    ICR::file f(d, "README.log");
     pOut = boost::shared_ptr<std::fstream>
       (new std::fstream(f.full().c_str(), std::ios_base::out ));
 	
@@ -31,10 +31,13 @@ ICR::readme::init(const std::string& path)
   }
 }
 
-// ICR::readme& 
-// ICR::readme::operator()(std::string path)
-// {}
 
+ICR::readme& 
+ICR::readme::operator()(const std::string& title)
+{
+  *pOut<<std::endl<<std::endl<<title.c_str()<<std::endl;
+  return *this;
+}
 
 ICR::readme::~readme()
 {
