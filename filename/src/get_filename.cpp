@@ -27,7 +27,7 @@ ICR::file::file(const directory& dir, const std::string filename)
 ICR::directory::directory(const std::string directory) throw(exception::directory_does_not_exist)
 {
   try{
-    cd(directory);
+    pushd(directory);
   }
   catch( exception::path_is_not_a_directory& e) {
     //goto directory of the file pointed at
@@ -88,9 +88,10 @@ ICR::directory::popd() throw (exception::push_list_empty,
 {
   if (m_push_list.size()==0) throw exception::push_list_empty();
   
-  std::string last_location = m_push_list.back();
-  cd(last_location);
   m_push_list.pop_back();
+  std::string last_location = m_push_list.back();
+
+  cd(last_location);
 }
 
 

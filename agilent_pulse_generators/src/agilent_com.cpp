@@ -13,9 +13,27 @@ WG::agilent_com<com_method>::load(const load::type option)
   switch (option) {
   case WG::load::OHM50: cmd = "OUTP:LOAD 50\n";  break;
   case WG::load::INFTY: cmd = "OUTP:LOAD INF\n"; break;
-  default: throw exception::option_not_recognised();
+  default: throw ICR::exception::agilent_option_not_recognised();
   }
   send(cmd);
+}
+
+template<class com_method> void
+WG::agilent_com<com_method>::turn_on()
+{
+  std::string cmd = "OUTP ON\n";
+  send(cmd);
+     
+  boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
+}
+
+template<class com_method> void
+WG::agilent_com<com_method>::turn_off()
+{
+  std::string cmd = "OUTP OFF\n";
+  send(cmd);
+     
+  boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
 }
 
 template<class com_method> void
@@ -122,6 +140,7 @@ WG::agilent_com<com_method>::burst_ext(const enum edge::type& edge)
   case WG::edge::NEGATIVE: cmd= "TRIG:SLOP NEG\n"; break;
   }
   send(cmd);
+  ICR::coms::sleep(300);
 }
 
 template<class com_method> void
@@ -138,7 +157,7 @@ WG::agilent_com<com_method>::shape (const shape::type option)
   case WG::shape::NOISE: cmd = "FUNC:SHAP NOIS\n"; break;
   case WG::shape::DC: cmd = "FUNC:SHAP DC\n"; break;
   case WG::shape::USER: cmd = "FUNC:SHAP USER\n"; break;
-  default: throw exception::option_not_recognised();
+  default: throw ICR::exception::agilent_option_not_recognised();
   }
   send(cmd);
   boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
@@ -158,7 +177,7 @@ WG::agilent_com<com_method>::apply(const shape::type shape, const double freq,co
   case WG::shape::NOISE: cmd = "APPL:NOIS "; break;
   case WG::shape::DC: cmd = "APPL:DC "; break;
   case WG::shape::USER: cmd = "APPL:USER "; break;
-  default: throw exception::option_not_recognised();
+  default: throw ICR::exception::agilent_option_not_recognised();
   }
   cmd += stringify(freq)+", "+ stringify(volts) + ", " + stringify(offset) +"\n";
   send(cmd);
@@ -173,7 +192,7 @@ WG::agilent_com<com_method>::trigger(const trigger::type option)
   case WG::trigger::IMMEDIATE: cmd = "TRIG:SOUR IMM\n"; break;
   case WG::trigger::EXTERNAL:  cmd = "TRIG:SOUR EXT\n"; break;
   case WG::trigger::BUS:       cmd = "TRIG:SOUR BUS\n"; break;
-  default: throw exception::option_not_recognised();
+  default: throw ICR::exception::agilent_option_not_recognised();
   }
   send(cmd);
 }
@@ -200,7 +219,7 @@ WG::agilent_com<com_method>::reset()
 {
   send("*RST;*CLS\n");  //reset and clear error buffer
   // std::string i = recv("*OPC?\n"); //wait for errors to be cleared
-  // if (atoi(i.c_str())!= 1) throw exception::failed_to_reset();
+  // if (atoi(i.c_str())!= 1) throw ICR::exception::failed_to_reset();
 }
 
 template<class com_method> void
@@ -225,8 +244,8 @@ template<class com_method>
 void 
 WG::apply_waveform(agilent_com<com_method>* generator,const std::string& name, const  double& sampling_freq, const  float* voltages, const unsigned long& num_points)
 {
-  if (num_points<8) throw exception::too_few_points();
-  if (num_points>16000) throw exception::too_many_points();
+  if (num_points<8) throw ICR::exception::too_few_points();
+  if (num_points>16000) throw ICR::exception::too_many_points();
 
   float min;
   float max;

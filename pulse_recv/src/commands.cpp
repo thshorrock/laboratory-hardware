@@ -677,8 +677,8 @@ ICR::pulser::command::voltage::decode(const std::string& ans)
   s = bit_total.to_ulong();
   
   
-   std::cout<<"qv ans = "<<ans<<std::endl;
-   std::cout<<"qv dec = "<<stringify(s)<<std::endl;
+   // std::cout<<"qv ans = "<<ans<<std::endl;
+   // std::cout<<"qv dec = "<<stringify(s)<<std::endl;
   return stringify(s);
 }
 

@@ -146,6 +146,9 @@ namespace ICR{
        */
       void wait(const double& seconds = 0);
 
+      /** Send a calibrate command.
+       */
+      void calibrate();
     };
 
 

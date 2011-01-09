@@ -91,6 +91,10 @@ namespace ICR{
 		M2, //!< Memory 2
 		M3, //!< Memory 3
 		M4, //!< Memory 4
+		TA, //!< Trace A
+		TB, //!< Trace B
+		TC, //!< Trace C
+		TD, //!< Trace D
 		ALL_DISPLAYED, //!< All displayed traces
 		EX, //!< External
 		EX10, //!< Ext 10
@@ -271,6 +275,18 @@ namespace ICR{
        */
       virtual void set_timebase(const double& timebase);  //in seconds
       
+      /** Average sweeps.
+       * @param trace The trace to save to: for example TA,
+       * @param channel The channel from which to collect the averages
+       * @param points The maximum number of points to average over.
+       * @param sweeps The number of sweeps
+       */
+      virtual void average(const enum location::type& trace, 
+			   const enum location::type& channel,
+			   const unsigned long& points,
+			   const unsigned int& sweeps);
+	  
+
       /** Arms the scope and forces a single acquisition if it is already armed.
        * Example:
        * @code  
@@ -297,7 +313,7 @@ namespace ICR{
        * lecroy_com lc("ip_address");
        * lc.calibrate();
        * @endcode
-       */
+       */ 
       virtual void calibrate();
       
       /** Make the oscilloscope beep. 
@@ -521,6 +537,11 @@ namespace ICR{
 
       //virtual void transfer_file(const std::string& filename){send("TRFL DISK,HDD,FILE,'"+filename+"'\n");}
       
+      /* Set trigger channel.
+       * @param channel The channel to trigger from
+       */
+      // void trigger(const enum location::type& channel) {send("TRSE SNG,SR," + location::get_string(channel)+"\n");}
+
       /** Set the trigger coupling.
        * @param channel  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
        * @param coupling Accepatable values are   for internal source
@@ -589,7 +610,7 @@ namespace ICR{
        * Notation:
        * - L LOW H HIGH
        * - AND OR
-       * - NAND NOR
+(const enum location::type& trace)       * - NAND NOR
        *
        * @param pattern The pattern string to send to the scope.
        *
@@ -654,7 +675,7 @@ namespace ICR{
        * @see trigger_positive_edge
        * @see trigger_negative_edge
       */
-      virtual void trigger_select(const enum trigger_type::type& type,const enum location::type& source,const enum trigger_hold_type::type& hold_type, const double& hold_value1, const double& hold_value2 = 0.0);
+      virtual void trigger_select(const enum trigger_type::type& type,const enum location::type& source,const enum trigger_hold_type::type& hold_type, const double& hold_value1 = 1.0, const double& hold_value2 = 1.0);
       
       /** Trigger on positive edge of selected channel.
        * @param channel  Acceptable values
@@ -715,6 +736,7 @@ namespace ICR{
        * lc.wait(); 
        * @endcode
        */
+       using lecroy_com_manager<coms_method>::wait;
       // virtual void wait(const unsigned int secs= 0) {
       // 	std::string cmd = "WAIT "+stringify(secs)+"\n";
       // 	send(cmd,true);
@@ -765,6 +787,7 @@ namespace ICR{
       //      using lecroy_com<IP>::timed_recv;
       using lecroy_com<IP>::set_coupling;
       using lecroy_com<IP>::set_timebase;
+      using lecroy_com<IP>::average;
       using lecroy_com<IP>::arm;
       using lecroy_com<IP>::auto_calibrate;
       using lecroy_com<IP>::calibrate;
@@ -789,6 +812,7 @@ namespace ICR{
       using lecroy_com<IP>::trigger_coupling;
       using lecroy_com<IP>::trigger_delay;
       using lecroy_com<IP>::trigger_level;
+      using lecroy_com<IP>::trigger_select;
       using lecroy_com<IP>::trigger_mode;
       using lecroy_com<IP>::trigger_pattern;
       using lecroy_com<IP>::trigger_negative_edge;

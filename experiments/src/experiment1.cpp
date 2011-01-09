@@ -17,38 +17,40 @@ using namespace ICR::agilent;
 
 
 
-double pulse_offset(double imaging_echo_time_to_rear,
-		    double driving_echo_time_to_front,
-		    double duration_of_driving_wave,
-		    double time_between_pulse_pair)
-{
-  //want imaging wave to coincide with rear of driving wave
+// double pulse_offset(double imaging_echo_time_to_rear,
+// 		    double driving_echo_time_to_front,
+// 		    double duration_of_driving_wave,
+// 		    double time_between_pulse_pair)
+// {
+//   //want imaging wave to coincide with rear of driving wave
   
-  //imaging 1 way time
-  double imag_time = imaging_echo_time_to_rear/2.0;
+//   //imaging 1 way time
+//   double imag_time = imaging_echo_time_to_rear/2.0;
   
-  //driving 1 way time to rear
-  double driving_time = (driving_echo_time_to_front/2.0)
-    + duration_of_driving_wave;
+//   //driving 1 way time to rear
+//   double driving_time = (driving_echo_time_to_front/2.0)
+//     + duration_of_driving_wave;
   
-  std::cout<<"driving time = "<<driving_time<<std::endl;
+//   std::cout<<"driving time = "<<driving_time<<std::endl;
 
 
   
-  //difference in time 
-  //(driving wave first so should be negative)
-  double delta_time = imag_time-driving_time;
-  std::cout<<"delta time = "<<delta_time<<std::endl;
+//   //difference in time 
+//   //(driving wave first so should be negative)
+//   double delta_time = imag_time-driving_time;
+//   std::cout<<"delta time = "<<delta_time<<std::endl;
 
-  double offset = time_between_pulse_pair-delta_time;
+//   double offset = time_between_pulse_pair-delta_time;
   
-  std::cout<<"offset = "<<offset<<std::endl;
+//   std::cout<<"offset = "<<offset<<std::endl;
 
-  // std::cout<<"scope offset = "<<imag_time+driving_time<std::endl;
+//   // std::cout<<"scope offset = "<<imag_time+driving_time<std::endl;
 
 
-  return offset;
-}
+//   return offset;
+// }
+
+
 
 int
 main  (int ac, char **av)
@@ -63,22 +65,22 @@ main  (int ac, char **av)
   DPR500 pulser("/dev/ttyUSB1");
 
   PulserReceiverFactory factory;
-  RPL2* imaging_pulse = factory.make_RPL2();
+   RPL2* imaging_pulse = factory.make_RPL2();
 
   //SETUP
   
   //BUS
   bus_sync.shape(shape::SQUARE);
-  bus_sync.trigger(trigger::BUS);
-  bus_sync.burst_on();
+  // bus_sync.trigger(trigger::BUS);
+  // bus_sync.burst_on();
 
+  //DRIVING PULSE
   int driving_cycles = 10;
   double driving_frequency = 0.5e6;
   double driving_offset = 0.0 ;
   double driving_voltage = 0.01;
   double driving_phase = 0.0;
 
-  //DRIVING PULSE
   driving_pulse.shape(shape::SIN);
   driving_pulse.frequency(driving_frequency);
   driving_pulse.burst_ext(edge::POSITIVE);
@@ -88,17 +90,18 @@ main  (int ac, char **av)
   driving_pulse.offset(driving_offset);
   driving_pulse.burst_on();
   
-  double imaging_voltage = 275;
-  int    imaging_gain = 60;
-
   //PULSER
+  double imaging_voltage = 275;
+  int    imaging_gain = 50;
+
   pulser.blink(200);  
   imaging_pulse->set_external_trigger();
   imaging_pulse->set_pulser_mode(damping_RPL2::fourtyfour_Ohm,
-				 energy_policy::HIGH,
-				 receive_mode::PULSE_ECHO);
+  				 energy_policy::HIGH,
+  				 receive_mode::PULSE_ECHO);
   imaging_pulse->set_voltage(imaging_voltage);
   pulser.attach_A(imaging_pulse);
+  pulser.notify();
   //)  filter::HPFA::   ten_kHz    sevenpointfive_MHz
   pulser.set_high_pass_filter_A(filter::HPFA::sevenpointfive_MHz);
   pulser.set_low_pass_filter_A(filter::LPFA::fifty_MHz);
@@ -108,12 +111,16 @@ main  (int ac, char **av)
   pulser.turn_on_A();
   std::cout<<"ON"<<std::endl;
   
-  int lecroy_samples=100000;
   //LECROY SETUP
+
+  int lecroy_samples=100000;
+  double lecroy_timebase=10e-6;
+  double trigger_delay = -40.0e-6 ;
   scope.set_date();
   scope.sequence(2,lecroy_samples);
   scope.trigger_mode(trigger_mode::NORM);
- 
+
+  
 
   //EXPERIMENT RANGES
   double voltage_min = 0.01;
@@ -122,142 +129,186 @@ main  (int ac, char **av)
   
   int repeats= 12;
     
-  //EXPERIMENT
-  ICR::directory dir(".");  //the current directory
+  ICR::directory dir("/data/2011/01/07/");  //the current directory
   double voltage_intv = (voltage_max-voltage_min)/(steps);
 
-  try{
-    scope.demand_fresh_aquisition();
-  }
-  catch(ICR::exception::could_not_get_fresh_aquisition& e){
-    /* missed the trigger for some reason, 
-     * retrigger.
-     */
-    std::cout<<"could not get aquisition, retrying"<<std::endl;
+  //PRE EXPERIMENT
+  //scope.calibrate() ; //calibrate now
+  scope.auto_calibrate(false); //turn calibration off
+  
+
+  /* We want to take an image as seen by the imaging transducer so that we can compare 
+   * the recoded time (as recorded from the driving transducer)
+   * with the depth from the imaging transducer.
+   * 
+   * The imaging pulse is on channel 3
+   * and so we first set the trigger to be from that channel 
+   *
+   *
+   */
+  lecroy_timebase=10e-6;
+  trigger_delay = -40.0e-6 ;
+  scope.trace_on(location::C3);
+  scope.trigger_coupling(location::C3, coupling::DC);
+  scope.trigger_positive_edge(location::C3);
+  scope.trigger_select(trigger_type::EDGE,location::C3,trigger_hold_type::NO_HOLD);
+  scope.trigger_delay(trigger_delay);
+  scope.set_timebase(lecroy_timebase);
+  scope.sequence(1,lecroy_samples);
+
+  //turn off driving pulse
+  driving_pulse.turn_off();
+
+  //create a new directory for this prerecord
+  std::string subdir = "./triggering_on_imaging_pulse"+stringify(driving_voltage);
+  dir.mkdir(subdir); //create the subdirectory
+  dir.pushd(subdir);  //goto subdirectory
+
+  readme README(dir.get_directory());
+  README
+    ("Experiment varying the driving voltage to cavitating water.")
+    ("Triggering on imaging receive")
+    //-----------------------
+    ("bus pulse details")
+    //-----------------------
+    ("Bus sync pulser details")
+    ("gate (approx) (us) ", 20)
+    ("time between driving gates (us)", 119.98)
+    //-----------------------
+    ("Driving pulse details")
+    //-----------------------
+    ("driving pulse","OFF")
+    //-----------------------
+    ("Imaging pulse details")
+    //-----------------------
+    ("Imaging Receiver", "RPL2")
+    ("Imaging damping", "damping_RPL2::fourtyfour_Ohm")
+    ("Imaging energy_policy", "HIGH")
+    ("Imaging receive_mode","PULSE_ECHO")
+    ("Imaging voltage (need to check no bug here)",imaging_voltage)
+    ("imaging gain", imaging_gain)
+    ("Imaging high pass filter","sevenpointfive")
+    ("Imaging low pass filter", "fifty_MHz")   
+    //-----------------------   
+    ("Lecroy setup")
+    //-----------------------
+    ("Lecroy sequence", 2)
+    ("Lecroy samples ", lecroy_samples)
+    ("Lecroy timebase",lecroy_timebase )
+    ("Lecroy trigger_delay", trigger_delay)
+    ;
+  
+  for(size_t i=0;i<repeats;++i){
     bus_sync.trigger_now();
+    lecroy_file file =  scope.get_waveform(location::C4);
+
+    aline a = file.get_data1();
+
+    std::string index = stringify_with_zeros(i,2); //pad the index with zeros
+      
+    ICR::file Filename(dir,"imaging_solo"+index+".dat");
+    ICR::file Filename_GP(dir,"imaging_solo"+index+"_GP.dat");
+      
+    //save alines;
+    ICR::lecroy::save(a, Filename.full()    );
+    //save gnuplot
+    ICR::lecroy::save_gnuplot(a,   Filename_GP.full());
   }
-  
-  scope.auto_calibrate(false);
-  for(int i=0;i<steps;++i){
-    double driving_voltage = voltage_min + i * voltage_intv;
-    std::cout<<"voltage = "<<driving_voltage<<std::endl;
-    
-    boost::progress_display pd(repeats);
 
-    driving_pulse.voltage( driving_voltage );
-
-    //create a new directory for each set of repeats
-    std::string subdir = "./voltage_"+stringify(driving_voltage);
-    dir.mkdir(subdir); //create the subdirectory
-    dir.pushd(subdir);  //goto subdirectory
-    
-    //create a readme file in the directory.
-    readme README(dir.get_directory());
-    
-    // get the pulse offset
-    // std::cout<<"pulse_offset = "<<
-    //   pulse_offset(49.65,
-    // 		   65.30,
-    // 		   20,
-    // 		   119.98)<<std::endl;
-    
-    //write the relevent info.
-    README
-      //bus_sync details
-      ("gate (approx) (us) ", 20)
-      ("time between driving gates (us)", 119.98)
-      //
-      //delay details
-      ("time from driving trigger to driving wave", 0.2016)
-      ("time from bottom of imaging trigger to top of returned echo - rear window (us)", 49.65 )
-      ("time from bottom of driving trigger to first of returned echo - rear window (us)", 65.1386 )
-      ("Time between 2nd driving trigger and imaging trigger should be (27.825)",28.2 )
-      ("Scope timebase", -76.0)
-      //driving pulse
-      ("driving generator", "AGILENT 33220A")
-      ("Attached to", "A")
-      ("driving Shape", "SIN")
-      ("driving frequency", driving_frequency)
-      ("driving burst edge", "POSITIVE")
-      ("driving cycles", driving_cycles)
-      ("driving phase", driving_phase)
-      ("driving voltage", driving_voltage)
-      //Imaging pulse
-      ("Imaging Receiver", "RPL2")
-      ("Imaging damping", "damping_RPL2::fourtyfour_Ohm")
-      ("Imaging energy_policy", "HIGH")
-      ("Imaging receive_mode","PULSE_ECHO")
-      ("Imaging voltage (need to check no bug here)",imaging_voltage)
-      ("imaging gain", imaging_gain)
-      ("Imaging high pass filter","sevenpointfive")
-      ("Imaging low pass filter", "fifty_MHz")      
-      //lecroy setup
-      ("Lecroy sequence", 2)
-      ("Lecroy samples ", lecroy_samples)
-      
-      ;
-    
-    //repeat the experiment a few times.
-    for(int i=0;i<repeats;++i){
-      
-      //Trigger	
-      bus_sync.trigger_now();
-      lecroy_file file;
-      
-      // scope.wait();
-      try{
-	//std::cout<<"getting waveform"<<std::endl;
-
-	file =  scope.get_waveform(location::C4);
-      }
-      catch(ICR::exception::could_not_get_fresh_aquisition& e){
-	/* missed the trigger for some reason, 
-	 * retrigger.
-	 */
-	std::cout<<"could not get aquisition, retrying"<<std::endl;
-
-	bus_sync.trigger_now();
-	
-	file =  scope.get_waveform(location::C4);
-      }
-      //	std::cout<<"got waveform"<<std::endl;
-      //std::cout<<"got wave"<<std::endl;
-
-      aline without_imaging_pulse = file.get_data1(0); // the first aline
-      aline with_imaging_pulse    = file.get_data1(1); // the first aline
-      aline excess_pulse          = with_imaging_pulse-without_imaging_pulse;
-
-      // if (excess_pulse.max()>0.2) {
-      // 	std::cout<<"excess max = "<<excess_pulse.max()<<std::endl;
-      // }
-	
-
-      ICR::file WithFilename   (dir,"with_imaging_pulse_"+stringify(i)+".dat");
-      ICR::file WithoutFilename(dir,"without_imaging_pulse_"+stringify(i)+".dat");
-      ICR::file ExcessFilename (dir,"excess_pulse_"+stringify(i)+".dat");
-      
-      ICR::file WithGnuplotFilename   (dir,"with_imaging_pulse_"+stringify(i)+".txt");
-      ICR::file WithoutGnuplotFilename(dir,"without_imaging_pulse_"+stringify(i)+".txt");
-      ICR::file ExcessGnuplotFilename (dir,"excess_pulse_"+stringify(i)+".txt");
-      
-
-
-      // with_imaging_pulse.save_ascii(WithGnuplotFilename.full() );
-      // without_imaging_pulse.save_ascii(WithoutGnuplotFilename.full() );
-      // excess_pulse.save_ascii(ExcessGnuplotFilename.full() );
-      
-      // //save alines;
-      // ICR::lecroy::save(with_imaging_pulse,   WithFilename.full()    );
-      // ICR::lecroy::save(without_imaging_pulse,WithoutFilename.full() );
-      // ICR::lecroy::save(without_imaging_pulse,ExcessFilename.full()  );
-      ++pd;
-    }
     dir.popd(); //leave the subdir.
-  }
-  
-  // boost::this_thread::sleep(boost::posix_time::milliseconds(2000)); //
-  
-   pulser.turn_off_A();
-   std::cout<<"OFF"<<std::endl;
 
+  //turn off driving pulse
+  driving_pulse.turn_on();
+
+
+  // //EXPERIMENT
+  // for(int i=0;i<steps;++i){
+  //   double driving_voltage = voltage_min + i * voltage_intv;
+  //   boost::progress_display pd(repeats);
+
+  //   driving_pulse.voltage( driving_voltage );
+
+  //   //create a new directory for each set of repeats
+  //   std::string subdir = "./voltage_"+stringify(driving_voltage);
+  //   dir.mkdir(subdir); //create the subdirectory
+  //   dir.pushd(subdir);  //goto subdirectory
+    
+  //   //create a readme file in the directory.
+  //   readme README(dir.get_directory());
+  //   README
+  //     ("Experiment varying the driving voltage to cavitating water.")
+  //     //bus_sync details
+  //     ("Bus sync pulser details")
+  //     ("gate (approx) (us) ", 20)
+  //     ("time between driving gates (us)", 119.98)
+  //     //-----------------------
+  //     ("Driving pulse details")
+  //     //-----------------------
+  //     ("driving generator", "AGILENT 33220A")
+  //     ("Attached to", "A")
+  //     ("driving Shape", "SIN")
+  //     ("driving frequency", driving_frequency)
+  //     ("driving burst edge", "POSITIVE")
+  //     ("driving cycles", driving_cycles)
+  //     ("driving phase", driving_phase)
+  //     ("driving voltage", driving_voltage)
+  //     //-----------------------
+  //     ("Imaging pulse details")
+  //     //-----------------------
+  //     ("Imaging Receiver", "RPL2")
+  //     ("Imaging damping", "damping_RPL2::fourtyfour_Ohm")
+  //     ("Imaging energy_policy", "HIGH")
+  //     ("Imaging receive_mode","PULSE_ECHO")
+  //     ("Imaging voltage (need to check no bug here)",imaging_voltage)
+  //     ("imaging gain", imaging_gain)
+  //     ("Imaging high pass filter","sevenpointfive")
+  //     ("Imaging low pass filter", "fifty_MHz")   
+  //     //-----------------------   
+  //     ("Lecroy setup")
+  //     //-----------------------
+  //     ("Lecroy sequence", 2)
+  //     ("Lecroy samples ", lecroy_samples)
+  //     ("Lecroy timebase", -76.0)
+  //     ;
+    
+  //   //repeat the experiment a few times.
+  //   for(int i=0;i<repeats;++i){
+      
+  ////Trigger	
+  // //bus_sync.trigger_now();
+  //     lecroy_file file =  scope.get_waveform(location::C4);
+
+  //     aline without_imaging_pulse = file.get_data1(0); // the first aline
+  //     aline with_imaging_pulse    = file.get_data1(1); // the first aline
+  //     aline excess_pulse          = with_imaging_pulse-without_imaging_pulse;
+
+  //     std::string index = stringify_with_zeros(i,4); //pad the index with zeros
+      
+  //     ICR::file WithFilename   (dir,"with_imaging_pulse_"+index+".dat");
+  //     ICR::file WithoutFilename(dir,"without_imaging_pulse_"+index+".dat");
+  //     ICR::file ExcessFilename (dir,"excess_pulse_"+index+".dat");
+      
+  //     ICR::file WithGnuplotFilename   (dir,"with_imaging_pulse_"+index+"_GP.dat");
+  //     ICR::file WithoutGnuplotFilename(dir,"without_imaging_pulse_"+index+"_GP.dat");
+  //     ICR::file ExcessGnuplotFilename (dir,"excess_pulse_"+index+"_GP.dat");
+      
+
+  //     //save alines;
+  //     ICR::lecroy::save(with_imaging_pulse,   WithFilename.full()    );
+  //     ICR::lecroy::save(without_imaging_pulse,WithoutFilename.full() );
+  //     ICR::lecroy::save(without_imaging_pulse,ExcessFilename.full()  );
+  //     //save gnuplot
+  //     ICR::lecroy::save_gnuplot(with_imaging_pulse,   WithGnuplotFilename.full()    );
+  //     ICR::lecroy::save_gnuplot(without_imaging_pulse,WithoutGnuplotFilename.full() );
+  //     ICR::lecroy::save_gnuplot(without_imaging_pulse,ExcessGnuplotFilename.full()  );
+  //     ++pd;
+  //   }
+  //   dir.popd(); //leave the subdir.
+  // }
+  
+  ICR::coms::sleep (5000);
+  pulser.turn_off_A();
+  std::cout<<"OFF"<<std::endl;
+
+  scope.auto_calibrate(true); //turn calibration on as people expect this to be set.
 }

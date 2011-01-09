@@ -97,6 +97,10 @@ L::location::get_string(const enum location::type& opt)
   case M2: return std::string("M2"); break;
   case M3: return std::string("M3"); break;
   case M4: return std::string("M4"); break;
+  case TA: return std::string("TA"); break;
+  case TB: return std::string("TB"); break;
+  case TC: return std::string("TC"); break;
+  case TD: return std::string("TD"); break;
   case ALL_DISPLAYED: return std::string("ALL_DISPLAYED"); break;
   case EX: return std::string("EX"); break;
   case EX10: return std::string("EX10"); break;
@@ -177,6 +181,21 @@ L::lecroy_com<coms_method>::set_timebase(const double& timebase)
   send("TDIV "+ stringify(timebase)+"\n");
 }
 
+
+template<class coms_method>
+void
+L::lecroy_com<coms_method>::average(const enum location::type& trace, 
+				    const enum location::type& channel,
+				    const unsigned long& points,
+				    const unsigned int& sweeps)
+{
+  send(location::get_string(trace)+":DEF EQN,'AVGS("
+       +location::get_string(channel)+")',MAXPTS,"
+       +stringify(points)
+       +",SWEEPS,"+stringify(sweeps)+"\n"
+       );
+}
+
 template<class coms_method> void
 L::lecroy_com<coms_method>::auto_calibrate(const bool& ac_on)
 {
@@ -192,7 +211,7 @@ L::lecroy_com<coms_method>::calibrate()
 {
   std::string i = recv("*cal?\n");
   //result should be *CAL 0
-  if (atoi(i.substr(5,1).c_str()) != 0) throw exception::calibration_failed_exception();
+  if (atoi(i.substr(0,1).c_str()) != 0) throw exception::calibration_failed_exception();
 }
 
 template<class coms_method> void
@@ -257,7 +276,9 @@ L::lecroy_com<coms_method>::sequence(const int& segments, const double& max_samp
   }
   //  std::cout<<"seq cmd = "<<cmd<<std::endl;
   send(cmd);
-  // wait();
+  
+  wait();
+  ICR::coms::sleep(1000);
   
 }
 
@@ -314,8 +335,9 @@ template<class coms_method> void  L::lecroy_com<coms_method>::trigger_select(con
   std::string cmd;
   cmd = "TRSE " + trigger_type::get_string(type) 
     + ",SR," + location::get_string(source) 
-    + ",HT," + trigger_hold_type::get_string(hold_type) 
-    + ",HV," + stringify(hold_value1);
+    + ",HT," + trigger_hold_type::get_string(hold_type) ;
+  if (hold_type != trigger_hold_type::NO_HOLD)
+    cmd+= ",HV," + stringify(hold_value1);
   //std::cout<<"cmd = "<<cmd<<std::endl;
 
   if (( hold_type == trigger_hold_type::PULSE_WIDTH) ||  (hold_type ==trigger_hold_type::INTERVAL_WIDTH) ) 
@@ -335,19 +357,19 @@ L::lecroy_com<coms_method>::demand_fresh_aquisition()
   //wait for new waveform
   int count = 0;
   int count_max = 5;
-  std::cout<<"demand fresh"<<std::endl;
+  //std::cout<<"demand fresh"<<std::endl;
 
   while (INR_bit == 0 && count <count_max){
     
     std::string ib= recv("INR?\n");
     std::bitset<16> inr(atoi(ib.c_str()));
-    for(size_t i=0;i<16;++i){
-      std::cout<<"inr["<<i<<"]= "<<inr[i]<<std::endl;
-    }
+    // for(size_t i=0;i<16;++i){
+    //   std::cout<<"inr["<<i<<"]= "<<inr[i]<<std::endl;
+    // }
 
 
     INR_bit = inr.test(0);
-    std::cout<<"INR_bit = "<<INR_bit<<" count = "<<count<<std::endl;
+    // std::cout<<"INR_bit = "<<INR_bit<<" count = "<<count<<std::endl;
     boost::this_thread::sleep(boost::posix_time::milliseconds(200)); 
 
     ++count;
@@ -367,23 +389,23 @@ L::lecroy_com<coms_method>::get_waveform(const enum location::type& channel)
 
   
   lecroy_com_manager<coms_method>::wait(5);
-  // demand_fresh_aquisition();
+  demand_fresh_aquisition();
   
   // boost::this_thread::sleep(boost::posix_time::milliseconds(200)); 
   //stop the scope from aquiring
   // stop();
-  try{
+  // try{
   std::string data = recv(location::get_string(channel)+":WF?\n");
   //std::cout<<"data = "<<data.size()<<std::endl;
 
   lecroy_file file;
   file.decode_string(data);
   return file;
-  }
-  catch(ICR::exception::timeout_exceeded& e){
-    e.debug_print();
-    throw;
-  }
+  // }
+  // catch(ICR::exception::timeout_exceeded& e){
+  //   e.debug_print();
+  //   throw;
+  // }
   // std::string times = recv(location::get_string(channel)+":WF? TIME\n");
   // header=header.substr(0, header.size()-1);
   // times= times.substr(16,times.size()-17);

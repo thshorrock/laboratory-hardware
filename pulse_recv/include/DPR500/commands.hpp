@@ -474,7 +474,7 @@ namespace ICR{
       public:
       	voltage(const double& min, const double& max);
       	void set(const double& v);
-      	size_t reply_size() const {return 5;};
+      	size_t reply_size() const {return 6;};
       	virtual std::string decode(const std::string& ans);
       };
 

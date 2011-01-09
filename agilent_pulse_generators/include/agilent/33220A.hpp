@@ -12,6 +12,8 @@ namespace ICR {
       using agilent_com<com_method>::apply;
       using agilent_com<com_method>::load;
       using agilent_com<com_method>::duty_cycle;
+      using agilent_com<com_method>::turn_on;
+      using agilent_com<com_method>::turn_off;
       using agilent_com<com_method>::frequency;
       using agilent_com<com_method>::voltage;
       using agilent_com<com_method>::offset;
@@ -28,42 +30,5 @@ namespace ICR {
       using agilent_com<com_method>::reset;
       using agilent_com<com_method>::error;
     };
-    // class WG33220A : public coms::IPmanager {
-    // public:
-    //   WG33220A(const std::string& IPaddress);
-    //   virtual ~WG33220A() ;
-
-    //   using coms::IPmanager::send;
-    //   using coms::IPmanager::recv;
-      
-    //   std::string error();
-    //   void apply(const int shape, const double freq,const  double volts,const  double offset);
-      
-    //   void load(const int);
-    //   void duty_cycle(const double); // square wave only
-
-    //   void frequency(const double frequency);
-    //   void voltage(const double V);
-    //   void offset(const double offset);
-
-    //   //burst commands
-    //   void cycles(const unsigned int cycles);
-    //   void burst_on(void);
-    //   void burst_off(void);
-    //   void phase(const double degrees);
-    //   void burst_int(const  double  rate);
-    //   void burst_ext();
-
-    //   void trigger(const int source);
-    //   void trigger_now() {send("*TRG");};
-
-    //   void shape (const int);
-    //   void arb_wave(const std::string name, const float*, const unsigned long size);
-    //   //void arb_wave(vector<double> data);
-
-    //   void reset();
-
-    // };
-
   }
 }

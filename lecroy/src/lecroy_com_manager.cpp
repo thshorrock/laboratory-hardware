@@ -160,7 +160,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd)
 {
   // bool not_completed = true;
   // while(not_completed){
-   try{
+   // try{
       std::string full_command = header.add(cmd);
       coms_method::send(full_command);
       //wait for operation to complete.
@@ -170,16 +170,16 @@ ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd)
 
       // if (!wait) {
       	coms_method::send( header.add("*OPC?\n"));
-      	std::string opc_bit = coms_method::timed_recv(20,2,false);
+      	std::string opc_bit = coms_method::timed_recv(20,30,false);
       // }
       // not_completed = false;
-    }
-   catch(exception::timeout_exceeded& e){
-     e.debug_print();
-     clear();
-     std::cout<<"cmd = "<<cmd<<std::endl;
-     send(cmd); //retry
-   }
+    // }
+   // catch(exception::timeout_exceeded& e){
+   //   e.debug_print();
+   //   clear();
+   //   std::cout<<"cmd = "<<cmd<<std::endl;
+   //   send(cmd); //retry
+   // }
   //     std::cout<<"command not completed, retry..."<<std::endl;   
   //   }
   // }
@@ -220,7 +220,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const 
   std::string rec ;
   
   // for(;;){ //infinite loop
-  try{
+  // try{
     std::string full_command = header.add(cmd);
     coms_method::send(full_command);
 
@@ -228,7 +228,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const 
     while (attempts < 500){
       //	std::cout<<"attempts = "<<attempts<<std::endl;
 
-      std::string h = coms_method::timed_recv(8,2,true);
+      std::string h = coms_method::timed_recv(8,30,true);
       //std::cout<<"h = "<<h<<std::endl;
       // if (attempts<=1) {
       //   for(size_t i=0;i<h.size();++i){
@@ -253,17 +253,17 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const 
       //   std::cout<<"rec = "<<rec<<std::endl;
       ++attempts;
     }
-  }
+  // }
     
-  catch(exception::timeout_exceeded& e){
-    e.debug_print();
+  // catch(exception::timeout_exceeded& e){
+  //   e.debug_print();
 	
-    std::cout<<"send = "<<cmd<<std::endl;
-    clear();
-    recv(cmd, buffsize, exact ) ; //try again
+  //   std::cout<<"send = "<<cmd<<std::endl;
+  //   clear();
+  //   recv(cmd, buffsize, exact ) ; //try again
 	
-    //   std::cout<<"recv command not completed, retry..."<<std::endl;   
-  }
+  //   //   std::cout<<"recv command not completed, retry..."<<std::endl;   
+  // }
   throw("could not read\n") ;
   // }
 }
@@ -470,8 +470,17 @@ ICR::lecroy::lecroy_com_manager<coms_method>::wait(const double& seconds)
   coms_method::send(header.add(cmd));
   
   coms_method::send( header.add("*OPC?\n"));
-  std::string opc_bit = coms_method::timed_recv(20,seconds+1,false);
+  std::string opc_bit = coms_method::timed_recv(20,30,false);
 }
+
+// template<class coms_method>
+// void
+// ICR::lecroy::lecroy_com_manager<coms_method>::calibrate()
+// {
+  
+//   coms_method::send( header.add("*cal?\n"));
+//   std::string opc_bit = coms_method::timed_recv(20,30,false);
+// }
 
 
 template class ICR::lecroy::lecroy_com_manager<ICR::lecroy::IP>;

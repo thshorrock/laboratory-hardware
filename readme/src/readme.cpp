@@ -37,7 +37,7 @@ ICR::readme::init(const std::string& path) throw (ICR::exception::directory_does
 ICR::readme& 
 ICR::readme::operator()(const std::string& title)
 {
-  *pOut<<std::endl<<std::endl<<title.c_str()<<std::endl;
+  *pOut<<std::endl<<title.c_str()<<std::endl;
   return *this;
 }
 
