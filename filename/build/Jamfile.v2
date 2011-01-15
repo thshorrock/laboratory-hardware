@@ -6,6 +6,7 @@ project filename
   	: usage-requirements <include>../include <define>BOOST_REGEX_MATCH_EXTRA 
 	: requirements 
 	<include>../include/
+      	<define>BOOST_REGEX_MATCH_EXTRA
 	<include>$(TOP)/boost_files/
 	#<warnings-as-errors>on
 ;

@@ -8,6 +8,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 // should pass compilation and execution
+
+// note:: this example can only be built with the static library
+// (at least with MSVC - due to conflicts related to import of library
+// code and instantiation of templates.
 #include <sstream>
 
 #include "portable_binary_oarchive.hpp"
@@ -23,6 +27,7 @@ class A
 {
     friend class boost::serialization::access;
     char c;
+    A *pa;
     int i;
     int i2; // special tricky case to check sign extension
     unsigned int ui;
@@ -44,7 +49,8 @@ public:
         ;
     }
     A() :
-        c(std::rand()),
+        c(0xFF & std::rand()),
+        pa(0),
         i(std::rand()),
         i2(0x80),
         ui(std::rand()),

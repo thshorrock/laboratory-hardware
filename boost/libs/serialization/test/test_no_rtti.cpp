@@ -26,9 +26,6 @@ namespace std{
 }
 #endif
 
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_same.hpp>
-
 #include <boost/archive/archive_exception.hpp>
 
 #include <boost/serialization/type_info_implementation.hpp>
@@ -43,6 +40,14 @@ namespace std{
 #include "polymorphic_base.hpp"
 #include "polymorphic_derived1.hpp"
 #include "polymorphic_derived2.hpp"
+
+template<class Archive>
+void polymorphic_derived2::serialize(
+    Archive &ar, 
+    const unsigned int /* file_version */
+){
+    ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(polymorphic_base);
+}
 
 template void polymorphic_derived2::serialize(
     test_oarchive & ar,

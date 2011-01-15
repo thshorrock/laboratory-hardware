@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE library PUBLIC "-//Boost//DTD BoostBook XML V1.0//EN" "http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<!DOCTYPE article PUBLIC "-//Boost//DTD BoostBook XML V1.0//EN" "http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
 <article id="quickbook" last-revision="DEBUG MODE Date: 2000/12/20 12:00:00 $" xmlns:xi="http://www.w3.org/2001/XInclude">
   <title>Quickbook 1.4</title>
   <articleinfo>
@@ -26,16 +26,14 @@
     </articlepurpose>
   </articleinfo>
   <section id="quickbook.intro">
-    <title><link linkend="quickbook.intro"> Introduction</link></title>
+    <title><link linkend="quickbook.intro">Introduction</link></title>
     <blockquote>
       <para>
-        <para>
-          <emphasis role="bold"><emphasis><quote>Why program by hand in five days
-          what you can spend five years of your life automating?</quote></emphasis></emphasis>
-        </para>
-        <para>
-          -- Terrence Parr, author ANTLR/PCCTS
-        </para>
+        <emphasis role="bold"><emphasis><quote>Why program by hand in five days what
+        you can spend five years of your life automating?</quote></emphasis></emphasis>
+      </para>
+      <para>
+        -- Terrence Parr, author ANTLR/PCCTS
       </para>
     </blockquote>
     <para>
@@ -46,9 +44,7 @@
     </para>
     <blockquote>
       <para>
-        <para>
-          <ulink url="../quickbook.qbk">quickbook.qbk</ulink>
-        </para>
+        <ulink url="../quickbook.qbk">quickbook.qbk</ulink>
       </para>
     </blockquote>
     <para>
@@ -72,146 +68,218 @@
     </para>
     <itemizedlist>
       <listitem>
-        generate <ulink url="http://www.boost.org/doc/html/boostbook.html">BoostBook</ulink>
-        xml, to generate HTML, PostScript and PDF
+        <simpara>
+          generate <ulink url="http://www.boost.org/doc/html/boostbook.html">BoostBook</ulink>
+          xml, to generate HTML, PostScript and PDF
+        </simpara>
       </listitem>
       <listitem>
-        simple markup to link to Doxygen-generated entities
+        <simpara>
+          simple markup to link to Doxygen-generated entities
+        </simpara>
       </listitem>
       <listitem>
-        macro system for simple text substitution
+        <simpara>
+          macro system for simple text substitution
+        </simpara>
       </listitem>
       <listitem>
-        simple markup for italics, bold, preformatted, blurbs, code samples, tables,
-        URLs, anchors, images, etc.
+        <simpara>
+          simple markup for italics, bold, preformatted, blurbs, code samples, tables,
+          URLs, anchors, images, etc.
+        </simpara>
       </listitem>
       <listitem>
-        automatic syntax coloring of code samples
+        <simpara>
+          automatic syntax coloring of code samples
+        </simpara>
       </listitem>
       <listitem>
-        CSS support
+        <simpara>
+          CSS support
+        </simpara>
       </listitem>
     </itemizedlist>
   </section>
   <section id="quickbook.change_log">
-    <title><link linkend="quickbook.change_log"> Change Log</link></title> <anchor
+    <title><link linkend="quickbook.change_log">Change Log</link></title> <anchor
     id="quickbook.change_log.version_1_3"/>
     <bridgehead renderas="sect3">
       <link linkend="quickbook.change_log.version_1_3">Version 1.3</link>
     </bridgehead>
     <itemizedlist>
       <listitem>
-        Quickbook file inclusion [include].
+        <simpara>
+          Quickbook file inclusion [include].
+        </simpara>
       </listitem>
       <listitem>
-        Better xml output (pretty layout). Check out the generated XML.
+        <simpara>
+          Better xml output (pretty layout). Check out the generated XML.
+        </simpara>
       </listitem>
       <listitem>
-        Regression testing facility: to make sure your document will always be compatible
-        (full backward compatibility) regardless of changes to QuickBook.
+        <simpara>
+          Regression testing facility: to make sure your document will always be
+          compatible (full backward compatibility) regardless of changes to QuickBook.
+        </simpara>
       </listitem>
       <listitem>
-        Code cleanup and refactoring.
+        <simpara>
+          Code cleanup and refactoring.
+        </simpara>
       </listitem>
       <listitem>
-        Allow phrase markup in the doc-info.
+        <simpara>
+          Allow phrase markup in the doc-info.
+        </simpara>
       </listitem>
       <listitem>
-        Preformatted code blocks via ``code`` (double ticks) allows code in tables
-        and lists, for example.
+        <simpara>
+          Preformatted code blocks via ``code`` (double ticks) allows code in tables
+          and lists, for example.
+        </simpara>
       </listitem>
       <listitem>
-        Quickbook versioning; allows full backward compatibility. You have to add
-        [quickbook 1.3] to the doc-info header to enable the new features. Without
-        this, QuickBook will assume that the document is a pre-1.3 document.
+        <simpara>
+          Quickbook versioning; allows full backward compatibility. You have to add
+          [quickbook 1.3] to the doc-info header to enable the new features. Without
+          this, QuickBook will assume that the document is a pre-1.3 document.
+        </simpara>
       </listitem>
       <listitem>
-        Better (intuitive) paragraph termination. Some markups may terminate a paragraph.
-        Example:
+        <simpara>
+          Better (intuitive) paragraph termination. Some markups may terminate a
+          paragraph. Example:
 <programlisting><phrase role="special">[</phrase><phrase role="identifier">section</phrase> <phrase role="identifier">x</phrase><phrase role="special">]</phrase>
 <phrase role="identifier">blah</phrase><phrase role="special">...</phrase>
 <phrase role="special">[</phrase><phrase role="identifier">endsect</phrase><phrase role="special">]</phrase></programlisting>
+        </simpara>
       </listitem>
       <listitem>
-        Fully qualified section and headers. Subsection names are concatenated to
-        the ID to avoid clashing. Example: <code><phrase role="identifier">doc_name</phrase><phrase
-        role="special">.</phrase><phrase role="identifier">sect_name</phrase><phrase
-        role="special">.</phrase><phrase role="identifier">sub_sect_name</phrase><phrase
-        role="special">.</phrase><phrase role="identifier">sub_sub_sect_name</phrase></code>
+        <simpara>
+          Fully qualified section and headers. Subsection names are concatenated
+          to the ID to avoid clashing. Example: <code><phrase role="identifier">doc_name</phrase><phrase
+          role="special">.</phrase><phrase role="identifier">sect_name</phrase><phrase
+          role="special">.</phrase><phrase role="identifier">sub_sect_name</phrase><phrase
+          role="special">.</phrase><phrase role="identifier">sub_sub_sect_name</phrase></code>
+        </simpara>
       </listitem>
       <listitem>
-        Better &amp;nbsp; and whitespace handling in code snippets.
+        <simpara>
+          Better &amp;nbsp; and whitespace handling in code snippets.
+        </simpara>
       </listitem>
       <listitem>
-        [xinclude] fixes up the relative path to the target XML file when input_directory
-        is not the same as the output_directory.
+        <simpara>
+          [xinclude] fixes up the relative path to the target XML file when input_directory
+          is not the same as the output_directory.
+        </simpara>
       </listitem>
       <listitem>
-        Allow untitled tables.
+        <simpara>
+          Allow untitled tables.
+        </simpara>
       </listitem>
       <listitem>
-        Allow phrase markups in section titles.
+        <simpara>
+          Allow phrase markups in section titles.
+        </simpara>
       </listitem>
       <listitem>
-        Allow escaping back to QuickBook from code, code blocks and inline code.
+        <simpara>
+          Allow escaping back to QuickBook from code, code blocks and inline code.
+        </simpara>
       </listitem>
       <listitem>
-        Footnotes, with the [footnote This is the footnote] syntax.
+        <simpara>
+          Footnotes, with the [footnote This is the footnote] syntax.
+        </simpara>
       </listitem>
       <listitem>
-        Post-processor bug fix for escaped XML code that it does not recognize.
+        <simpara>
+          Post-processor bug fix for escaped XML code that it does not recognize.
+        </simpara>
       </listitem>
       <listitem>
-        Replaceable, with the [~replacement] syntax.
+        <simpara>
+          Replaceable, with the [~replacement] syntax.
+        </simpara>
       </listitem>
       <listitem>
-        Generic Headers
+        <simpara>
+          Generic Headers
+        </simpara>
       </listitem>
       <listitem>
-        Code changes to allow full recursion (i.e. Collectors and push/pop functions)
+        <simpara>
+          Code changes to allow full recursion (i.e. Collectors and push/pop functions)
+        </simpara>
       </listitem>
       <listitem>
-        Various code cleanup/maintenance
+        <simpara>
+          Various code cleanup/maintenance
+        </simpara>
       </listitem>
       <listitem>
-        Templates!
+        <simpara>
+          Templates!
+        </simpara>
       </listitem>
       <listitem>
-        [conceptref] for referencing BoostBook &lt;concept&gt; entities.
+        <simpara>
+          [conceptref] for referencing BoostBook &lt;concept&gt; entities.
+        </simpara>
       </listitem>
       <listitem>
-        Allow escape of spaces. The escaped space is removed from the output. Syntax:
-        <code><phrase role="special">\</phrase> </code>.
+        <simpara>
+          Allow escape of spaces. The escaped space is removed from the output. Syntax:
+          <code><phrase role="special">\</phrase> </code>.
+        </simpara>
       </listitem>
       <listitem>
-        Nested comments are now allowed.
+        <simpara>
+          Nested comments are now allowed.
+        </simpara>
       </listitem>
       <listitem>
-        Quickbook blocks can nest inside comments.
+        <simpara>
+          Quickbook blocks can nest inside comments.
+        </simpara>
       </listitem>
       <listitem>
-        <link linkend="quickbook.syntax.block.import">Import</link> facility.
+        <simpara>
+          <link linkend="quickbook.syntax.block.import">Import</link> facility.
+        </simpara>
       </listitem>
       <listitem>
-        Callouts on imported code
+        <simpara>
+          Callouts on imported code
+        </simpara>
       </listitem>
       <listitem>
-        Simple markups can now span a whole block.
+        <simpara>
+          Simple markups can now span a whole block.
+        </simpara>
       </listitem>
       <listitem>
-        <link linkend="quickbook.syntax.block.blurbs">Blurbs</link>, <link linkend="quickbook.syntax.block.admonitions">Admonitions</link>
-        and table cells (see <link linkend="quickbook.syntax.block.tables">Tables</link>)
-        may now contain paragraphs.
+        <simpara>
+          <link linkend="quickbook.syntax.block.blurbs">Blurbs</link>, <link linkend="quickbook.syntax.block.admonitions">Admonitions</link>
+          and table cells (see <link linkend="quickbook.syntax.block.tables">Tables</link>)
+          may now contain paragraphs.
+        </simpara>
       </listitem>
       <listitem>
-        <code><phrase role="special">\</phrase><phrase role="identifier">n</phrase></code>
-        and <code><phrase role="special">[</phrase><phrase role="identifier">br</phrase><phrase
-        role="special">]</phrase></code> are now deprecated.
+        <simpara>
+          <code><phrase role="special">\</phrase><phrase role="identifier">n</phrase></code>
+          and <code><phrase role="special">[</phrase><phrase role="identifier">br</phrase><phrase
+          role="special">]</phrase></code> are now deprecated.
+        </simpara>
       </listitem>
     </itemizedlist>
   </section>
   <section id="quickbook.syntax">
-    <title><link linkend="quickbook.syntax"> Syntax Summary</link></title>
+    <title><link linkend="quickbook.syntax">Syntax Summary</link></title>
     <para>
       A QuickBook document is composed of one or more blocks. An example of a block
       is the paragraph or a C++ code snippet. Some blocks have special mark-ups.
@@ -243,7 +311,7 @@
 </programlisting>
     </section>
     <section id="quickbook.syntax.phrase">
-      <title><link linkend="quickbook.syntax.phrase"> Phrase Level Elements</link></title>
+      <title><link linkend="quickbook.syntax.phrase">Phrase Level Elements</link></title>
       <section id="quickbook.syntax.phrase.font_styles">
         <title><link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link></title>
         
@@ -283,9 +351,7 @@
           This will generate:
         </para>
         <para>
-          <replaceable>
-            replacement
-          </replaceable>
+          <replaceable>replacement</replaceable>
         </para>
       </section>
       <section id="quickbook.syntax.phrase.quotations">
@@ -338,222 +404,252 @@ the true business precept.]
         </para>
         <para>
           Unlike QuickBook's standard formatting scheme, the rules for simpler alternatives
-          are much stricter
-          <footnote>
-            <para>
-              Thanks to David Barrett, author of <ulink url="http://quinthar.com/qwikiwiki/index.php?page=Home">Qwiki</ulink>,
-              for sharing these samples and teaching me these obscure formatting
-              rules. I wasn't sure at all if <ulink url="http://spirit.sourceforge.net">Spirit</ulink>,
-              being more or less a formal EBNF parser, can handle the context sensitivity
-              and ambiguity.
-            </para>
-          </footnote>
-          .
+          are much stricter<footnote>
+          <para>
+            Thanks to David Barrett, author of <ulink url="http://quinthar.com/qwikiwiki/index.php?page=Home">Qwiki</ulink>,
+            for sharing these samples and teaching me these obscure formatting rules.
+            I wasn't sure at all if <ulink url="http://spirit.sourceforge.net">Spirit</ulink>,
+            being more or less a formal EBNF parser, can handle the context sensitivity
+            and ambiguity.
+          </para>
+          </footnote>.
         </para>
         <itemizedlist>
           <listitem>
-            Simple markups cannot nest. You can combine a simple markup with a nestable
-            markup.
+            <simpara>
+              Simple markups cannot nest. You can combine a simple markup with a
+              nestable markup.
+            </simpara>
           </listitem>
           <listitem>
-            Simple markups cannot contain any other form of quickbook markup.
+            <simpara>
+              Simple markups cannot contain any other form of quickbook markup.
+            </simpara>
           </listitem>
           <listitem>
-            A non-space character must follow the leading markup
+            <simpara>
+              A non-space character must follow the leading markup
+            </simpara>
           </listitem>
           <listitem>
-            A non-space character must precede the trailing markup
+            <simpara>
+              A non-space character must precede the trailing markup
+            </simpara>
           </listitem>
           <listitem>
-            A space or a punctuation must follow the trailing markup
+            <simpara>
+              A space or a punctuation must follow the trailing markup
+            </simpara>
           </listitem>
           <listitem>
-            If the matching markup cannot be found within a block, the formatting
-            will not be applied. This is to ensure that un-matched formatting markups,
-            which can be a common mistake, does not corrupt anything past a single
-            block. We do not want the rest of the document to be rendered bold just
-            because we forgot a trailing '*'. A single block is terminated by two
-            end of lines or the close bracket: ']'.
+            <simpara>
+              If the matching markup cannot be found within a block, the formatting
+              will not be applied. This is to ensure that un-matched formatting markups,
+              which can be a common mistake, does not corrupt anything past a single
+              block. We do not want the rest of the document to be rendered bold
+              just because we forgot a trailing '*'. A single block is terminated
+              by two end of lines or the close bracket: ']'.
+            </simpara>
           </listitem>
           <listitem>
-            A line starting with the star will be interpreted as an unordered list.
-            See <link linkend="quickbook.syntax.block.lists.unordered_lists">Unordered
-            lists</link>.
+            <simpara>
+              A line starting with the star will be interpreted as an unordered list.
+              See <link linkend="quickbook.syntax.block.lists.unordered_lists">Unordered
+              lists</link>.
+            </simpara>
           </listitem>
         </itemizedlist>
-        <table frame="all"> <title>More Formatting Samples</title>
-        <tgroup cols="2">
-          <thead>
-            <row>
-              <entry>
-              <para>
-                Markup
-              </para>
-              </entry><entry>
-              <para>
-                Result
-              </para>
-              </entry>
-            </row>
-          </thead>
-          <tbody>
-            <row>
-              <entry>
-              <para>
-                <literal>*Bold*</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis role="bold">Bold</emphasis>
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>*Is bold*</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis role="bold">Is bold</emphasis>
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>* Not bold* *Not bold * * Not bold *</literal>
-              </para>
-              </entry><entry>
-              <para>
-                * Not bold* *Not bold * * Not bold *
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>This*Isn't*Bold (no bold)</literal>
-              </para>
-              </entry><entry>
-              <para>
-                This*Isn't*Bold (no bold)
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>(*Bold Inside*) (parenthesis not bold)</literal>
-              </para>
-              </entry><entry>
-              <para>
-                (<emphasis role="bold">Bold Inside</emphasis>) (parenthesis not bold)
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>*(Bold Outside)* (parenthesis bold)</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis role="bold">(Bold Outside)</emphasis> (parenthesis bold)
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>3*4*5 = 60 (no bold)</literal>
-              </para>
-              </entry><entry>
-              <para>
-                3*4*5 = 60 (no bold)
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>3 * 4 * 5 = 60 (no bold)</literal>
-              </para>
-              </entry><entry>
-              <para>
-                3 * 4 * 5 = 60 (no bold)
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>3 *4* 5 = 60 (4 is bold)</literal>
-              </para>
-              </entry><entry>
-              <para>
-                3 <emphasis role="bold">4</emphasis> 5 = 60 (4 is bold)
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>*This is bold* this is not *but this is*</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis role="bold">This is bold</emphasis> this is not <emphasis
-                role="bold">but this is</emphasis>
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>*This is bold*.</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis role="bold">This is bold</emphasis>.
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>*B*. (bold B)</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis role="bold">B</emphasis>. (bold B)
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>['*Bold-Italic*]</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis><emphasis role="bold">Bold-Italic</emphasis></emphasis>
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                <literal>*side-by*/-side/</literal>
-              </para>
-              </entry><entry>
-              <para>
-                <emphasis role="bold">side-by</emphasis><emphasis>-side</emphasis>
-              </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
+        <table frame="all">
+          <title>More Formatting Samples</title>
+          <tgroup cols="2">
+            <thead>
+              <row>
+                <entry>
+                  <para>
+                    Markup
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Result
+                  </para>
+                </entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>
+                  <para>
+                    <literal>*Bold*</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis role="bold">Bold</emphasis>
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>*Is bold*</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis role="bold">Is bold</emphasis>
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>* Not bold* *Not bold * * Not bold *</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    * Not bold* *Not bold * * Not bold *
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>This*Isn't*Bold (no bold)</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    This*Isn't*Bold (no bold)
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>(*Bold Inside*) (parenthesis not bold)</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    (<emphasis role="bold">Bold Inside</emphasis>) (parenthesis not
+                    bold)
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>*(Bold Outside)* (parenthesis bold)</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis role="bold">(Bold Outside)</emphasis> (parenthesis
+                    bold)
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>3*4*5 = 60 (no bold)</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    3*4*5 = 60 (no bold)
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>3 * 4 * 5 = 60 (no bold)</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    3 * 4 * 5 = 60 (no bold)
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>3 *4* 5 = 60 (4 is bold)</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    3 <emphasis role="bold">4</emphasis> 5 = 60 (4 is bold)
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>*This is bold* this is not *but this is*</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis role="bold">This is bold</emphasis> this is not <emphasis
+                    role="bold">but this is</emphasis>
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>*This is bold*.</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis role="bold">This is bold</emphasis>.
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>*B*. (bold B)</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis role="bold">B</emphasis>. (bold B)
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>['*Bold-Italic*]</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis><emphasis role="bold">Bold-Italic</emphasis></emphasis>
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    <literal>*side-by*/-side/</literal>
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <emphasis role="bold">side-by</emphasis><emphasis>-side</emphasis>
+                  </para>
+                </entry>
+              </row>
+            </tbody>
+          </tgroup>
         </table>
         <para>
           As mentioned, simple markups cannot go past a single block. The text from
@@ -683,46 +779,50 @@ C++ comment `// looks like this` whereas a Python comment [python]
           A C++ comment <code><phrase role="comment">// looks like this</phrase></code>
           whereas a Python comment <code><phrase role="comment">#looks like this</phrase></code>.
         </para>
-        <table frame="all"> <title>Supported Source Modes</title>
-        <tgroup cols="2">
-          <thead>
-            <row>
-              <entry>
-              <para>
-                Mode
-              </para>
-              </entry><entry>
-              <para>
-                Source Mode Markup
-              </para>
-              </entry>
-            </row>
-          </thead>
-          <tbody>
-            <row>
-              <entry>
-              <para>
-                C++
-              </para>
-              </entry><entry>
-              <para>
-                <literal>[c++]</literal>
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                Python
-              </para>
-              </entry><entry>
-              <para>
-                <literal>[python]</literal>
-              </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
+        <table frame="all">
+          <title>Supported Source Modes</title>
+          <tgroup cols="2">
+            <thead>
+              <row>
+                <entry>
+                  <para>
+                    Mode
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Source Mode Markup
+                  </para>
+                </entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>
+                  <para>
+                    C++
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <literal>[c++]</literal>
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    Python
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    <literal>[python]</literal>
+                  </para>
+                </entry>
+              </row>
+            </tbody>
+          </tgroup>
         </table>
         <note>
           <para>
@@ -828,7 +928,7 @@ Some link text]</literal>.
         </para>
       </section>
       <section id="quickbook.syntax.phrase.code_links">
-        <title><link linkend="quickbook.syntax.phrase.code_links"> Code Links</link></title>
+        <title><link linkend="quickbook.syntax.phrase.code_links">Code Links</link></title>
         <para>
           If you want to link to a function, class, member, enum, concept or header
           in the reference section, you can use:
@@ -930,13 +1030,11 @@ escape (no processing/formatting)
 <programlisting><!--quickbook-escape-prefix-->[footnote A sample footnote]
 <!--quickbook-escape-postfix--></programlisting>
         <para>
-          will generate this
-          <footnote>
-            <para>
-              A sample footnote
-            </para>
-          </footnote>
-          .
+          will generate this<footnote>
+          <para>
+            A sample footnote
+          </para>
+          </footnote>.
         </para>
         <section id="quickbook.syntax.phrase.footnotes.macro_expansion">
           <title><link linkend="quickbook.syntax.phrase.footnotes.macro_expansion">Macro
@@ -960,7 +1058,7 @@ escape (no processing/formatting)
       </section>
     </section>
     <section id="quickbook.syntax.block">
-      <title><link linkend="quickbook.syntax.block"> Block Level Elements</link></title>
+      <title><link linkend="quickbook.syntax.block">Block Level Elements</link></title>
       <section id="quickbook.syntax.block.document">
         <title><link linkend="quickbook.syntax.block.document">Document</link></title>
         <para>
@@ -986,37 +1084,59 @@ escape (no processing/formatting)
         </para>
         <itemizedlist>
           <listitem>
-            book
+            <simpara>
+              book
+            </simpara>
           </listitem>
           <listitem>
-            article
+            <simpara>
+              article
+            </simpara>
           </listitem>
           <listitem>
-            library
+            <simpara>
+              library
+            </simpara>
           </listitem>
           <listitem>
-            chapter
+            <simpara>
+              chapter
+            </simpara>
           </listitem>
           <listitem>
-            part
+            <simpara>
+              part
+            </simpara>
           </listitem>
           <listitem>
-            appendix
+            <simpara>
+              appendix
+            </simpara>
           </listitem>
           <listitem>
-            preface
+            <simpara>
+              preface
+            </simpara>
           </listitem>
           <listitem>
-            qandadiv
+            <simpara>
+              qandadiv
+            </simpara>
           </listitem>
           <listitem>
-            qandaset
+            <simpara>
+              qandaset
+            </simpara>
           </listitem>
           <listitem>
-            reference
+            <simpara>
+              reference
+            </simpara>
           </listitem>
           <listitem>
-            set
+            <simpara>
+              set
+            </simpara>
           </listitem>
         </itemizedlist>
         <para>
@@ -1100,13 +1220,19 @@ escape (no processing/formatting)
           </para>
           <orderedlist>
             <listitem>
-              One
+              <simpara>
+                One
+              </simpara>
             </listitem>
             <listitem>
-              Two
+              <simpara>
+                Two
+              </simpara>
             </listitem>
             <listitem>
-              Three
+              <simpara>
+                Three
+              </simpara>
             </listitem>
           </orderedlist>
         </section>
@@ -1134,43 +1260,65 @@ escape (no processing/formatting)
           </para>
           <orderedlist>
             <listitem>
-              One
+              <simpara>
+                One
+              </simpara>
             </listitem>
             <listitem>
-              Two
+              <simpara>
+                Two
+              </simpara>
             </listitem>
             <listitem>
-              Three
+              <simpara>
+                Three
+              </simpara>
               <orderedlist>
                 <listitem>
-                  Three.a
+                  <simpara>
+                    Three.a
+                  </simpara>
                 </listitem>
                 <listitem>
-                  Three.b
+                  <simpara>
+                    Three.b
+                  </simpara>
                 </listitem>
                 <listitem>
-                  Three.c
+                  <simpara>
+                    Three.c
+                  </simpara>
                 </listitem>
               </orderedlist>
             </listitem>
             <listitem>
-              Fourth
+              <simpara>
+                Fourth
+              </simpara>
               <orderedlist>
                 <listitem>
-                  Four.a
+                  <simpara>
+                    Four.a
+                  </simpara>
                   <orderedlist>
                     <listitem>
-                      Four.a.i
+                      <simpara>
+                        Four.a.i
+                      </simpara>
                     </listitem>
                     <listitem>
-                      Four.a.ii
+                      <simpara>
+                        Four.a.ii
+                      </simpara>
                     </listitem>
                   </orderedlist>
                 </listitem>
               </orderedlist>
             </listitem>
             <listitem>
-              Five
+              <simpara>
+                Five
+              </simpara>
             </listitem>
           </orderedlist>
         </section>
@@ -1191,16 +1339,23 @@ escape (no processing/formatting)
 </programlisting>
           <orderedlist>
             <listitem>
-              A short item.
+              <simpara>
+                A short item.
+              </simpara>
             </listitem>
             <listitem>
-              A very long item. A very long item. A very long item. A very long item.
-              A very long item. A very long item. A very long item. A very long item.
-              A very long item. A very long item. A very long item. A very long item.
-              A very long item. A very long item. A very long item.
+              <simpara>
+                A very long item. A very long item. A very long item. A very long
+                item. A very long item. A very long item. A very long item. A very
+                long item. A very long item. A very long item. A very long item.
+                A very long item. A very long item. A very long item. A very long
+                item.
+              </simpara>
             </listitem>
             <listitem>
-              A short item.
+              <simpara>
+                A short item.
+              </simpara>
             </listitem>
           </orderedlist>
         </section>
@@ -1216,13 +1371,19 @@ escape (no processing/formatting)
           </para>
           <itemizedlist>
             <listitem>
-              First
+              <simpara>
+                First
+              </simpara>
             </listitem>
             <listitem>
-              Second
+              <simpara>
+                Second
+              </simpara>
             </listitem>
             <listitem>
-              Third
+              <simpara>
+                Third
+              </simpara>
             </listitem>
           </itemizedlist>
         </section>
@@ -1245,27 +1406,41 @@ escape (no processing/formatting)
           </para>
           <orderedlist>
             <listitem>
-              One
+              <simpara>
+                One
+              </simpara>
             </listitem>
             <listitem>
-              Two
+              <simpara>
+                Two
+              </simpara>
             </listitem>
             <listitem>
-              Three
+              <simpara>
+                Three
+              </simpara>
               <itemizedlist>
                 <listitem>
-                  Three.a
+                  <simpara>
+                    Three.a
+                  </simpara>
                 </listitem>
                 <listitem>
-                  Three.b
+                  <simpara>
+                    Three.b
+                  </simpara>
                 </listitem>
                 <listitem>
-                  Three.c
+                  <simpara>
+                    Three.c
+                  </simpara>
                 </listitem>
               </itemizedlist>
             </listitem>
             <listitem>
-              Four
+              <simpara>
+                Four
+              </simpara>
             </listitem>
           </orderedlist>
           <para>
@@ -1290,44 +1465,68 @@ escape (no processing/formatting)
           </para>
           <orderedlist>
             <listitem>
-              1
+              <simpara>
+                1
+              </simpara>
               <itemizedlist>
                 <listitem>
-                  1.a
+                  <simpara>
+                    1.a
+                  </simpara>
                   <orderedlist>
                     <listitem>
-                      1.a.1
+                      <simpara>
+                        1.a.1
+                      </simpara>
                     </listitem>
                     <listitem>
-                      1.a.2
+                      <simpara>
+                        1.a.2
+                      </simpara>
                     </listitem>
                   </orderedlist>
                 </listitem>
                 <listitem>
-                  1.b
+                  <simpara>
+                    1.b
+                  </simpara>
                 </listitem>
               </itemizedlist>
             </listitem>
             <listitem>
-              2
+              <simpara>
+                2
+              </simpara>
               <itemizedlist>
                 <listitem>
-                  2.a
+                  <simpara>
+                    2.a
+                  </simpara>
                 </listitem>
                 <listitem>
-                  2.b
+                  <simpara>
+                    2.b
+                  </simpara>
                   <orderedlist>
                     <listitem>
-                      2.b.1
+                      <simpara>
+                        2.b.1
+                      </simpara>
                     </listitem>
                     <listitem>
-                      2.b.2
+                      <simpara>
+                        2.b.2
+                      </simpara>
                       <itemizedlist>
                         <listitem>
-                          2.b.2.a
+                          <simpara>
+                            2.b.2.a
+                          </simpara>
                         </listitem>
                         <listitem>
-                          2.b.2.b
+                          <simpara>
+                            2.b.2.b
+                          </simpara>
                         </listitem>
                       </itemizedlist>
                     </listitem>
@@ -1345,8 +1544,6 @@ escape (no processing/formatting)
           highlighted according to the current <link linkend="quickbook.syntax.phrase.source_mode">Source
           Mode</link>:
         </para>
-        <para>
-        </para>
         
 <programlisting><phrase role="preprocessor">#include</phrase> <phrase role="special">&lt;</phrase><phrase role="identifier">iostream</phrase><phrase role="special">&gt;</phrase>
 
@@ -1357,8 +1554,6 @@ escape (no processing/formatting)
     <phrase role="keyword">return</phrase> <phrase role="number">0</phrase><phrase role="special">;</phrase>
 <phrase role="special">}</phrase>
 </programlisting>
-        <para>
-        </para>
         
 <programlisting><phrase role="keyword">import</phrase> <phrase role="identifier">cgi</phrase>
 
@@ -1367,8 +1562,6 @@ escape (no processing/formatting)
 
     <phrase role="keyword">return</phrase> <phrase role="identifier">cgi</phrase><phrase role="special">.</phrase><phrase role="identifier">escape</phrase><phrase role="special">(</phrase><phrase role="identifier">text</phrase><phrase role="special">)</phrase>
 </programlisting>
-        <para>
-        </para>
         <para>
           Macros that are already defined are expanded in source code. Example:
         </para>
@@ -1386,8 +1579,8 @@ escape (no processing/formatting)
 </programlisting>
       </section>
       <section id="quickbook.syntax.block.escape_back">
-        <title><link linkend="quickbook.syntax.block.escape_back"> Escaping Back
-        To QuickBook</link></title>
+        <title><link linkend="quickbook.syntax.block.escape_back">Escaping Back To
+        QuickBook</link></title>
         <para>
           Inside code, code blocks and inline code, QuickBook does not allow any
           markup to avoid conflicts with the target syntax (e.g. c++). In case you
@@ -1456,9 +1649,7 @@ escape (no processing/formatting)
 </programlisting>
         <blockquote>
           <para>
-            <para>
-              Indents the paragraph. This applies to one paragraph only.
-            </para>
+            Indents the paragraph. This applies to one paragraph only.
           </para>
         </blockquote>
       </section>
@@ -1682,73 +1873,82 @@ sf_logo
         <para>
           Quickbook has some predefined macros that you can already use.
         </para>
-        <table frame="all"> <title>Predefined Macros</title>
-        <tgroup cols="3">
-          <thead>
-            <row>
-              <entry>
-              <para>
-                Macro
-              </para>
-              </entry><entry>
-              <para>
-                Meaning
-              </para>
-              </entry><entry>
-              <para>
-                Example
-              </para>
-              </entry>
-            </row>
-          </thead>
-          <tbody>
-            <row>
-              <entry>
-              <para>
-                __DATE__
-              </para>
-              </entry><entry>
-              <para>
-                Today's date
-              </para>
-              </entry><entry>
-              <para>
-                2000-Dec-20
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                __TIME__
-              </para>
-              </entry><entry>
-              <para>
-                The current time
-              </para>
-              </entry><entry>
-              <para>
-                12:00:00 PM
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                __FILENAME__
-              </para>
-              </entry><entry>
-              <para>
-                Quickbook source filename
-              </para>
-              </entry><entry>
-              <para>
-                NO_FILENAME_MACRO_GENERATED_IN_DEBUG_MODE
-              </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
+        <table frame="all">
+          <title>Predefined Macros</title>
+          <tgroup cols="3">
+            <thead>
+              <row>
+                <entry>
+                  <para>
+                    Macro
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Meaning
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Example
+                  </para>
+                </entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>
+                  <para>
+                    __DATE__
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Today's date
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    2000-Dec-20
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    __TIME__
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    The current time
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    12:00:00 PM
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    __FILENAME__
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Quickbook source filename
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    NO_FILENAME_MACRO_GENERATED_IN_DEBUG_MODE
+                  </para>
+                </entry>
+              </row>
+            </tbody>
+          </tgroup>
         </table>
       </section>
       <section id="quickbook.syntax.block.templates">
@@ -1781,12 +1981,16 @@ Hi, my name is [name]. I am [age] years old. I am a [what].
         </para>
         <itemizedlist>
           <listitem>
-            An initial alphabetic character or the underscore, followed by zero or
-            more alphanumeric characters or the underscore. This is similar to your
-            typical C/C++ identifier.
+            <simpara>
+              An initial alphabetic character or the underscore, followed by zero
+              or more alphanumeric characters or the underscore. This is similar
+              to your typical C/C++ identifier.
+            </simpara>
           </listitem>
           <listitem>
-            A single character punctuation (a non-alphanumeric printable character)
+            <simpara>
+              A single character punctuation (a non-alphanumeric printable character)
+            </simpara>
           </listitem>
         </itemizedlist>
         <anchor id="quickbook.syntax.block.templates.formal_template_arguments"/>
@@ -1859,12 +2063,10 @@ replacement text...
           Which will expand to:
         </para>
         <para>
-          <para>
-            Hi, my name is James Bond. I am 39 years old. I am a Spy.
-          </para>
-          <para>
-            Hi, my name is Santa Clause. I am 87 years old. I am a Big Red Fatso.
-          </para>
+          Hi, my name is James Bond. I am 39 years old. I am a Spy.
+        </para>
+        <para>
+          Hi, my name is Santa Clause. I am 87 years old. I am a Big Red Fatso.
         </para>
         <caution>
           <para>
@@ -1909,16 +2111,20 @@ replacement text...
         </para>
         <itemizedlist>
           <listitem>
-            The explicit <link linkend="quickbook.syntax.block.templates.template_expansion">template
-            expansion syntax</link>. This is an advantage because, now, we don't
-            have to use obscure naming conventions like double underscores (e.g.
-            __alpha__) to avoid unwanted macro replacement.
+            <simpara>
+              The explicit <link linkend="quickbook.syntax.block.templates.template_expansion">template
+              expansion syntax</link>. This is an advantage because, now, we don't
+              have to use obscure naming conventions like double underscores (e.g.
+              __alpha__) to avoid unwanted macro replacement.
+            </simpara>
           </listitem>
           <listitem>
-            The template is expanded at the point where it is invoked. A macro is
-            expanded immediately at its point of declaration. This is subtle and
-            can cause a slight difference in behavior especially if you refer to
-            other macros and templates in the body.
+            <simpara>
+              The template is expanded at the point where it is invoked. A macro
+              is expanded immediately at its point of declaration. This is subtle
+              and can cause a slight difference in behavior especially if you refer
+              to other macros and templates in the body.
+            </simpara>
           </listitem>
         </itemizedlist>
         <para>
@@ -1982,12 +2188,16 @@ for the journey to old age.]]]
         </para>
         <itemizedlist>
           <listitem>
-            Break the last argument into two, at the first space found (<literal>'',
-            '\n', \t' or '\r'</literal>).
+            <simpara>
+              Break the last argument into two, at the first space found (<literal>'',
+              '\n', \t' or '\r'</literal>).
+            </simpara>
           </listitem>
           <listitem>
-            Repeat until there are enough arguments or if there are no more spaces
-            found (in which case, an error is reported).
+            <simpara>
+              Repeat until there are enough arguments or if there are no more spaces
+              found (in which case, an error is reported).
+            </simpara>
           </listitem>
         </itemizedlist>
         <para>
@@ -2120,73 +2330,82 @@ for the journey to old age.]]]
         <para>
           will generate:
         </para>
-        <table frame="all"> <title>A Simple Table</title>
-        <tgroup cols="3">
-          <thead>
-            <row>
-              <entry>
-              <para>
-                Heading 1
-              </para>
-              </entry><entry>
-              <para>
-                Heading 2
-              </para>
-              </entry><entry>
-              <para>
-                Heading 3
-              </para>
-              </entry>
-            </row>
-          </thead>
-          <tbody>
-            <row>
-              <entry>
-              <para>
-                R0-C0
-              </para>
-              </entry><entry>
-              <para>
-                R0-C1
-              </para>
-              </entry><entry>
-              <para>
-                R0-C2
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                R2-C0
-              </para>
-              </entry><entry>
-              <para>
-                R2-C1
-              </para>
-              </entry><entry>
-              <para>
-                R2-C2
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                R3-C0
-              </para>
-              </entry><entry>
-              <para>
-                R3-C1
-              </para>
-              </entry><entry>
-              <para>
-                R3-C2
-              </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
+        <table frame="all">
+          <title>A Simple Table</title>
+          <tgroup cols="3">
+            <thead>
+              <row>
+                <entry>
+                  <para>
+                    Heading 1
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Heading 2
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Heading 3
+                  </para>
+                </entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>
+                  <para>
+                    R0-C0
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    R0-C1
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    R0-C2
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    R2-C0
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    R2-C1
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    R2-C2
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    R3-C0
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    R3-C1
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    R3-C2
+                  </para>
+                </entry>
+              </row>
+            </tbody>
+          </tgroup>
         </table>
         <para>
           The table title is optional. The first row of the table is automatically
@@ -2220,55 +2439,59 @@ for the journey to old age.]]]
         <para>
           and thus:
         </para>
-        <table frame="all"> <title>Table with fat cells</title>
-        <tgroup cols="2">
-          <thead>
-            <row>
-              <entry>
-              <para>
-                Heading 1
-              </para>
-              </entry><entry>
-              <para>
-                Heading 2
-              </para>
-              </entry>
-            </row>
-          </thead>
-          <tbody>
-            <row>
-              <entry>
-              <para>
-                Row 0, Col 0: a small cell
-              </para>
-              </entry><entry>
-              <para>
-                Row 0, Col 1: a big fat cell with paragraphs
-              </para>
-              <para>
-                Boost provides free peer-reviewed portable C++ source libraries.
-              </para>
-              <para>
-                We emphasize libraries that work well with the C++ Standard Library.
-                Boost libraries are intended to be widely useful, and usable across
-                a broad spectrum of applications. The Boost license encourages both
-                commercial and non-commercial use.
-              </para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-              <para>
-                Row 1, Col 0: a small cell
-              </para>
-              </entry><entry>
-              <para>
-                Row 1, Col 1: a small cell
-              </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
+        <table frame="all">
+          <title>Table with fat cells</title>
+          <tgroup cols="2">
+            <thead>
+              <row>
+                <entry>
+                  <para>
+                    Heading 1
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Heading 2
+                  </para>
+                </entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>
+                  <para>
+                    Row 0, Col 0: a small cell
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Row 0, Col 1: a big fat cell with paragraphs
+                  </para>
+                  <para>
+                    Boost provides free peer-reviewed portable C++ source libraries.
+                  </para>
+                  <para>
+                    We emphasize libraries that work well with the C++ Standard Library.
+                    Boost libraries are intended to be widely useful, and usable
+                    across a broad spectrum of applications. The Boost license encourages
+                    both commercial and non-commercial use.
+                  </para>
+                </entry>
+              </row>
+              <row>
+                <entry>
+                  <para>
+                    Row 1, Col 0: a small cell
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Row 1, Col 1: a small cell
+                  </para>
+                </entry>
+              </row>
+            </tbody>
+          </tgroup>
         </table>
         <para>
           Here's how to have preformatted blocks of code in a table cell:
@@ -2290,30 +2513,33 @@ for the journey to old age.]]]
     ]
 ]
 <!--quickbook-escape-postfix--></programlisting>
-        <table frame="all"> <title>Table with code</title>
-        <tgroup cols="2">
-          <thead>
-            <row>
-              <entry>
-              <para>
-                Comment
-              </para>
-              </entry><entry>
-              <para>
-                Code
-              </para>
-              </entry>
-            </row>
-          </thead>
-          <tbody>
-            <row>
-              <entry>
-              <para>
-                My first program
-              </para>
-              </entry><entry>
-              <para>
-                
+        <table frame="all">
+          <title>Table with code</title>
+          <tgroup cols="2">
+            <thead>
+              <row>
+                <entry>
+                  <para>
+                    Comment
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    Code
+                  </para>
+                </entry>
+              </row>
+            </thead>
+            <tbody>
+              <row>
+                <entry>
+                  <para>
+                    My first program
+                  </para>
+                </entry>
+                <entry>
+                  <para>
+                    
 <programlisting><phrase role="preprocessor">#include</phrase> <phrase role="special">&lt;</phrase><phrase role="identifier">iostream</phrase><phrase role="special">&gt;</phrase>
 
 <phrase role="keyword">int</phrase> <phrase role="identifier">main</phrase><phrase role="special">()</phrase>
@@ -2322,11 +2548,11 @@ for the journey to old age.]]]
     <phrase role="keyword">return</phrase> <phrase role="number">0</phrase><phrase role="special">;</phrase>
 <phrase role="special">}</phrase>
 </programlisting>
-              </para>
-              </entry>
-            </row>
-          </tbody>
-        </tgroup>
+                  </para>
+                </entry>
+              </row>
+            </tbody>
+          </tgroup>
         </table>
       </section>
       <section id="quickbook.syntax.block.variable_lists">
@@ -2342,24 +2568,30 @@ for the journey to old age.]]]
           will generate:
         </para>
         <variablelist>
-          <title>A Variable List</title> <varlistentry><term>term 1</term>
-          <listitem>
-            <para>
-              The definition of term 1
-            </para>
-          </listitem>
-          </varlistentry> <varlistentry><term>term 2</term>
-          <listitem>
-            <para>
-              The definition of term 2
-            </para>
-          </listitem>
-          </varlistentry> <varlistentry><term>term 3</term>
-          <listitem>
-            <para>
-              The definition of term 3
-            </para>
-          </listitem>
+          <title>A Variable List</title>
+          <varlistentry>
+            <term>term 1</term>
+            <listitem>
+              <para>
+                The definition of term 1
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>term 2</term>
+            <listitem>
+              <para>
+                The definition of term 2
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>term 3</term>
+            <listitem>
+              <para>
+                The definition of term 3
+              </para>
+            </listitem>
           </varlistentry>
         </variablelist>
         <para>
@@ -2383,11 +2615,15 @@ for the journey to old age.]]]
         </para>
         <itemizedlist>
           <listitem>
-            The __FILENAME__ predefined macro will reflect the name of the file currently being
-            processed.
+            <simpara>
+              The __FILENAME__ predefined macro will reflect the name of the file currently being
+              processed.
+            </simpara>
           </listitem>
           <listitem>
-            Any macros defined in the included file are scoped to that file.
+            <simpara>
+              Any macros defined in the included file are scoped to that file.
+            </simpara>
           </listitem>
         </itemizedlist>
         <para>
@@ -2454,48 +2690,48 @@ for the journey to old age.]]]
           And the result is:
         </para>
         <para>
-          <para>
-            This is the <emphasis role="bold"><emphasis>foo</emphasis></emphasis>
-            function.
-          </para>
-          <para>
-            This description can have paragraphs...
-          </para>
-          <itemizedlist>
-            <listitem>
+          This is the <emphasis role="bold"><emphasis>foo</emphasis></emphasis> function.
+        </para>
+        <para>
+          This description can have paragraphs...
+        </para>
+        <itemizedlist>
+          <listitem>
+            <simpara>
               lists
-            </listitem>
-            <listitem>
+            </simpara>
+          </listitem>
+          <listitem>
+            <simpara>
               etc.
-            </listitem>
-          </itemizedlist>
-          <para>
-            And any quickbook block markup.
-          </para>
-          <para>
-            
+            </simpara>
+          </listitem>
+        </itemizedlist>
+        <para>
+          And any quickbook block markup.
+        </para>
+        <para>
+          
 <programlisting><phrase role="identifier">std</phrase><phrase role="special">::</phrase><phrase role="identifier">string</phrase> <phrase role="identifier">foo</phrase><phrase role="special">()</phrase>
 <phrase role="special">{</phrase>
     <phrase role="comment">// return 'em, foo man!
 </phrase>    <phrase role="keyword">return</phrase> <phrase role="string">&quot;foo&quot;</phrase><phrase role="special">;</phrase>
 <phrase role="special">}</phrase>
 </programlisting>
-          </para>
-          <para>
-            This is the <emphasis role="bold"><emphasis>bar</emphasis></emphasis>
-            function
-          </para>
-          <para>
-            
+        </para>
+        <para>
+          This is the <emphasis role="bold"><emphasis>bar</emphasis></emphasis> function
+        </para>
+        <para>
+          
 <programlisting><phrase role="identifier">std</phrase><phrase role="special">::</phrase><phrase role="identifier">string</phrase> <phrase role="identifier">bar</phrase><phrase role="special">()</phrase>
 <phrase role="special">{</phrase>
     <phrase role="comment">// return 'em, bar man!
 </phrase>    <phrase role="keyword">return</phrase> <phrase role="string">&quot;bar&quot;</phrase><phrase role="special">;</phrase>
 <phrase role="special">}</phrase></programlisting>
-          </para>
-          <para>
-            Some trailing text here
-          </para>
+        </para>
+        <para>
+          Some trailing text here
         </para>
         <anchor id="quickbook.syntax.block.import.code_snippet_markup"/>
         <bridgehead renderas="sect5">
@@ -2559,19 +2795,26 @@ for the journey to old age.]]]
           for details. Example:
         </para>
         <para>
-          <para>
-            
-<programlisting><phrase role="identifier">std</phrase><phrase role="special">::</phrase><phrase role="identifier">string</phrase> <phrase role="identifier">foo_bar</phrase><phrase role="special">()</phrase> <!--quickbook-escape-prefix--><phrase role="callout_bug"><co id="quickbook0co" linkends="quickbook0" /></phrase><!--quickbook-escape-postfix-->
+          
+<programlisting><phrase role="identifier">std</phrase><phrase role="special">::</phrase><phrase role="identifier">string</phrase> <phrase role="identifier">foo_bar</phrase><phrase role="special">()</phrase> <!--quickbook-escape-prefix--><co id="quickbook0co" linkends="quickbook0" /><!--quickbook-escape-postfix-->
 <phrase role="special">{</phrase>
-    <phrase role="keyword">return</phrase> <phrase role="string">&quot;foo-bar&quot;</phrase><phrase role="special">;</phrase> <!--quickbook-escape-prefix--><phrase role="callout_bug"><co id="quickbook1co" linkends="quickbook1" /></phrase><!--quickbook-escape-postfix-->
+    <phrase role="keyword">return</phrase> <phrase role="string">&quot;foo-bar&quot;</phrase><phrase role="special">;</phrase> <!--quickbook-escape-prefix--><co id="quickbook1co" linkends="quickbook1" /><!--quickbook-escape-postfix-->
 <phrase role="special">}</phrase>
 </programlisting>
-          </para>
-          <para>
-            <calloutlist><callout arearefs="quickbook0co" id="quickbook0"><para> The <emphasis>Mythical</emphasis> FooBar. See <ulink url="http://en.wikipedia.org/wiki/Foobar">Foobar
-            for details</ulink> </para></callout><callout arearefs="quickbook1co" id="quickbook1"><para> return 'em, foo-bar man! </para></callout></calloutlist>
-          </para>
         </para>
+        <calloutlist>
+          <callout arearefs="quickbook0co" id="quickbook0">
+            <para>
+              The <emphasis>Mythical</emphasis> FooBar. See <ulink url="http://en.wikipedia.org/wiki/Foobar">Foobar
+              for details</ulink>
+            </para>
+          </callout>
+          <callout arearefs="quickbook1co" id="quickbook1">
+            <para>
+              return 'em, foo-bar man!
+            </para>
+          </callout>
+        </calloutlist>
         <para>
           Checkout <ulink url="../../test/stub.cpp">stub.cpp</ulink> to see the actual
           code.
@@ -2580,7 +2823,7 @@ for the journey to old age.]]]
     </section>
   </section>
   <section id="quickbook.install">
-    <title><link linkend="quickbook.install"> Installation and configuration</link></title>
+    <title><link linkend="quickbook.install">Installation and configuration</link></title>
     <para>
       This section provides some guidelines on how to install and configure BoostBook
       and Quickbook under several operating systems.
@@ -2594,14 +2837,10 @@ for the journey to old age.]]]
       trying again. Otherwise your configuration fixes will not take any effect.
     </para>
     <section id="quickbook.install.windows">
-      <title><link linkend="quickbook.install.windows"> Windows 2000, XP, 2003, Vista</link></title>
-      <para>
-      </para>
+      <title><link linkend="quickbook.install.windows">Windows 2000, XP, 2003, Vista</link></title>
       <blockquote>
         <para>
-          <para>
-            <emphasis>Section contributed by Julio M. Merino Vidal</emphasis>
-          </para>
+          <emphasis>Section contributed by Julio M. Merino Vidal</emphasis>
         </para>
       </blockquote>
       <para>
@@ -2612,67 +2851,80 @@ for the journey to old age.]]]
       </para>
       <orderedlist>
         <listitem>
-          First of all you need to have a copy of <code><phrase role="identifier">xsltproc</phrase></code>
-          for Windows. There are many ways to get this tool, but to keep things simple,
-          use the <ulink url="http://www.zlatkovic.com/pub/libxml/">binary packages</ulink>
-          made by Igor Zlatkovic. At the very least, you need to download the following
-          packages: <code><phrase role="identifier">iconv</phrase></code>, <code><phrase
-          role="identifier">zlib</phrase></code>, <code><phrase role="identifier">libxml2</phrase></code>
-          and <code><phrase role="identifier">libxslt</phrase></code>.
+          <simpara>
+            First of all you need to have a copy of <code><phrase role="identifier">xsltproc</phrase></code>
+            for Windows. There are many ways to get this tool, but to keep things
+            simple, use the <ulink url="http://www.zlatkovic.com/pub/libxml/">binary
+            packages</ulink> made by Igor Zlatkovic. At the very least, you need
+            to download the following packages: <code><phrase role="identifier">iconv</phrase></code>,
+            <code><phrase role="identifier">zlib</phrase></code>, <code><phrase role="identifier">libxml2</phrase></code>
+            and <code><phrase role="identifier">libxslt</phrase></code>.
+          </simpara>
         </listitem>
         <listitem>
-          Unpack all these packages in the same directory so that you get unique
-          <code><phrase role="identifier">bin</phrase></code>, <code><phrase role="identifier">include</phrase></code>
-          and <code><phrase role="identifier">lib</phrase></code> directories within
-          the hierarchy. These instructions use <code><phrase role="identifier">C</phrase><phrase
-          role="special">:\</phrase><phrase role="identifier">Users</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">example</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">Documents</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">boost</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">xml</phrase></code>
-          as the root for all files.
+          <simpara>
+            Unpack all these packages in the same directory so that you get unique
+            <code><phrase role="identifier">bin</phrase></code>, <code><phrase role="identifier">include</phrase></code>
+            and <code><phrase role="identifier">lib</phrase></code> directories within
+            the hierarchy. These instructions use <code><phrase role="identifier">C</phrase><phrase
+            role="special">:\</phrase><phrase role="identifier">Users</phrase><phrase
+            role="special">\</phrase><phrase role="identifier">example</phrase><phrase
+            role="special">\</phrase><phrase role="identifier">Documents</phrase><phrase
+            role="special">\</phrase><phrase role="identifier">boost</phrase><phrase
+            role="special">\</phrase><phrase role="identifier">xml</phrase></code>
+            as the root for all files.
+          </simpara>
         </listitem>
         <listitem>
-          From the command line, go to the <code><phrase role="identifier">bin</phrase></code>
-          directory and launch <code><phrase role="identifier">xsltproc</phrase><phrase
-          role="special">.</phrase><phrase role="identifier">exe</phrase></code>
-          to ensure it works. You should get usage information on screen.
+          <simpara>
+            From the command line, go to the <code><phrase role="identifier">bin</phrase></code>
+            directory and launch <code><phrase role="identifier">xsltproc</phrase><phrase
+            role="special">.</phrase><phrase role="identifier">exe</phrase></code>
+            to ensure it works. You should get usage information on screen.
+          </simpara>
         </listitem>
         <listitem>
-          Download <ulink url="http://www.docbook.org/xml/4.2/docbook-xml-4.2.zip">Docbook
-          XML 4.2</ulink> and unpack it in the same directory used above. That is:
-          <code><phrase role="identifier">C</phrase><phrase role="special">:\</phrase><phrase
-          role="identifier">Users</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">example</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">Documents</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">boost</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">xml</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">docbook</phrase><phrase role="special">-</phrase><phrase
-          role="identifier">xml</phrase></code>.
+          <simpara>
+            Download <ulink url="http://www.docbook.org/xml/4.2/docbook-xml-4.2.zip">Docbook
+            XML 4.2</ulink> and unpack it in the same directory used above. That
+            is: <code><phrase role="identifier">C</phrase><phrase role="special">:\</phrase><phrase
+            role="identifier">Users</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">example</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">Documents</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">boost</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">xml</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">docbook</phrase><phrase role="special">-</phrase><phrase
+            role="identifier">xml</phrase></code>.
+          </simpara>
         </listitem>
         <listitem>
-          Download the latest <ulink url="http://sourceforge.net/project/showfiles.php?group_id=21935&amp;package_id=16608">Docbook
-          XSL</ulink> version and unpack it, again in the same directory used before.
-          To make things easier, rename the directory created during the extraction
-          to <code><phrase role="identifier">docbook</phrase><phrase role="special">-</phrase><phrase
-          role="identifier">xsl</phrase></code> (bypassing the version name): <code><phrase
-          role="identifier">C</phrase><phrase role="special">:\</phrase><phrase role="identifier">Users</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">example</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">Documents</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">boost</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">xml</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">docbook</phrase><phrase
-          role="special">-</phrase><phrase role="identifier">xsl</phrase></code>.
+          <simpara>
+            Download the latest <ulink url="http://sourceforge.net/project/showfiles.php?group_id=21935&amp;package_id=16608">Docbook
+            XSL</ulink> version and unpack it, again in the same directory used before.
+            To make things easier, rename the directory created during the extraction
+            to <code><phrase role="identifier">docbook</phrase><phrase role="special">-</phrase><phrase
+            role="identifier">xsl</phrase></code> (bypassing the version name):
+            <code><phrase role="identifier">C</phrase><phrase role="special">:\</phrase><phrase
+            role="identifier">Users</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">example</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">Documents</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">boost</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">xml</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">docbook</phrase><phrase role="special">-</phrase><phrase
+            role="identifier">xsl</phrase></code>.
+          </simpara>
         </listitem>
         <listitem>
-          Add the following to your <code><phrase role="identifier">user</phrase><phrase
-          role="special">-</phrase><phrase role="identifier">config</phrase><phrase
-          role="special">.</phrase><phrase role="identifier">jam</phrase></code>
-          file, which should live in your home directory (<code><phrase role="special">%</phrase><phrase
-          role="identifier">HOMEDRIVE</phrase><phrase role="special">%%</phrase><phrase
-          role="identifier">HOMEPATH</phrase><phrase role="special">%</phrase></code>).
-          You must already have it somewhere or otherwise you could not be building
-          Boost (i.e. missing tools configuration).
+          <simpara>
+            Add the following to your <code><phrase role="identifier">user</phrase><phrase
+            role="special">-</phrase><phrase role="identifier">config</phrase><phrase
+            role="special">.</phrase><phrase role="identifier">jam</phrase></code>
+            file, which should live in your home directory (<code><phrase role="special">%</phrase><phrase
+            role="identifier">HOMEDRIVE</phrase><phrase role="special">%%</phrase><phrase
+            role="identifier">HOMEPATH</phrase><phrase role="special">%</phrase></code>).
+            You must already have it somewhere or otherwise you could not be building
+            Boost (i.e. missing tools configuration).
+          </simpara>
         </listitem>
       </orderedlist>
       
@@ -2691,34 +2943,42 @@ for the journey to old age.]]]
       </para>
       <orderedlist>
         <listitem>
-          Go to Quickbook's source directory (<code><phrase role="identifier">BOOST_ROOT</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">tools</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">quickbook</phrase></code>).
+          <simpara>
+            Go to Quickbook's source directory (<code><phrase role="identifier">BOOST_ROOT</phrase><phrase
+            role="special">\</phrase><phrase role="identifier">tools</phrase><phrase
+            role="special">\</phrase><phrase role="identifier">quickbook</phrase></code>).
+          </simpara>
         </listitem>
         <listitem>
-          Build the utility by issuing <code><phrase role="identifier">bjam</phrase>
-          <phrase role="special">--</phrase><phrase role="identifier">v2</phrase></code>.
+          <simpara>
+            Build the utility by issuing <code><phrase role="identifier">bjam</phrase>
+            <phrase role="special">--</phrase><phrase role="identifier">v2</phrase></code>.
+          </simpara>
         </listitem>
         <listitem>
-          Copy the resulting <code><phrase role="identifier">quickbook</phrase><phrase
-          role="special">.</phrase><phrase role="identifier">exe</phrase></code>
-          binary (located under the <code><phrase role="identifier">BOOST_ROOT</phrase><phrase
-          role="special">\</phrase><phrase role="identifier">bin</phrase><phrase
-          role="special">.</phrase><phrase role="identifier">v2</phrase></code> hierarchy)
-          to a safe place. Following our previous example, you can install it into:
-          <code><phrase role="identifier">C</phrase><phrase role="special">:\</phrase><phrase
-          role="identifier">Users</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">example</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">Documents</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">boost</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">xml</phrase><phrase role="special">\</phrase><phrase
-          role="identifier">bin</phrase></code>.
+          <simpara>
+            Copy the resulting <code><phrase role="identifier">quickbook</phrase><phrase
+            role="special">.</phrase><phrase role="identifier">exe</phrase></code>
+            binary (located under the <code><phrase role="identifier">BOOST_ROOT</phrase><phrase
+            role="special">\</phrase><phrase role="identifier">bin</phrase><phrase
+            role="special">.</phrase><phrase role="identifier">v2</phrase></code>
+            hierarchy) to a safe place. Following our previous example, you can install
+            it into: <code><phrase role="identifier">C</phrase><phrase role="special">:\</phrase><phrase
+            role="identifier">Users</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">example</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">Documents</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">boost</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">xml</phrase><phrase role="special">\</phrase><phrase
+            role="identifier">bin</phrase></code>.
+          </simpara>
         </listitem>
         <listitem>
-          Add the following to your <code><phrase role="identifier">user</phrase><phrase
-          role="special">-</phrase><phrase role="identifier">config</phrase><phrase
-          role="special">.</phrase><phrase role="identifier">jam</phrase></code>
-          file:
+          <simpara>
+            Add the following to your <code><phrase role="identifier">user</phrase><phrase
+            role="special">-</phrase><phrase role="identifier">config</phrase><phrase
+            role="special">.</phrase><phrase role="identifier">jam</phrase></code>
+            file:
+          </simpara>
         </listitem>
       </orderedlist>
       
@@ -2728,7 +2988,7 @@ for the journey to old age.]]]
 </programlisting>
     </section>
     <section id="quickbook.install.linux">
-      <title><link linkend="quickbook.install.linux"> Debian, Ubuntu</link></title>
+      <title><link linkend="quickbook.install.linux">Debian, Ubuntu</link></title>
       <para>
         The following instructions apply to Debian and its derivatives. They are
         based on a Ubuntu Edgy install but should work on other Debian based systems.
@@ -2778,29 +3038,37 @@ for the journey to old age.]]]
       </para>
       <orderedlist>
         <listitem>
-          Go to Quickbook's source directory (<code><phrase role="identifier">BOOST_ROOT</phrase><phrase
-          role="special">/</phrase><phrase role="identifier">tools</phrase><phrase
-          role="special">/</phrase><phrase role="identifier">quickbook</phrase></code>).
+          <simpara>
+            Go to Quickbook's source directory (<code><phrase role="identifier">BOOST_ROOT</phrase><phrase
+            role="special">/</phrase><phrase role="identifier">tools</phrase><phrase
+            role="special">/</phrase><phrase role="identifier">quickbook</phrase></code>).
+          </simpara>
         </listitem>
         <listitem>
-          Build the utility by issuing <code><phrase role="identifier">bjam</phrase>
-          <phrase role="special">--</phrase><phrase role="identifier">v2</phrase></code>.
+          <simpara>
+            Build the utility by issuing <code><phrase role="identifier">bjam</phrase>
+            <phrase role="special">--</phrase><phrase role="identifier">v2</phrase></code>.
+          </simpara>
         </listitem>
         <listitem>
-          Copy the resulting <code><phrase role="identifier">quickbook</phrase></code>
-          binary (located under the <code><phrase role="identifier">BOOST_ROOT</phrase><phrase
-          role="special">/</phrase><phrase role="identifier">bin</phrase><phrase
-          role="special">.</phrase><phrase role="identifier">v2</phrase></code> hierarchy)
-          to a safe place. The traditional location is <code><phrase role="special">/</phrase><phrase
-          role="identifier">usr</phrase><phrase role="special">/</phrase><phrase
-          role="identifier">local</phrase><phrase role="special">/</phrase><phrase
-          role="identifier">bin</phrase></code>.
+          <simpara>
+            Copy the resulting <code><phrase role="identifier">quickbook</phrase></code>
+            binary (located under the <code><phrase role="identifier">BOOST_ROOT</phrase><phrase
+            role="special">/</phrase><phrase role="identifier">bin</phrase><phrase
+            role="special">.</phrase><phrase role="identifier">v2</phrase></code>
+            hierarchy) to a safe place. The traditional location is <code><phrase
+            role="special">/</phrase><phrase role="identifier">usr</phrase><phrase
+            role="special">/</phrase><phrase role="identifier">local</phrase><phrase
+            role="special">/</phrase><phrase role="identifier">bin</phrase></code>.
+          </simpara>
         </listitem>
         <listitem>
-          Add the following to your <code><phrase role="identifier">user</phrase><phrase
-          role="special">-</phrase><phrase role="identifier">config</phrase><phrase
-          role="special">.</phrase><phrase role="identifier">jam</phrase></code>
-          file, using the full path of the quickbook executable:
+          <simpara>
+            Add the following to your <code><phrase role="identifier">user</phrase><phrase
+            role="special">-</phrase><phrase role="identifier">config</phrase><phrase
+            role="special">.</phrase><phrase role="identifier">jam</phrase></code>
+            file, using the full path of the quickbook executable:
+          </simpara>
         </listitem>
       </orderedlist>
       
@@ -2811,7 +3079,7 @@ for the journey to old age.]]]
     </section>
   </section>
   <section id="quickbook.editors">
-    <title><link linkend="quickbook.editors"> Editor Support</link></title>
+    <title><link linkend="quickbook.editors">Editor Support</link></title>
     <para>
       Editing quickbook files is usually done with text editors both simple and powerful.
       The following sections list the settings for some editors which can help make
@@ -2829,12 +3097,10 @@ for the journey to old age.]]]
     </para>
     </sidebar>
     <section id="quickbook.editors.scite">
-      <title><link linkend="quickbook.editors.scite"> Scintilla Text Editor</link></title>
+      <title><link linkend="quickbook.editors.scite">Scintilla Text Editor</link></title>
       <blockquote>
         <para>
-          <para>
-            <emphasis>Section contributed by Dean Michael Berris</emphasis>
-          </para>
+          <emphasis>Section contributed by Dean Michael Berris</emphasis>
         </para>
       </blockquote>
       <para>
@@ -2879,7 +3145,7 @@ comment.box.end.props=]
     </section>
   </section>
   <section id="quickbook.faq">
-    <title><link linkend="quickbook.faq"> Frequently Asked Questions</link></title>
+    <title><link linkend="quickbook.faq">Frequently Asked Questions</link></title>
     <anchor id="quickbook.faq.can_i_use_quickbook_for_non_boost_documentation_"/>
     <bridgehead renderas="sect3">
       <link linkend="quickbook.faq.can_i_use_quickbook_for_non_boost_documentation_">Can
@@ -2890,9 +3156,7 @@ comment.box.end.props=]
     </para>
     <blockquote>
       <para>
-        <para>
-          <emphasis>Faq contributed by Michael Marcin</emphasis>
-        </para>
+        <emphasis>Faq contributed by Michael Marcin</emphasis>
       </para>
     </blockquote>
     <para>
@@ -2923,778 +3187,867 @@ boostbook standalone
 </programlisting>
   </section>
   <section id="quickbook.ref">
-    <title><link linkend="quickbook.ref"> Quick Reference</link></title>
+    <title><link linkend="quickbook.ref">Quick Reference</link></title>
     <para>
       [cpp]
     </para>
-    <table frame="all"> <title>Syntax Compendium</title>
-    <tgroup cols="3">
-      <thead>
-        <row>
-          <entry>
-          <para>
-            To do this...
-          </para>
-          </entry><entry>
-          <para>
-            Use this...
-          </para>
-          </entry><entry>
-          <para>
-            See this...
-          </para>
-          </entry>
-        </row>
-      </thead>
-      <tbody>
-        <row>
-          <entry>
-          <para>
-            comment
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[/ some comment]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.comments">Comments</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            <emphasis>italics</emphasis>
-          </para>
-          </entry><entry>
-          <para>
-            <literal>['italics] or /italics/</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
-            and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
-            formatting</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            <emphasis role="bold">bold</emphasis>
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[*bold] or *bold*</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
-            and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
-            formatting</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            <emphasis role="underline">underline</emphasis>
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[_underline] or _underline_</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
-            and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
-            formatting</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            <literal>teletype</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[^teletype] or =teletype=</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
-            and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
-            formatting</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            <emphasis role="strikethrough">strikethrough</emphasis>
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[-strikethrough]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
-            and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
-            formatting</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            <replaceable>
-              replaceable
-            </replaceable>
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[~replaceable]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.replaceable">Replaceble</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            source mode
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[c++]</literal> or <literal>[python]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.source_mode">Source Mode</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            inline code
-          </para>
-          </entry><entry>
-          <para>
-            <literal>`int main();`</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.inline_code">Inline code</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            code block
-          </para>
-          </entry><entry>
-          <para>
-            <literal>``int main();``</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.code">Code</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            code escape
-          </para>
-          </entry><entry>
-          <para>
-            <literal>``from c++ to QuickBook``</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.escape_back">Escaping Back To QuickBook</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            line break
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[br] or \n</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.line_break">line-break</link>
-            <emphasis role="bold">DEPRECATED</emphasis>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            anchor
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[#anchor]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.anchors">Anchors</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[@http://www.boost.org Boost]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.links">Links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            anchor link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[link section.anchor Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.anchor_links">Anchor links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            refentry link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[link xml.refentry Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.refentry_links">refentry links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            function link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[funcref fully::qualified::function_name Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.code_links">function, class, member,
-            enum, macro, concept or header links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            class link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[classref fully::qualified::class_name Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.code_links">function, class, member,
-            enum, macro, concept or header links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            member link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[memberref fully::qualified::member_name Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.code_links">function, class, member,
-            enum, macro, concept or header links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            enum link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[enumref fully::qualified::enum_name Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.code_links">function, class, member,
-            enum, macro, concept or header links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            macro link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[macroref MACRO_NAME Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.code_links">function, class, member,
-            enum, macro, concept or header links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            concept link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[conceptref ConceptName Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.code_links">function, class, member,
-            enum, macro, concept or header links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            header link
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[headerref path/to/header.hpp Link text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.code_links">function, class, member,
-            enum, macro, concept or header links</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            escape
-          </para>
-          </entry><entry>
-          <para>
-            <literal>'''escaped text (no processing/formatting)'''</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.escape">Escape</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            single char escape
-          </para>
-          </entry><entry>
-          <para>
-            <literal>\c</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.single_char_escape">Single char
-            escape</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            images
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[$image.jpg]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.phrase.images">Images</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            begin section
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[section The Section Title]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.section">Section</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            end section
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[endsect]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.section">Section</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            paragraph
-          </para>
-          </entry><entry>
-          <para>
-            No markup. Paragraphs start left-flushed and are terminated by two or
-            more newlines.
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.paragraphs">Paragraphs</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            ordered list
-          </para>
-          </entry><entry>
-          <para>
-            
+    <table frame="all">
+      <title>Syntax Compendium</title>
+      <tgroup cols="3">
+        <thead>
+          <row>
+            <entry>
+              <para>
+                To do this...
+              </para>
+            </entry>
+            <entry>
+              <para>
+                Use this...
+              </para>
+            </entry>
+            <entry>
+              <para>
+                See this...
+              </para>
+            </entry>
+          </row>
+        </thead>
+        <tbody>
+          <row>
+            <entry>
+              <para>
+                comment
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[/ some comment]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.comments">Comments</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                <emphasis>italics</emphasis>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>['italics] or /italics/</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
+                and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
+                formatting</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                <emphasis role="bold">bold</emphasis>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[*bold] or *bold*</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
+                and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
+                formatting</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                <emphasis role="underline">underline</emphasis>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[_underline] or _underline_</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
+                and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
+                formatting</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                <literal>teletype</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[^teletype] or =teletype=</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
+                and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
+                formatting</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                <emphasis role="strikethrough">strikethrough</emphasis>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[-strikethrough]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.font_styles">Font Styles</link>
+                and <link linkend="quickbook.syntax.phrase.simple_formatting">Simple
+                formatting</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                <replaceable>replaceable</replaceable>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[~replaceable]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.replaceable">Replaceble</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                source mode
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[c++]</literal> or <literal>[python]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.source_mode">Source Mode</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                inline code
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>`int main();`</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.inline_code">Inline code</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                code block
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>``int main();``</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.code">Code</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                code escape
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>``from c++ to QuickBook``</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.escape_back">Escaping Back
+                To QuickBook</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                line break
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[br] or \n</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.line_break">line-break</link>
+                <emphasis role="bold">DEPRECATED</emphasis>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                anchor
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[#anchor]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.anchors">Anchors</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[@http://www.boost.org Boost]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.links">Links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                anchor link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[link section.anchor Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.anchor_links">Anchor links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                refentry link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[link xml.refentry Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.refentry_links">refentry links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                function link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[funcref fully::qualified::function_name Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.code_links">function, class,
+                member, enum, macro, concept or header links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                class link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[classref fully::qualified::class_name Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.code_links">function, class,
+                member, enum, macro, concept or header links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                member link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[memberref fully::qualified::member_name Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.code_links">function, class,
+                member, enum, macro, concept or header links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                enum link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[enumref fully::qualified::enum_name Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.code_links">function, class,
+                member, enum, macro, concept or header links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                macro link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[macroref MACRO_NAME Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.code_links">function, class,
+                member, enum, macro, concept or header links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                concept link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[conceptref ConceptName Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.code_links">function, class,
+                member, enum, macro, concept or header links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                header link
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[headerref path/to/header.hpp Link text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.code_links">function, class,
+                member, enum, macro, concept or header links</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                escape
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>'''escaped text (no processing/formatting)'''</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.escape">Escape</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                single char escape
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>\c</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.single_char_escape">Single
+                char escape</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                images
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[$image.jpg]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.phrase.images">Images</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                begin section
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[section The Section Title]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.section">Section</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                end section
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[endsect]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.section">Section</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                paragraph
+              </para>
+            </entry>
+            <entry>
+              <para>
+                No markup. Paragraphs start left-flushed and are terminated by two
+                or more newlines.
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.paragraphs">Paragraphs</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                ordered list
+              </para>
+            </entry>
+            <entry>
+              
 <programlisting><!--quickbook-escape-prefix--># one
 # two
 # three
 <!--quickbook-escape-postfix--></programlisting>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.lists.ordered_lists">Ordered lists</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            unordered list
-          </para>
-          </entry><entry>
-          <para>
-            
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.lists.ordered_lists">Ordered
+                lists</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                unordered list
+              </para>
+            </entry>
+            <entry>
+              
 <programlisting><!--quickbook-escape-prefix-->* one
 * two
 * three
 <!--quickbook-escape-postfix--></programlisting>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.lists.unordered_lists">Unordered
-            lists</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            code
-          </para>
-          </entry><entry>
-          <para>
-            No markup. Preformatted code starts with a space or a tab.
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.code">Code</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            preformatted
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[pre preformatted]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.preformatted">Preformatted</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            block quote
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[:sometext...]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.blockquote">Blockquote</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            heading 1
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[h1 Heading 1]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.headings">Heading</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            heading 2
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[h2 Heading 2]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.headings">Heading</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            heading 3
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[h3 Heading 3]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.headings">Heading</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            heading 4
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[h4 Heading 4]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.headings">Heading</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            heading 5
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[h5 Heading 5]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.headings">Heading</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            heading 6
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[h6 Heading 6]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.headings">Heading</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            macro
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[def macro_identifier some text]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.macros">Macros</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            template
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[template[a b] [a] body [b]]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.templates">Templates</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            blurb
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[blurb advertisement or note...]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.blurbs">Blurbs</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            admonition
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[warning Warning text...]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.admonitions">Admonitions</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            table
-          </para>
-          </entry><entry>
-          <para>
-            
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.lists.unordered_lists">Unordered
+                lists</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                code
+              </para>
+            </entry>
+            <entry>
+              <para>
+                No markup. Preformatted code starts with a space or a tab.
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.code">Code</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                preformatted
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[pre preformatted]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.preformatted">Preformatted</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                block quote
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[:sometext...]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.blockquote">Blockquote</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                heading 1
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[h1 Heading 1]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.headings">Heading</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                heading 2
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[h2 Heading 2]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.headings">Heading</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                heading 3
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[h3 Heading 3]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.headings">Heading</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                heading 4
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[h4 Heading 4]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.headings">Heading</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                heading 5
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[h5 Heading 5]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.headings">Heading</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                heading 6
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[h6 Heading 6]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.headings">Heading</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                macro
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[def macro_identifier some text]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.macros">Macros</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                template
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[template[a b] [a] body [b]]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.templates">Templates</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                blurb
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[blurb advertisement or note...]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.blurbs">Blurbs</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                admonition
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[warning Warning text...]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.admonitions">Admonitions</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                table
+              </para>
+            </entry>
+            <entry>
+              
 <programlisting><!--quickbook-escape-prefix-->[table Title
 [[a][b][c]]
 [[a][b][c]]
 ]
 <!--quickbook-escape-postfix--></programlisting>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.tables">Tables</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            variablelist
-          </para>
-          </entry><entry>
-          <para>
-            
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.tables">Tables</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                variablelist
+              </para>
+            </entry>
+            <entry>
+              
 <programlisting><!--quickbook-escape-prefix-->[variablelist Title
 [[a][b]]
 [[a][b]]
 ]
 <!--quickbook-escape-postfix--></programlisting>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.variable_lists">Variable Lists</link>
-          </para>
-          </entry>
-        </row>
-        <row>
-          <entry>
-          <para>
-            include
-          </para>
-          </entry><entry>
-          <para>
-            <literal>[include someother.qbk]</literal>
-          </para>
-          </entry><entry>
-          <para>
-            <link linkend="quickbook.syntax.block.include">Include</link>
-          </para>
-          </entry>
-        </row>
-      </tbody>
-    </tgroup>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.variable_lists">Variable Lists</link>
+              </para>
+            </entry>
+          </row>
+          <row>
+            <entry>
+              <para>
+                include
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <literal>[include someother.qbk]</literal>
+              </para>
+            </entry>
+            <entry>
+              <para>
+                <link linkend="quickbook.syntax.block.include">Include</link>
+              </para>
+            </entry>
+          </row>
+        </tbody>
+      </tgroup>
     </table>
   </section>
 </article>

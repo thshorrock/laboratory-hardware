@@ -8,7 +8,7 @@ rule swig_decoration ( name : type ? : property-set )
 
 
 project  hardware_lecroy_swig
-	: source-location ../../src
+	: source-location ../../src/library
 	: default-build <threading>multi 
 	: build-dir $(TOP)/build
   	: usage-requirements <include>../include

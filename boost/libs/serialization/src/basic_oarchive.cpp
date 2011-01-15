@@ -21,8 +21,11 @@
 // including this here to work around an ICC in intel 7.0
 // normally this would be part of basic_oarchive.hpp below.
 #define BOOST_ARCHIVE_SOURCE
+// include this to prevent linker errors when the
+// same modules are marked export and import.
 #define BOOST_SERIALIZATION_SOURCE
 
+#include <boost/archive/detail/decl.hpp>
 #include <boost/archive/basic_archive.hpp>
 #include <boost/archive/detail/basic_oserializer.hpp>
 #include <boost/archive/detail/basic_pointer_oserializer.hpp>
@@ -99,9 +102,7 @@ class basic_oarchive_impl {
             const basic_oserializer & bos
         ) :
             m_bos_ptr(& bos),
-            m_class_id(
-                static_cast<class_id_type>(class_id)
-            ),
+            m_class_id(class_id),
             m_initialized(false)
         {}
         cobject_type(const basic_oserializer & bos)
@@ -225,11 +226,6 @@ basic_oarchive_impl::find(const serialization::extended_type_info & ti) const {
 inline const basic_oarchive_impl::cobject_type &
 basic_oarchive_impl::find(const basic_oserializer & bos)
 {
-    assert(
-        cobject_info_set.size() 
-        <= 
-        boost::integer_traits<class_id_type>::const_max
-    );
     std::pair<cobject_info_set_type::iterator, bool> cresult = 
         cobject_info_set.insert(cobject_type(cobject_info_set.size(), bos));
     return *(cresult.first);
@@ -239,11 +235,6 @@ inline const basic_oarchive_impl::cobject_type &
 basic_oarchive_impl::register_type(
     const basic_oserializer & bos
 ){
-    assert(
-        cobject_info_set.size() 
-        <= 
-        boost::integer_traits<class_id_type>::const_max
-    );
     cobject_type co(cobject_info_set.size(), bos);
     std::pair<cobject_info_set_type::const_iterator, bool>
         result = cobject_info_set.insert(co);
@@ -445,7 +436,7 @@ basic_oarchive::register_basic_serializer(const basic_oserializer & bos){
     pimpl->register_type(bos);
 }
 
-BOOST_ARCHIVE_DECL(unsigned int)
+BOOST_ARCHIVE_DECL(library_version_type)
 basic_oarchive::get_library_version() const{
     return BOOST_ARCHIVE_VERSION();
 }

@@ -1,4 +1,4 @@
-//  (C) Copyright 2008-9 Anthony Williams 
+//  (C) Copyright 2008-10 Anthony Williams 
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -14,11 +14,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#ifdef BOOST_HAS_RVALUE_REFS
+#ifndef BOOST_NO_RVALUE_REFERENCES
     template<typename T>
     typename boost::remove_reference<T>::type&& cast_to_rval(T&& t)
     {
-        return t;
+        return static_cast<typename boost::remove_reference<T>::type&&>(t);
     }
 #else
     template<typename T>
@@ -41,7 +41,7 @@ public:
     X():
         i(42)
     {}
-#ifdef BOOST_HAS_RVALUE_REFS
+#ifndef BOOST_NO_RVALUE_REFERENCES
     X(X&& other):
         i(other.i)
     {
@@ -89,7 +89,7 @@ void set_promise_exception_thread(boost::promise<int>* p)
 void test_store_value_from_thread()
 {
     boost::promise<int> pi2;
-    boost::unique_future<int> fi2=pi2.get_future();
+    boost::unique_future<int> fi2(pi2.get_future());
     boost::thread(set_promise_thread,&pi2);
     int j=fi2.get();
     BOOST_CHECK(j==42);
@@ -556,7 +556,7 @@ void wait_callback(boost::promise<int>& pi)
     }
 }
 
-void do_nothing_callback(boost::promise<int>& pi)
+void do_nothing_callback(boost::promise<int>& /*pi*/)
 {
     boost::lock_guard<boost::mutex> lk(callback_mutex);
     ++callback_called;
@@ -1041,6 +1041,8 @@ void test_wait_for_any_from_range()
         }
         boost::thread(::cast_to_rval(tasks[i]));
     
+        BOOST_CHECK(boost::wait_for_any(futures,futures)==futures);
+        
         boost::unique_future<int>* const future=boost::wait_for_any(futures,futures+count);
     
         BOOST_CHECK(future==(futures+i));

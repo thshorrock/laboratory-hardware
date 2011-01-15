@@ -3,7 +3,7 @@
 # Copyright 2003, 2004, 2005, 2006 Vladimir Prus 
 # Copyright 2005-2007 Mat Marcus
 # Copyright 2005-2007 Adobe Systems Incorporated
-# Copyright 2007-2009 Rene Rivera
+# Copyright 2007-2010 Rene Rivera
 # Distributed under the Boost Software License, Version 1.0. 
 # (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt) 
 
@@ -24,29 +24,14 @@ import errors ;
 ## Use a framework.
 feature framework : : free ;
 
-## The MacOSX versions we can target.
-.macosx-versions =
-    10.6 10.5 10.4 10.3 10.2 10.1
-    iphone-3.2 iphonesim-3.2
-    iphone-3.1.2 iphonesim-3.1.2
-    iphone-3.1 iphonesim-3.1
-    iphone-3.0 iphonesim-3.0
-    iphone-2.2.1 iphonesim-2.2.1
-    iphone-2.2 iphonesim-2.2
-    iphone-2.1 iphonesim-2.1
-    iphone-2.0 iphonesim-2.0
-    iphone-1.x
-    ;
-
 ## The MacOSX version to compile for, which maps to the SDK to use (sysroot).
-feature macosx-version
-    : $(.macosx-versions)
-    : propagated link-incompatible symmetric optional ;
+feature macosx-version : : propagated link-incompatible symmetric optional ;
 
 ## The minimal MacOSX version to target.
-feature macosx-version-min
-    : $(.macosx-versions)
-    : propagated optional ;
+feature macosx-version-min : : propagated optional ;
+
+## A dependency, that is forced to be included in the link.
+feature force-load : : free dependency incidental ;
 
 #############################################################################
 
@@ -170,27 +155,27 @@ rule init ( version ? : command * : options * : requirement * )
         # We can turn off strip by specifying it as empty. In which
         # case we switch to using the linker to do the strip.
         flags darwin.link.dll OPTIONS
-            $(condition)/<main-target-type>LIB/<link>shared/<address-model>32/<debug-symbols>off : -Wl,-x ;
+            $(condition)/<main-target-type>LIB/<link>shared/<address-model>32/<strip>on : -Wl,-x ;
         flags darwin.link.dll OPTIONS
-            $(condition)/<main-target-type>LIB/<link>shared/<address-model>/<debug-symbols>off : -Wl,-x ;
+            $(condition)/<main-target-type>LIB/<link>shared/<address-model>/<strip>on : -Wl,-x ;
         flags darwin.link OPTIONS
-            $(condition)/<main-target-type>EXE/<address-model>32/<debug-symbols>off : -s ;
+            $(condition)/<main-target-type>EXE/<address-model>32/<strip>on : -s ;
         flags darwin.link OPTIONS
-            $(condition)/<main-target-type>EXE/<address-model>/<debug-symbols>off : -s ;
+            $(condition)/<main-target-type>EXE/<address-model>/<strip>on : -s ;
     }
     else
     {
         # Otherwise we need to find a strip program to use. And hence
         # also tell the link action that we need to use a strip
         # post-process.
-        flags darwin.link NEED_STRIP $(condition)/<debug-symbols>off : "" ;        
+        flags darwin.link NEED_STRIP $(condition)/<strip>on : "" ;
         strip =
             [ common.get-invocation-command darwin
                 : strip : [ feature.get-values <striper> : $(options) ] : $(bin) : search-path ] ;
         flags darwin.link .STRIP $(condition) : $(strip[1]) ;
         if $(.debug-configuration)
         {
-            ECHO notice: using strip :: $(condition) :: $(strip[1]) ;
+            ECHO notice: using strip for $(condition) at $(strip[1]) ;
         }
     }
 
@@ -202,7 +187,7 @@ rule init ( version ? : command * : options * : requirement * )
     flags darwin.archive .LIBTOOL $(condition) : $(archiver[1]) ;
     if $(.debug-configuration)
     {
-        ECHO notice: using archiver :: $(condition) :: $(archiver[1]) ;
+        ECHO notice: using archiver for $(condition) at $(archiver[1]) ;
     }
     
     # - Initialize the SDKs available in the root for this tool.
@@ -220,6 +205,94 @@ rule init ( version ? : command * : options * : requirement * )
     #~ EXIT ;
 }
 
+# Add and set options for a discovered SDK version.
+local rule init-sdk ( condition * : root ? : version + : version-feature ? )
+{
+    local rule version-to-feature ( version + )
+    {
+        switch $(version[1])
+        {
+            case iphone* :
+            {
+                return $(version[1])-$(version[2-]:J=.) ;
+            }
+            case mac* :
+            {
+                return $(version[2-]:J=.) ;
+            }
+            case * :
+            {
+                return $(version:J=.) ;
+            }
+        }
+    }
+    
+    if $(version-feature)
+    {
+        if $(.debug-configuration)
+        {
+            ECHO notice: available sdk for $(condition)/<macosx-version>$(version-feature) at $(sdk) ;
+        }
+        
+        # Add the version to the features for specifying them.
+        if ! $(version-feature) in [ feature.values macosx-version ]
+        {
+            feature.extend macosx-version : $(version-feature) ;
+        }
+        if ! $(version-feature) in [ feature.values macosx-version-min ]
+        {
+            feature.extend macosx-version-min : $(version-feature) ;
+        }
+        
+        # Set the flags the version needs to compile with, first
+        # generic options.
+        flags darwin.compile OPTIONS $(condition)/<macosx-version>$(version-feature)
+            : -isysroot $(sdk) ;
+        flags darwin.link OPTIONS $(condition)/<macosx-version>$(version-feature)
+            : -isysroot $(sdk) ;
+        
+        # Then device variation options.
+        switch $(version[1])
+        {
+            case iphone* :
+            {
+                flags darwin.compile OPTIONS <macosx-version-min>$(version-feature)
+                    : -miphoneos-version-min=$(version[2-]:J=.) ;
+                flags darwin.link OPTIONS <macosx-version-min>$(version-feature)
+                    : -miphoneos-version-min=$(version[2-]:J=.) ;
+            }
+            
+            case mac* :
+            {
+                flags darwin.compile OPTIONS <macosx-version-min>$(version-feature)
+                    : -mmacosx-version-min=$(version[2-]:J=.) ;
+                flags darwin.link OPTIONS <macosx-version-min>$(version-feature)
+                    : -mmacosx-version-min=$(version[2-]:J=.) ;
+            }
+        }
+        
+        return $(version-feature) ;
+    }
+    else if $(version[4])
+    {
+        # We have a patch version of an SDK. We want to set up
+        # both the specific patch version, and the minor version.
+        # So we recurse to set up the minor version. Plus the minor version.
+        return
+            [ init-sdk $(condition) : $(root)
+                : $(version[1-3]) : [ version-to-feature $(version[1-3]) ] ]
+            [ init-sdk $(condition) : $(root)
+                : $(version) : [ version-to-feature $(version) ] ] ;
+    }
+    else
+    {
+        # Yes, this is intentionally recursive.
+        return
+            [ init-sdk $(condition) : $(root)
+                : $(version) : [ version-to-feature $(version) ] ] ;
+    }
+}
+
 # Determine the MacOSX SDK versions installed and their locations.
 local rule init-available-sdk-versions ( condition * : root ? )
 {
@@ -231,45 +304,29 @@ local rule init-available-sdk-versions ( condition * : root ? )
     {
         local sdk-match = [ MATCH ([^0-9]+)([0-9]+)[.]([0-9x]+)[.]?([0-9x]+)? : $(sdk:D=) ] ;
         local sdk-platform = $(sdk-match[1]:L) ;
-        local sdk-version = $(sdk-match[2]).$(sdk-match[3]) ;
+        local sdk-version = $(sdk-match[2-]) ;
         if $(sdk-version)
         {
             switch $(sdk-platform)
             {
                 case macosx :
                 {
-                    sdk-version = $(sdk-version) ;
+                    sdk-version = mac $(sdk-version) ;
                 }
                 case iphoneos :
                 {
-                    if $(sdk-match[4])
-                    {
-                        sdk-version = $(sdk-version).$(sdk-match[4]) ;
-                    }
-                    sdk-version = iphone-$(sdk-version) ;
+                    sdk-version = iphone $(sdk-version) ;
                 }
                 case iphonesimulator :
                 {
-                    if $(sdk-match[4])
-                    {
-                        sdk-version = $(sdk-version).$(sdk-match[4]) ;
-                    }
-                    sdk-version = iphonesim-$(sdk-version) ;
+                    sdk-version = iphonesim $(sdk-version) ;
                 }
                 case * :
                 {
                     sdk-version = $(sdk-version:J=-) ;
                 }
             }
-            result += $(sdk-version) ;
-            flags darwin.compile OPTIONS $(condition)/<macosx-version>$(sdk-version)
-                : -isysroot $(sdk) ;
-            flags darwin.link OPTIONS $(condition)/<macosx-version>$(sdk-version)
-                : -isysroot $(sdk) ;
-            if $(.debug-configuration)
-            {
-                ECHO notice: available sdk :: $(condition)/<macosx-version>$(sdk-version) :: $(sdk) ;
-            }
+            result += [ init-sdk $(condition) : $(sdk) : $(sdk-version) ] ;
         }
     }
     return $(result) ;
@@ -277,31 +334,6 @@ local rule init-available-sdk-versions ( condition * : root ? )
 
 # Generic options.
 flags darwin.compile OPTIONS <flags> ;
-
-# Minimal OSX target option. Note that the default is for the min-version
-# option to not be included to let the compiler default take hold.
-for local macosx-version in $(.macosx-versions)
-{
-    switch $(macosx-version)
-    {
-        case iphone* :
-        {
-            local version-match = [ MATCH ([^0-9]+)([0-9.]+) : $(macosx-version) ] ;
-            flags darwin.compile OPTIONS <macosx-version-min>$(macosx-version)
-                : -miphoneos-version-min=$(version-match[2]) ;
-            flags darwin.link OPTIONS <macosx-version-min>$(macosx-version)
-                : -miphoneos-version-min=$(version-match[2]) ;
-        }
-        
-        case * :
-        {
-            flags darwin.compile OPTIONS <macosx-version-min>$(macosx-version)
-                : -mmacosx-version-min=$(macosx-version) ;
-            flags darwin.link OPTIONS <macosx-version-min>$(macosx-version)
-                : -mmacosx-version-min=$(macosx-version) ;
-        }
-    }
-}
 
 # The following adds objective-c support to darwin.
 # Thanks to http://thread.gmane.org/gmane.comp.lib.boost.build/13759
@@ -455,6 +487,9 @@ flags darwin.compile OPTIONS : -no-cpp-precomp -gdwarf-2 ;
 # Add the framework names to use.
 flags darwin.link FRAMEWORK <framework> ;
 
+#
+flags darwin.link FORCE_LOAD <force-load> ;
+
 # This is flag is useful for debugging the link step
 # uncomment to see what libtool is doing under the hood
 #~ flags darwin.link.dll OPTIONS : -Wl,-v ;
@@ -468,17 +503,21 @@ local rule prepare-framework-path ( target + )
     # The -F option specifies the directories where a framework
     # is searched for.  So, if we find <framework> feature
     # with some path, we need to generate property -F option.
-    local framework-path = [ on $(target) return $(FRAMEWORK:D) ] ;
+    local framework-paths = [ on $(target) return $(FRAMEWORK:D) ] ;
 
     # Be sure to generate no -F if there's no path.
-    if $(framework-path) != ""
+    for local framework-path in $(framework-paths)
     {
-        FRAMEWORK_PATH on $(target) += -F$(framework-path) ;
+        if $(framework-path) != ""
+        {
+            FRAMEWORK_PATH on $(target) += -F$(framework-path) ;
+        }
     }
 }
 
 rule link ( targets * : sources * : properties * )
 {
+    DEPENDS $(targets) : [ on $(targets) return $(FORCE_LOAD) ] ;
     setup-address-model $(targets) : $(sources) : $(properties) ;
     prepare-framework-path $(<) ;
 }
@@ -487,9 +526,9 @@ rule link ( targets * : sources * : properties * )
 # binaries, at least on OS X 10.5.5, see:
 #    http://svn.boost.org/trac/boost/ticket/2347
 # So we pass -S -x.
-actions link bind LIBRARIES
+actions link bind LIBRARIES FORCE_LOAD
 {
-    "$(CONFIG_COMMAND)" -L"$(LINKPATH)" -o "$(<)" "$(>)" "$(LIBRARIES)" -l$(FINDLIBS-SA) -l$(FINDLIBS-ST) $(FRAMEWORK_PATH) -framework$(_)$(FRAMEWORK:D=:S=) $(OPTIONS) $(USER_OPTIONS)
+    "$(CONFIG_COMMAND)" -L"$(LINKPATH)" -o "$(<)" "$(>)" -Wl,-force_load$(_)"$(FORCE_LOAD)" "$(LIBRARIES)" -l$(FINDLIBS-SA) -l$(FINDLIBS-ST) $(FRAMEWORK_PATH) -framework$(_)$(FRAMEWORK:D=:S=) $(OPTIONS) $(USER_OPTIONS)
     $(NEED_STRIP)"$(.STRIP)" $(NEED_STRIP)-S $(NEED_STRIP)-x $(NEED_STRIP)"$(<)"
 }
 

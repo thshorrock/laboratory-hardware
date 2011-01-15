@@ -19,7 +19,7 @@ main  (int ac, char **av)
   WG33120A       bus_sync("/dev/ttyUSB0");
 
 
-  //BUS
+  // //BUS
   bus_sync.shape(shape::SQUARE);
   bus_sync.trigger(trigger::BUS);
   bus_sync.burst_on();
@@ -34,18 +34,18 @@ main  (int ac, char **av)
 
   scope.trigger_mode(trigger_mode::NORM);
   
-  scope.auto_calibrate(false);
+  // scope.auto_calibrate(false);
 
 
-  for(int i=0;i<100000;++i){
-    std::cout<<"i = "<<i<<std::endl;
+  // for(int i=0;i<100000;++i){
+  //   std::cout<<"i = "<<i<<std::endl;
 
-    //  scope.trigger_mode(trigger_mode::SINGLE);
+  //   //  scope.trigger_mode(trigger_mode::SINGLE);
     
-    //Trigger	
-    bus_sync.trigger_now();
-    lecroy_file file;
+  //   //Trigger	
+  //   // bus_sync.trigger_now();
+  //   lecroy_file file;
       
-    file =  scope.get_waveform(location::C4);
-  }
+  //   file =  scope.get_waveform(location::C4);
+  // }
 }

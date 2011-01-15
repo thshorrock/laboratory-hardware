@@ -342,7 +342,7 @@ This function is used to asynchronously read a certain number of bytes of data f
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function.
+This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function, and is known as a [*composed operation]. The program must ensure that the stream performs no other read operations (such as async\_read, the stream's async\_read\_some function, or any other composed operations that perform reads) until this operation completes.
 
 
 [heading Parameters]
@@ -424,7 +424,7 @@ This function is used to asynchronously read a certain number of bytes of data f
 * The supplied buffers are full. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 
 [heading Parameters]
@@ -505,7 +505,7 @@ This function is used to asynchronously read a certain number of bytes of data f
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function.
+This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function, and is known as a [*composed operation]. The program must ensure that the stream performs no other read operations (such as async\_read, the stream's async\_read\_some function, or any other composed operations that perform reads) until this operation completes.
 
 
 [heading Parameters]
@@ -574,9 +574,9 @@ Start an asynchronous operation to read a certain amount of data from a stream.
 This function is used to asynchronously read a certain number of bytes of data from a stream. The function call always returns immediately. The asynchronous operation will continue until one of the following conditions is true:
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function.
+This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function, and is known as a [*composed operation]. The program must ensure that the stream performs no other read operations (such as async\_read, the stream's async\_read\_some function, or any other composed operations that perform reads) until this operation completes.
 
 
 [heading Parameters]
@@ -795,7 +795,7 @@ This function is used to asynchronously read a certain number of bytes of data f
 * The supplied buffers are full. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 
 [heading Parameters]
@@ -951,7 +951,7 @@ Start an asynchronous operation to read a certain amount of data at the specifie
 This function is used to asynchronously read a certain number of bytes of data from a random access device at the specified offset. The function call always returns immediately. The asynchronous operation will continue until one of the following conditions is true:
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's async\_read\_some\_at function.
 
@@ -1087,7 +1087,7 @@ This function is used to asynchronously read data into the specified streambuf u
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function. If the streambuf's get area already contains the delimiter, the asynchronous operation completes immediately.
+This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function, and is known as a [*composed operation]. If the streambuf's get area already contains the delimiter, this asynchronous operation completes immediately. The program must ensure that the stream performs no other read operations (such as async\_read, async\_read\_until, the stream's async\_read\_some function, or any other composed operations that perform reads) until this operation completes.
 
 
 [heading Parameters]
@@ -1143,7 +1143,22 @@ To asynchronously read data into a streambuf until a newline is encountered:
    boost::asio::async_read_until(s, b, '\n', handler); 
 
 
+After the `async_read_until` operation completes successfully, the buffer `b` contains the delimiter: 
 
+   { 'a', 'b', ..., 'c', '\n', 'd', 'e', ... } 
+
+
+The call to `std::getline` then extracts the data up to and including the delimiter, so that the string `line` contains: 
+
+   { 'a', 'b', ..., 'c', '\n' } 
+
+
+The remaining data is left in the buffer `b` as follows: 
+
+   { 'd', 'e', ... } 
+
+
+This data may be the start of a new line, to be extracted by a subsequent `async_read_until` operation. 
 
 
 
@@ -1177,7 +1192,7 @@ This function is used to asynchronously read data into the specified streambuf u
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function. If the streambuf's get area already contains the delimiter, the asynchronous operation completes immediately.
+This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function, and is known as a [*composed operation]. If the streambuf's get area already contains the delimiter, this asynchronous operation completes immediately. The program must ensure that the stream performs no other read operations (such as async\_read, async\_read\_until, the stream's async\_read\_some function, or any other composed operations that perform reads) until this operation completes.
 
 
 [heading Parameters]
@@ -1233,7 +1248,22 @@ To asynchronously read data into a streambuf until a newline is encountered:
    boost::asio::async_read_until(s, b, "\r\n", handler); 
 
 
+After the `async_read_until` operation completes successfully, the buffer `b` contains the delimiter: 
 
+   { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } 
+
+
+The call to `std::getline` then extracts the data up to and including the delimiter, so that the string `line` contains: 
+
+   { 'a', 'b', ..., 'c', '\r', '\n' } 
+
+
+The remaining data is left in the buffer `b` as follows: 
+
+   { 'd', 'e', ... } 
+
+
+This data may be the start of a new line, to be extracted by a subsequent `async_read_until` operation. 
 
 
 
@@ -1267,7 +1297,7 @@ This function is used to asynchronously read data into the specified streambuf u
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function. If the streambuf's get area already contains data that matches the regular expression, the function returns immediately.
+This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function, and is known as a [*composed operation]. If the streambuf's get area already contains data that matches the regular expression, this asynchronous operation completes immediately. The program must ensure that the stream performs no other read operations (such as async\_read, async\_read\_until, the stream's async\_read\_some function, or any other composed operations that perform reads) until this operation completes.
 
 
 [heading Parameters]
@@ -1324,7 +1354,22 @@ To asynchronously read data into a streambuf until a CR-LF sequence is encounter
    boost::asio::async_read_until(s, b, boost::regex("\r\n"), handler); 
 
 
+After the `async_read_until` operation completes successfully, the buffer `b` contains the data which matched the regular expression: 
 
+   { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } 
+
+
+The call to `std::getline` then extracts the data up to and including the match, so that the string `line` contains: 
+
+   { 'a', 'b', ..., 'c', '\r', '\n' } 
+
+
+The remaining data is left in the buffer `b` as follows: 
+
+   { 'd', 'e', ... } 
+
+
+This data may be the start of a new line, to be extracted by a subsequent `async_read_until` operation. 
 
 
 
@@ -1360,7 +1405,7 @@ This function is used to asynchronously read data into the specified streambuf u
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function. If the match condition function object already indicates a match, the operation completes immediately.
+This operation is implemented in terms of zero or more calls to the stream's async\_read\_some function, and is known as a [*composed operation]. If the match condition function object already indicates a match, this asynchronous operation completes immediately. The program must ensure that the stream performs no other read operations (such as async\_read, async\_read\_until, the stream's async\_read\_some function, or any other composed operations that perform reads) until this operation completes.
 
 
 [heading Parameters]
@@ -1553,7 +1598,7 @@ This function is used to asynchronously write a certain number of bytes of data 
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function.
+This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function, and is known as a [*composed operation]. The program must ensure that the stream performs no other write operations (such as async\_write, the stream's async\_write\_some function, or any other composed operations that perform writes) until this operation completes.
 
 
 [heading Parameters]
@@ -1621,9 +1666,9 @@ This function is used to asynchronously write a certain number of bytes of data 
 * All of the data in the supplied buffers has been written. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function.
+This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function, and is known as a [*composed operation]. The program must ensure that the stream performs no other write operations (such as async\_write, the stream's async\_write\_some function, or any other composed operations that perform writes) until this operation completes.
 
 
 [heading Parameters]
@@ -1701,12 +1746,12 @@ Start an asynchronous operation to write all of the supplied data to a stream.
 This function is used to asynchronously write a certain number of bytes of data to a stream. The function call always returns immediately. The asynchronous operation will continue until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
 * An error occurred.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function.
+This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function, and is known as a [*composed operation]. The program must ensure that the stream performs no other write operations (such as async\_write, the stream's async\_write\_some function, or any other composed operations that perform writes) until this operation completes.
 
 
 [heading Parameters]
@@ -1761,12 +1806,12 @@ Start an asynchronous operation to write a certain amount of data to a stream.
 This function is used to asynchronously write a certain number of bytes of data to a stream. The function call always returns immediately. The asynchronous operation will continue until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
-This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function.
+This operation is implemented in terms of zero or more calls to the stream's async\_write\_some function, and is known as a [*composed operation]. The program must ensure that the stream performs no other write operations (such as async\_write, the stream's async\_write\_some function, or any other composed operations that perform writes) until this operation completes.
 
 
 [heading Parameters]
@@ -1970,7 +2015,7 @@ This function is used to asynchronously write a certain number of bytes of data 
 * All of the data in the supplied buffers has been written. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's async\_write\_some\_at function.
 
@@ -2053,7 +2098,7 @@ Start an asynchronous operation to write all of the supplied data at the specifi
 This function is used to asynchronously write a certain number of bytes of data to a random access device at a specified offset. The function call always returns immediately. The asynchronous operation will continue until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
 * An error occurred.
@@ -2116,10 +2161,10 @@ Start an asynchronous operation to write a certain amount of data at the specifi
 This function is used to asynchronously write a certain number of bytes of data to a random access device at a specified offset. The function call always returns immediately. The asynchronous operation will continue until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's async\_write\_some\_at function.
 
@@ -2622,6 +2667,8 @@ Assign an existing native socket to the socket.
 Start an asynchronous connect. 
 
 
+  template<
+      typename ``[link boost_asio.reference.ConnectHandler ConnectHandler]``>
   void async_connect(
       const endpoint_type & peer_endpoint,
       ConnectHandler handler);
@@ -3854,10 +3901,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -3905,10 +3952,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -4386,6 +4433,8 @@ Get an option from the socket.
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   void get_option(
       GettableSocketOption & option) const;
 
@@ -4443,6 +4492,8 @@ Getting the value of the SOL\_SOCKET/SO\_KEEPALIVE option:
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   boost::system::error_code get_option(
       GettableSocketOption & option,
       boost::system::error_code & ec) const;
@@ -4556,6 +4607,8 @@ Perform an IO control command on the socket.
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   void io_control(
       IoControlCommand & command);
 
@@ -4613,6 +4666,8 @@ Getting the number of bytes ready to read:
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   boost::system::error_code io_control(
       IoControlCommand & command,
       boost::system::error_code & ec);
@@ -6890,6 +6945,8 @@ Set an option on the socket.
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   void set_option(
       const SettableSocketOption & option);
 
@@ -6946,6 +7003,8 @@ Setting the IPPROTO\_TCP/TCP\_NODELAY option:
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   boost::system::error_code set_option(
       const SettableSocketOption & option,
       boost::system::error_code & ec);
@@ -7371,10 +7430,10 @@ Changing the expiry time of a timer while there are pending asynchronous waits c
 
 
 
-* The boost::asio::basic_deadline_timer::expires_from_now() function cancels any pending asynchronous waits, and returns the number of asynchronous waits that were cancelled. If it returns 0 then you were too late and the wait handler has already been executed, or will soon be executed. If it returns 1 then the wait handler was successfully cancelled.
+* The `boost::asio::basic_deadline_timer::expires_from_now()` function cancels any pending asynchronous waits, and returns the number of asynchronous waits that were cancelled. If it returns 0 then you were too late and the wait handler has already been executed, or will soon be executed. If it returns 1 then the wait handler was successfully cancelled.
 
 
-* If a wait handler is cancelled, the boost::system::error_code passed to it contains the value boost::asio::error::operation_aborted. 
+* If a wait handler is cancelled, the boost::system::error\_code passed to it contains the value `boost::asio::error::operation_aborted`. 
 
 
 
@@ -7405,7 +7464,7 @@ For each call to `async_wait()`, the supplied handler will be called exactly onc
 * The timer has expired.
 
 
-* The timer was cancelled, in which case the handler is passed the error code boost::asio::error::operation_aborted.
+* The timer was cancelled, in which case the handler is passed the error code `boost::asio::error::operation_aborted`.
 
 
 [heading Parameters]
@@ -8918,6 +8977,8 @@ Assign an existing native socket to the socket.
 Start an asynchronous connect. 
 
 
+  template<
+      typename ``[link boost_asio.reference.ConnectHandler ConnectHandler]``>
   void async_connect(
       const endpoint_type & peer_endpoint,
       ConnectHandler handler);
@@ -10150,10 +10211,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -10201,10 +10262,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -10682,6 +10743,8 @@ Get an option from the socket.
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   void get_option(
       GettableSocketOption & option) const;
 
@@ -10739,6 +10802,8 @@ Getting the value of the SOL\_SOCKET/SO\_KEEPALIVE option:
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   boost::system::error_code get_option(
       GettableSocketOption & option,
       boost::system::error_code & ec) const;
@@ -10852,6 +10917,8 @@ Perform an IO control command on the socket.
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   void io_control(
       IoControlCommand & command);
 
@@ -10909,6 +10976,8 @@ Getting the number of bytes ready to read:
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   boost::system::error_code io_control(
       IoControlCommand & command,
       boost::system::error_code & ec);
@@ -13186,6 +13255,8 @@ Set an option on the socket.
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   void set_option(
       const SettableSocketOption & option);
 
@@ -13242,6 +13313,8 @@ Setting the IPPROTO\_TCP/TCP\_NODELAY option:
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   boost::system::error_code set_option(
       const SettableSocketOption & option,
       boost::system::error_code & ec);
@@ -16247,10 +16320,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -16295,10 +16368,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -22254,6 +22327,8 @@ Assign an existing native socket to the socket.
 Start an asynchronous connect. 
 
 
+  template<
+      typename ``[link boost_asio.reference.ConnectHandler ConnectHandler]``>
   void async_connect(
       const endpoint_type & peer_endpoint,
       ConnectHandler handler);
@@ -22774,10 +22849,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -22825,10 +22900,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -23306,6 +23381,8 @@ Get an option from the socket.
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   void get_option(
       GettableSocketOption & option) const;
 
@@ -23363,6 +23440,8 @@ Getting the value of the SOL\_SOCKET/SO\_KEEPALIVE option:
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   boost::system::error_code get_option(
       GettableSocketOption & option,
       boost::system::error_code & ec) const;
@@ -23476,6 +23555,8 @@ Perform an IO control command on the socket.
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   void io_control(
       IoControlCommand & command);
 
@@ -23533,6 +23614,8 @@ Getting the number of bytes ready to read:
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   boost::system::error_code io_control(
       IoControlCommand & command,
       boost::system::error_code & ec);
@@ -25067,6 +25150,8 @@ Set an option on the socket.
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   void set_option(
       const SettableSocketOption & option);
 
@@ -25123,6 +25208,8 @@ Setting the IPPROTO\_TCP/TCP\_NODELAY option:
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   boost::system::error_code set_option(
       const SettableSocketOption & option,
       boost::system::error_code & ec);
@@ -25843,6 +25930,8 @@ Assign an existing native socket to the socket.
 Start an asynchronous connect. 
 
 
+  template<
+      typename ``[link boost_asio.reference.ConnectHandler ConnectHandler]``>
   void async_connect(
       const endpoint_type & peer_endpoint,
       ConnectHandler handler);
@@ -26945,10 +27034,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -26996,10 +27085,10 @@ Calls to `cancel()` will always fail with `boost::asio::error::operation_not_sup
 For portable cancellation, consider using one of the following alternatives:
 
 
-* Disable asio's I/O completion port backend by defining BOOST_ASIO_DISABLE_IOCP.
+* Disable asio's I/O completion port backend by defining BOOST\_ASIO\_DISABLE\_IOCP.
 
 
-* Use the close() function to simultaneously cancel the outstanding operations and close the socket.
+* Use the `close()` function to simultaneously cancel the outstanding operations and close the socket.
 
 When running on Windows Vista, Windows Server 2008, and later, the CancelIoEx function is always used. This function does not have the problems described above. 
 
@@ -27477,6 +27566,8 @@ Get an option from the socket.
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   void get_option(
       GettableSocketOption & option) const;
 
@@ -27534,6 +27625,8 @@ Getting the value of the SOL\_SOCKET/SO\_KEEPALIVE option:
 Get an option from the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.GettableSocketOption GettableSocketOption]``>
   boost::system::error_code get_option(
       GettableSocketOption & option,
       boost::system::error_code & ec) const;
@@ -27647,6 +27740,8 @@ Perform an IO control command on the socket.
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   void io_control(
       IoControlCommand & command);
 
@@ -27704,6 +27799,8 @@ Getting the number of bytes ready to read:
 Perform an IO control command on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   boost::system::error_code io_control(
       IoControlCommand & command,
       boost::system::error_code & ec);
@@ -29751,6 +29848,8 @@ Set an option on the socket.
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   void set_option(
       const SettableSocketOption & option);
 
@@ -29807,6 +29906,8 @@ Setting the IPPROTO\_TCP/TCP\_NODELAY option:
 Set an option on the socket. 
 
 
+  template<
+      typename ``[link boost_asio.reference.SettableSocketOption SettableSocketOption]``>
   boost::system::error_code set_option(
       const SettableSocketOption & option,
       boost::system::error_code & ec);
@@ -33877,6 +33978,91 @@ A random access iterator over the bytes in a buffer sequence.
     [Construct an iterator representing the end of the buffers' data. ]
   ]
   
+  [
+    [[link boost_asio.reference.buffers_iterator.operator__star_ [*operator *]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_plus__plus_ [*operator++]]]
+    [Increment operator (prefix). 
+
+     Increment operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_plus__eq_ [*operator+=]]]
+    [Addition operator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_minus__minus_ [*operator--]]]
+    [Decrement operator (prefix). 
+
+     Decrement operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_minus__eq_ [*operator-=]]]
+    [Subtraction operator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_arrow_ [*operator->]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_lb__rb_ [*operator\[\]]]]
+    [Access an individual element. ]
+  ]
+  
+]
+
+[heading Friends]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_not__eq_ [*operator!=]]]
+    [Test two iterators for inequality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_plus_ [*operator+]]]
+    [Addition operator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_minus_ [*operator-]]]
+    [Subtraction operator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_lt_ [*operator<]]]
+    [Compare two iterators. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_lt__eq_ [*operator<=]]]
+    [Compare two iterators. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_eq__eq_ [*operator==]]]
+    [Test two iterators for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_gt_ [*operator>]]]
+    [Compare two iterators. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.buffers_iterator.operator_gt__eq_ [*operator>=]]]
+    [Compare two iterators. ]
+  ]
+  
 ]
 
 [heading Requirements]
@@ -33923,6 +34109,431 @@ Construct an iterator representing the end of the buffers' data.
 
   static buffers_iterator end(
       const BufferSequence & buffers);
+
+
+
+[endsect]
+
+
+
+[section:operator__star_ buffers_iterator::operator *]
+
+[indexterm2 operator *..buffers_iterator] 
+Dereference an iterator. 
+
+
+  byte_type & operator *() const;
+
+
+
+[endsect]
+
+
+
+[section:operator_not__eq_ buffers_iterator::operator!=]
+
+[indexterm2 operator!=..buffers_iterator] 
+Test two iterators for inequality. 
+
+
+  friend bool operator!=(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+[section:operator_plus_ buffers_iterator::operator+]
+
+[indexterm2 operator+..buffers_iterator] 
+Addition operator. 
+
+
+  friend buffers_iterator ``[link boost_asio.reference.buffers_iterator.operator_plus_.overload1 operator+]``(
+      const buffers_iterator & iter,
+      std::ptrdiff_t difference);
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_plus_.overload1 more...]]``
+
+  friend buffers_iterator ``[link boost_asio.reference.buffers_iterator.operator_plus_.overload2 operator+]``(
+      std::ptrdiff_t difference,
+      const buffers_iterator & iter);
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_plus_.overload2 more...]]``
+
+
+[section:overload1 buffers_iterator::operator+ (1 of 2 overloads)]
+
+
+Addition operator. 
+
+
+  friend buffers_iterator operator+(
+      const buffers_iterator & iter,
+      std::ptrdiff_t difference);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:overload2 buffers_iterator::operator+ (2 of 2 overloads)]
+
+
+Addition operator. 
+
+
+  friend buffers_iterator operator+(
+      std::ptrdiff_t difference,
+      const buffers_iterator & iter);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+[endsect]
+
+[section:operator_plus__plus_ buffers_iterator::operator++]
+
+[indexterm2 operator++..buffers_iterator] 
+Increment operator (prefix). 
+
+
+  buffers_iterator & ``[link boost_asio.reference.buffers_iterator.operator_plus__plus_.overload1 operator++]``();
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_plus__plus_.overload1 more...]]``
+
+
+Increment operator (postfix). 
+
+
+  buffers_iterator ``[link boost_asio.reference.buffers_iterator.operator_plus__plus_.overload2 operator++]``(
+      int );
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_plus__plus_.overload2 more...]]``
+
+
+[section:overload1 buffers_iterator::operator++ (1 of 2 overloads)]
+
+
+Increment operator (prefix). 
+
+
+  buffers_iterator & operator++();
+
+
+
+[endsect]
+
+
+
+[section:overload2 buffers_iterator::operator++ (2 of 2 overloads)]
+
+
+Increment operator (postfix). 
+
+
+  buffers_iterator operator++(
+      int );
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:operator_plus__eq_ buffers_iterator::operator+=]
+
+[indexterm2 operator+=..buffers_iterator] 
+Addition operator. 
+
+
+  buffers_iterator & operator+=(
+      std::ptrdiff_t difference);
+
+
+
+[endsect]
+
+
+[section:operator_minus_ buffers_iterator::operator-]
+
+[indexterm2 operator-..buffers_iterator] 
+Subtraction operator. 
+
+
+  friend buffers_iterator ``[link boost_asio.reference.buffers_iterator.operator_minus_.overload1 operator-]``(
+      const buffers_iterator & iter,
+      std::ptrdiff_t difference);
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_minus_.overload1 more...]]``
+
+  friend std::ptrdiff_t ``[link boost_asio.reference.buffers_iterator.operator_minus_.overload2 operator-]``(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_minus_.overload2 more...]]``
+
+
+[section:overload1 buffers_iterator::operator- (1 of 2 overloads)]
+
+
+Subtraction operator. 
+
+
+  friend buffers_iterator operator-(
+      const buffers_iterator & iter,
+      std::ptrdiff_t difference);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:overload2 buffers_iterator::operator- (2 of 2 overloads)]
+
+
+Subtraction operator. 
+
+
+  friend std::ptrdiff_t operator-(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+[endsect]
+
+[section:operator_minus__minus_ buffers_iterator::operator--]
+
+[indexterm2 operator--..buffers_iterator] 
+Decrement operator (prefix). 
+
+
+  buffers_iterator & ``[link boost_asio.reference.buffers_iterator.operator_minus__minus_.overload1 operator--]``();
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_minus__minus_.overload1 more...]]``
+
+
+Decrement operator (postfix). 
+
+
+  buffers_iterator ``[link boost_asio.reference.buffers_iterator.operator_minus__minus_.overload2 operator--]``(
+      int );
+  ``  [''''&raquo;''' [link boost_asio.reference.buffers_iterator.operator_minus__minus_.overload2 more...]]``
+
+
+[section:overload1 buffers_iterator::operator-- (1 of 2 overloads)]
+
+
+Decrement operator (prefix). 
+
+
+  buffers_iterator & operator--();
+
+
+
+[endsect]
+
+
+
+[section:overload2 buffers_iterator::operator-- (2 of 2 overloads)]
+
+
+Decrement operator (postfix). 
+
+
+  buffers_iterator operator--(
+      int );
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:operator_minus__eq_ buffers_iterator::operator-=]
+
+[indexterm2 operator-=..buffers_iterator] 
+Subtraction operator. 
+
+
+  buffers_iterator & operator-=(
+      std::ptrdiff_t difference);
+
+
+
+[endsect]
+
+
+
+[section:operator_arrow_ buffers_iterator::operator->]
+
+[indexterm2 operator->..buffers_iterator] 
+Dereference an iterator. 
+
+
+  byte_type * operator->() const;
+
+
+
+[endsect]
+
+
+
+[section:operator_lt_ buffers_iterator::operator<]
+
+[indexterm2 operator<..buffers_iterator] 
+Compare two iterators. 
+
+
+  friend bool operator<(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_lt__eq_ buffers_iterator::operator<=]
+
+[indexterm2 operator<=..buffers_iterator] 
+Compare two iterators. 
+
+
+  friend bool operator<=(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_eq__eq_ buffers_iterator::operator==]
+
+[indexterm2 operator==..buffers_iterator] 
+Test two iterators for equality. 
+
+
+  friend bool operator==(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt_ buffers_iterator::operator>]
+
+[indexterm2 operator>..buffers_iterator] 
+Compare two iterators. 
+
+
+  friend bool operator>(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt__eq_ buffers_iterator::operator>=]
+
+[indexterm2 operator>=..buffers_iterator] 
+Compare two iterators. 
+
+
+  friend bool operator>=(
+      const buffers_iterator & a,
+      const buffers_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/buffers_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_lb__rb_ buffers_iterator::operator\[\]]
+
+[indexterm2 operator\[\]..buffers_iterator] 
+Access an individual element. 
+
+
+  byte_type & operator[](
+      std::ptrdiff_t difference) const;
 
 
 
@@ -35340,7 +35951,7 @@ Disable sends or receives on the socket.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -35558,10 +36169,10 @@ Changing the expiry time of a timer while there are pending asynchronous waits c
 
 
 
-* The boost::asio::basic_deadline_timer::expires_from_now() function cancels any pending asynchronous waits, and returns the number of asynchronous waits that were cancelled. If it returns 0 then you were too late and the wait handler has already been executed, or will soon be executed. If it returns 1 then the wait handler was successfully cancelled.
+* The `boost::asio::basic_deadline_timer::expires_from_now()` function cancels any pending asynchronous waits, and returns the number of asynchronous waits that were cancelled. If it returns 0 then you were too late and the wait handler has already been executed, or will soon be executed. If it returns 1 then the wait handler was successfully cancelled.
 
 
-* If a wait handler is cancelled, the boost::system::error_code passed to it contains the value boost::asio::error::operation_aborted. 
+* If a wait handler is cancelled, the boost::system::error\_code passed to it contains the value `boost::asio::error::operation_aborted`. 
 
 
 
@@ -35987,7 +36598,7 @@ The implementation type of the deadline timer.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -36912,13 +37523,13 @@ Provides core I/O functionality.
 The [link boost_asio.reference.io_service `io_service`] class provides the core I/O functionality for users of the asynchronous I/O objects, including:
 
 
-* boost::asio::ip::tcp::socket 
+* `boost::asio::ip::tcp::socket` 
 
-* boost::asio::ip::tcp::acceptor 
+* `boost::asio::ip::tcp::acceptor` 
 
-* boost::asio::ip::udp::socket 
+* `boost::asio::ip::udp::socket` 
 
-* boost::asio::deadline_timer.
+* `boost::asio::deadline_timer`.
 
 The [link boost_asio.reference.io_service `io_service`] class also includes facilities intended for developers of custom asynchronous services.
 
@@ -37112,6 +37723,17 @@ The [link boost_asio.reference.io_service `io_service`] guarantees that the hand
 ]
 
 
+[heading Remarks]
+      
+This function throws an exception only if:
+
+
+* the handler's `asio_handler_allocate` function; or
+
+
+* the handler's copy constructor
+
+throws an exception. 
 
 
 [endsect]
@@ -37413,6 +38035,17 @@ The [link boost_asio.reference.io_service `io_service`] guarantees that the hand
 ]
 
 
+[heading Remarks]
+      
+This function throws an exception only if:
+
+
+* the handler's `asio_handler_allocate` function; or
+
+
+* the handler's copy constructor
+
+throws an exception. 
 
 
 [endsect]
@@ -37749,13 +38382,13 @@ Destructor.
 On destruction, the [link boost_asio.reference.io_service `io_service`] performs the following sequence of operations:
 
 
-* For each service object svc in the io_service set, in reverse order of the beginning of service object lifetime, performs svc->shutdown_service().
+* For each service object `svc` in the [link boost_asio.reference.io_service `io_service`] set, in reverse order of the beginning of service object lifetime, performs `svc->shutdown_service()`.
 
 
-* Uninvoked handler objects that were scheduled for deferred invocation on the io_service, or any associated strand, are destroyed.
+* Uninvoked handler objects that were scheduled for deferred invocation on the [link boost_asio.reference.io_service `io_service`], or any associated strand, are destroyed.
 
 
-* For each service object svc in the io_service set, in reverse order of the beginning of service object lifetime, performs delete static_cast<io_service::service*>(svc).
+* For each service object `svc` in the [link boost_asio.reference.io_service `io_service`] set, in reverse order of the beginning of service object lifetime, performs `delete static_cast<io_service::service*>(svc)`.
 
 
 [heading Remarks]
@@ -37763,10 +38396,10 @@ On destruction, the [link boost_asio.reference.io_service `io_service`] performs
 The destruction sequence described above permits programs to simplify their resource management by using `shared_ptr<>`. Where an object's lifetime is tied to the lifetime of a connection (or some other sequence of asynchronous operations), a `shared_ptr` to the object would be bound into the handlers for all asynchronous operations associated with it. This works as follows:
 
 
-* When a single connection ends, all associated asynchronous operations complete. The corresponding handler objects are destroyed, and all shared_ptr references to the objects are destroyed.
+* When a single connection ends, all associated asynchronous operations complete. The corresponding handler objects are destroyed, and all `shared_ptr` references to the objects are destroyed.
 
 
-* To shut down the whole program, the io_service function stop() is called to terminate any run() calls as soon as possible. The io_service destructor defined above destroys all handlers, causing all shared_ptr references to all connection objects to be destroyed. 
+* To shut down the whole program, the [link boost_asio.reference.io_service `io_service`] function `stop()` is called to terminate any `run()` calls as soon as possible. The [link boost_asio.reference.io_service `io_service`] destructor defined above destroys all handlers, causing all `shared_ptr` references to all connection objects to be destroyed. 
 
 
 
@@ -37999,33 +38632,33 @@ The [link boost_asio.reference.io_service__strand `io_service::strand`] class pr
 Given:
 
 
-* a strand object s 
+* a strand object `s` 
 
 
-* an object a meeting completion handler requirements
+* an object `a` meeting completion handler requirements
 
 
-* an object a1 which is an arbitrary copy of a made by the implementation
+* an object `a1` which is an arbitrary copy of `a` made by the implementation
 
 
-* an object b meeting completion handler requirements
+* an object `b` meeting completion handler requirements
 
 
-* an object b1 which is an arbitrary copy of b made by the implementation
+* an object `b1` which is an arbitrary copy of `b` made by the implementation
 
 if any of the following conditions are true:
 
 
-* s.post(a) happens-before s.post(b) 
+* `s.post(a)` happens-before `s.post(b)` 
 
 
-* s.post(a) happens-before s.dispatch(b), where the latter is performed outside the strand
+* `s.post(a)` happens-before `s.dispatch(b)`, where the latter is performed outside the strand
 
 
-* s.dispatch(a) happens-before s.post(b), where the former is performed outside the strand
+* `s.dispatch(a)` happens-before `s.post(b)`, where the former is performed outside the strand
 
 
-* s.dispatch(a) happens-before s.dispatch(b), where both are performed outside the strand
+* `s.dispatch(a)` happens-before `s.dispatch(b)`, where both are performed outside the strand
 
 then `asio_handler_invoke(a1, &a1)` happens-before `asio_handler_invoke(b1, &b1)`.
 
@@ -38513,8 +39146,23 @@ Implements version-independent IP addresses.
   ]
   
   [
+    [[link boost_asio.reference.ip__address.operator_lt__eq_ [*operator<=]]]
+    [Compare addresses for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.ip__address.operator_eq__eq_ [*operator==]]]
     [Compare two addresses for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__address.operator_gt_ [*operator>]]]
+    [Compare addresses for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__address.operator_gt__eq_ [*operator>=]]]
+    [Compare addresses for ordering. ]
   ]
   
 ]
@@ -38841,6 +39489,28 @@ The output stream.
 [endsect]
 
 
+
+[section:operator_lt__eq_ ip::address::operator<=]
+
+[indexterm2 operator<=..ip::address] 
+Compare addresses for ordering. 
+
+
+  friend bool operator<=(
+      const address & a1,
+      const address & a2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/address.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
 [section:operator_eq_ ip::address::operator=]
 
 [indexterm2 operator=..ip::address] 
@@ -38922,6 +39592,50 @@ Compare two addresses for equality.
 
 
   friend bool operator==(
+      const address & a1,
+      const address & a2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/address.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt_ ip::address::operator>]
+
+[indexterm2 operator>..ip::address] 
+Compare addresses for ordering. 
+
+
+  friend bool operator>(
+      const address & a1,
+      const address & a2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/address.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt__eq_ ip::address::operator>=]
+
+[indexterm2 operator>=..ip::address] 
+Compare addresses for ordering. 
+
+
+  friend bool operator>=(
       const address & a1,
       const address & a2);
 
@@ -39102,7 +39816,7 @@ Implements IP version 4 style addresses.
   
   [
     [[link boost_asio.reference.ip__address_v4.to_bytes [*to_bytes]]]
-    [Get the address in bytes. ]
+    [Get the address in bytes, in network byte order. ]
   ]
   
   [
@@ -39724,7 +40438,7 @@ Compare addresses for ordering.
 [section:to_bytes ip::address_v4::to_bytes]
 
 [indexterm2 to_bytes..ip::address_v4] 
-Get the address in bytes. 
+Get the address in bytes, in network byte order. 
 
 
   bytes_type to_bytes() const;
@@ -39917,7 +40631,7 @@ Implements IP version 6 style addresses.
   
   [
     [[link boost_asio.reference.ip__address_v6.to_bytes [*to_bytes]]]
-    [Get the address in bytes. ]
+    [Get the address in bytes, in network byte order. ]
   ]
   
   [
@@ -40623,7 +41337,7 @@ Modifies the scope ID associated with the IPv6 address.
 [section:to_bytes ip::address_v6::to_bytes]
 
 [indexterm2 to_bytes..ip::address_v6] 
-Get the address in bytes. 
+Get the address in bytes, in network byte order. 
 
 
   bytes_type to_bytes() const;
@@ -40831,8 +41545,23 @@ Describes an endpoint for a version-independent IP socket.
   ]
   
   [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_lt__eq_ [*operator<=]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.ip__basic_endpoint.operator_eq__eq_ [*operator==]]]
     [Compare two endpoints for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt_ [*operator>]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt__eq_ [*operator>=]]]
+    [Compare endpoints for ordering. ]
   ]
   
 ]
@@ -41188,6 +41917,28 @@ The output stream.
 
 
 
+[section:operator_lt__eq_ ip::basic_endpoint::operator<=]
+
+[indexterm2 operator<=..ip::basic_endpoint] 
+Compare endpoints for ordering. 
+
+
+  friend bool operator<=(
+      const basic_endpoint< InternetProtocol > & e1,
+      const basic_endpoint< InternetProtocol > & e2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/basic_endpoint.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
 [section:operator_eq_ ip::basic_endpoint::operator=]
 
 [indexterm2 operator=..ip::basic_endpoint] 
@@ -41210,6 +41961,50 @@ Compare two endpoints for equality.
 
 
   friend bool operator==(
+      const basic_endpoint< InternetProtocol > & e1,
+      const basic_endpoint< InternetProtocol > & e2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/basic_endpoint.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt_ ip::basic_endpoint::operator>]
+
+[indexterm2 operator>..ip::basic_endpoint] 
+Compare endpoints for ordering. 
+
+
+  friend bool operator>(
+      const basic_endpoint< InternetProtocol > & e1,
+      const basic_endpoint< InternetProtocol > & e2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/basic_endpoint.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt__eq_ ip::basic_endpoint::operator>=]
+
+[indexterm2 operator>=..ip::basic_endpoint] 
+Compare endpoints for ordering. 
+
+
+  friend bool operator>=(
       const basic_endpoint< InternetProtocol > & e1,
       const basic_endpoint< InternetProtocol > & e2);
 
@@ -41761,7 +42556,76 @@ A reference to the [link boost_asio.reference.io_service `io_service`] object th
 The iterator type. 
 
 
-  typedef InternetProtocol::resolver_iterator iterator;
+  typedef basic_resolver_iterator< InternetProtocol > iterator;
+
+
+[heading Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.basic_resolver_iterator [*basic_resolver_iterator]]]
+    [Default constructor creates an end iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.create [*create]]]
+    [Create an iterator from an addrinfo list returned by getaddrinfo. 
+
+     Create an iterator from an endpoint, host name and service name. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator__star_ [*operator *]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_ [*operator++]]]
+    [Increment operator (prefix). 
+
+     Increment operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_arrow_ [*operator->]]]
+    [Dereference an iterator. ]
+  ]
+  
+]
+
+[heading Friends]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_not__eq_ [*operator!=]]]
+    [Test two iterators for inequality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_eq__eq_ [*operator==]]]
+    [Test two iterators for equality. ]
+  ]
+  
+]
+
+The [link boost_asio.reference.ip__basic_resolver_iterator `ip::basic_resolver_iterator`] class template is used to define iterators over the results returned by a resolver.
+
+The iterator's value\_type, obtained when the iterator is dereferenced, is: 
+
+   const basic_resolver_entry<InternetProtocol> 
+
+
+
+
+
+[heading Thread Safety]
+  
+[*Distinct] [*objects:] Safe.
+
+[*Shared] [*objects:] Unsafe. 
+
 
 
 
@@ -41803,7 +42667,111 @@ The protocol type.
 The query type. 
 
 
-  typedef InternetProtocol::resolver_query query;
+  typedef basic_resolver_query< InternetProtocol > query;
+
+
+[heading Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.flags [*flags]]]
+    [A bitmask type (C++ Std \[lib.bitmask.types\]). ]
+  
+  ]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.protocol_type [*protocol_type]]]
+    [The protocol type associated with the endpoint query. ]
+  
+  ]
+
+]
+
+[heading Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query [*basic_resolver_query]]]
+    [Construct with specified service name for any protocol. 
+
+     Construct with specified service name for a given protocol. 
+
+     Construct with specified host name and service name for any protocol. 
+
+     Construct with specified host name and service name for a given protocol. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.hints [*hints]]]
+    [Get the hints associated with the query. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.host_name [*host_name]]]
+    [Get the host name associated with the query. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.service_name [*service_name]]]
+    [Get the service name associated with the query. ]
+  ]
+  
+]
+
+[heading Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.address_configured [*address_configured]]]
+    [Only return IPv4 addresses if a non-loopback IPv4 address is configured for the system. Only return IPv6 addresses if a non-loopback IPv6 address is configured for the system. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.all_matching [*all_matching]]]
+    [If used with v4_mapped, return all matching IPv6 and IPv4 addresses. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.canonical_name [*canonical_name]]]
+    [Determine the canonical name of the host specified in the query. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.numeric_host [*numeric_host]]]
+    [Host name should be treated as a numeric string defining an IPv4 or IPv6 address and no name resolution should be attempted. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.numeric_service [*numeric_service]]]
+    [Service name should be treated as a numeric string defining a port number and no name resolution should be attempted. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.passive [*passive]]]
+    [Indicate that returned endpoint is intended for use as a locally bound socket endpoint. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.v4_mapped [*v4_mapped]]]
+    [If the query protocol family is specified as IPv6, return IPv4-mapped IPv6 addresses on finding no IPv6 addresses. ]
+  ]
+
+]
+
+The [link boost_asio.reference.ip__basic_resolver_query `ip::basic_resolver_query`] class template describes a query that can be passed to a resolver.
+
+
+[heading Thread Safety]
+  
+[*Distinct] [*objects:] Safe.
+
+[*Shared] [*objects:] Unsafe. 
+
 
 
 
@@ -42334,6 +43302,39 @@ An iterator over the entries produced by a resolver.
      Create an iterator from an endpoint, host name and service name. ]
   ]
   
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator__star_ [*operator *]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_ [*operator++]]]
+    [Increment operator (prefix). 
+
+     Increment operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_arrow_ [*operator->]]]
+    [Dereference an iterator. ]
+  ]
+  
+]
+
+[heading Friends]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_not__eq_ [*operator!=]]]
+    [Test two iterators for inequality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_eq__eq_ [*operator==]]]
+    [Test two iterators for equality. ]
+  ]
+  
 ]
 
 The [link boost_asio.reference.ip__basic_resolver_iterator `ip::basic_resolver_iterator`] class template is used to define iterators over the results returned by a resolver.
@@ -42433,6 +43434,126 @@ Create an iterator from an endpoint, host name and service name.
 [endsect]
 
 
+[section:operator__star_ ip::basic_resolver_iterator::operator *]
+
+[indexterm2 operator *..ip::basic_resolver_iterator] 
+Dereference an iterator. 
+
+
+  const basic_resolver_entry< InternetProtocol > & operator *() const;
+
+
+
+[endsect]
+
+
+
+[section:operator_not__eq_ ip::basic_resolver_iterator::operator!=]
+
+[indexterm2 operator!=..ip::basic_resolver_iterator] 
+Test two iterators for inequality. 
+
+
+  friend bool operator!=(
+      const basic_resolver_iterator & a,
+      const basic_resolver_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/basic_resolver_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+[section:operator_plus__plus_ ip::basic_resolver_iterator::operator++]
+
+[indexterm2 operator++..ip::basic_resolver_iterator] 
+Increment operator (prefix). 
+
+
+  basic_resolver_iterator & ``[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_.overload1 operator++]``();
+  ``  [''''&raquo;''' [link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_.overload1 more...]]``
+
+
+Increment operator (postfix). 
+
+
+  basic_resolver_iterator ``[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_.overload2 operator++]``(
+      int );
+  ``  [''''&raquo;''' [link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_.overload2 more...]]``
+
+
+[section:overload1 ip::basic_resolver_iterator::operator++ (1 of 2 overloads)]
+
+
+Increment operator (prefix). 
+
+
+  basic_resolver_iterator & operator++();
+
+
+
+[endsect]
+
+
+
+[section:overload2 ip::basic_resolver_iterator::operator++ (2 of 2 overloads)]
+
+
+Increment operator (postfix). 
+
+
+  basic_resolver_iterator operator++(
+      int );
+
+
+
+[endsect]
+
+
+[endsect]
+
+
+[section:operator_arrow_ ip::basic_resolver_iterator::operator->]
+
+[indexterm2 operator->..ip::basic_resolver_iterator] 
+Dereference an iterator. 
+
+
+  const basic_resolver_entry< InternetProtocol > * operator->() const;
+
+
+
+[endsect]
+
+
+
+[section:operator_eq__eq_ ip::basic_resolver_iterator::operator==]
+
+[indexterm2 operator==..ip::basic_resolver_iterator] 
+Test two iterators for equality. 
+
+
+  friend bool operator==(
+      const basic_resolver_iterator & a,
+      const basic_resolver_iterator & b);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/basic_resolver_iterator.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
 [endsect]
 
 [section:ip__basic_resolver_query ip::basic_resolver_query]
@@ -42450,6 +43571,13 @@ An query to be passed to a resolver.
 [heading Types]
 [table
   [[Name][Description]]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.flags [*flags]]]
+    [A bitmask type (C++ Std \[lib.bitmask.types\]). ]
+  
+  ]
 
   [
 
@@ -42560,7 +43688,7 @@ The [link boost_asio.reference.ip__basic_resolver_query `ip::basic_resolver_quer
 Only return IPv4 addresses if a non-loopback IPv4 address is configured for the system. Only return IPv6 addresses if a non-loopback IPv6 address is configured for the system. 
 
 
-  static const int address_configured = implementation_defined;
+  static const flags address_configured = implementation_defined;
 
 
 
@@ -42577,7 +43705,7 @@ Only return IPv4 addresses if a non-loopback IPv4 address is configured for the 
 If used with v4\_mapped, return all matching IPv6 and IPv4 addresses. 
 
 
-  static const int all_matching = implementation_defined;
+  static const flags all_matching = implementation_defined;
 
 
 
@@ -42592,7 +43720,7 @@ Construct with specified service name for any protocol.
 
   ``[link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query.overload1 basic_resolver_query]``(
       const std::string & service_name,
-      int flags = passive|address_configured);
+      resolver_query_base::flags resolve_flags = passive|address_configured);
   ``  [''''&raquo;''' [link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query.overload1 more...]]``
 
 
@@ -42602,7 +43730,7 @@ Construct with specified service name for a given protocol.
   ``[link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query.overload2 basic_resolver_query]``(
       const protocol_type & protocol,
       const std::string & service_name,
-      int flags = passive|address_configured);
+      resolver_query_base::flags resolve_flags = passive|address_configured);
   ``  [''''&raquo;''' [link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query.overload2 more...]]``
 
 
@@ -42612,7 +43740,7 @@ Construct with specified host name and service name for any protocol.
   ``[link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query.overload3 basic_resolver_query]``(
       const std::string & host_name,
       const std::string & service_name,
-      int flags = address_configured);
+      resolver_query_base::flags resolve_flags = address_configured);
   ``  [''''&raquo;''' [link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query.overload3 more...]]``
 
 
@@ -42623,7 +43751,7 @@ Construct with specified host name and service name for a given protocol.
       const protocol_type & protocol,
       const std::string & host_name,
       const std::string & service_name,
-      int flags = address_configured);
+      resolver_query_base::flags resolve_flags = address_configured);
   ``  [''''&raquo;''' [link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query.overload4 more...]]``
 
 
@@ -42635,7 +43763,28 @@ Construct with specified service name for any protocol.
 
   basic_resolver_query(
       const std::string & service_name,
-      int flags = passive|address_configured);
+      resolver_query_base::flags resolve_flags = passive|address_configured);
+
+
+This constructor is typically used to perform name resolution for local service binding.
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[service_name][A string identifying the requested service. This may be a descriptive name or a numeric string corresponding to a port number.]]
+
+[[resolve_flags][A set of flags that determine how name resolution should be performed. The default flags are suitable for local service binding.]]
+
+]
+
+
+[heading Remarks]
+      
+On POSIX systems, service names are typically defined in the file `/etc/services`. On Windows, service names may be found in the file `c:\windows\system32\drivers\etc\services`. Operating systems may use additional locations when resolving service names. 
+
 
 
 
@@ -42652,7 +43801,30 @@ Construct with specified service name for a given protocol.
   basic_resolver_query(
       const protocol_type & protocol,
       const std::string & service_name,
-      int flags = passive|address_configured);
+      resolver_query_base::flags resolve_flags = passive|address_configured);
+
+
+This constructor is typically used to perform name resolution for local service binding with a specific protocol version.
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[protocol][A protocol object, normally representing either the IPv4 or IPv6 version of an internet protocol.]]
+
+[[service_name][A string identifying the requested service. This may be a descriptive name or a numeric string corresponding to a port number.]]
+
+[[resolve_flags][A set of flags that determine how name resolution should be performed. The default flags are suitable for local service binding.]]
+
+]
+
+
+[heading Remarks]
+      
+On POSIX systems, service names are typically defined in the file `/etc/services`. On Windows, service names may be found in the file `c:\windows\system32\drivers\etc\services`. Operating systems may use additional locations when resolving service names. 
+
 
 
 
@@ -42669,8 +43841,31 @@ Construct with specified host name and service name for any protocol.
   basic_resolver_query(
       const std::string & host_name,
       const std::string & service_name,
-      int flags = address_configured);
+      resolver_query_base::flags resolve_flags = address_configured);
 
+
+This constructor is typically used to perform name resolution for communication with remote hosts.
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[host_name][A string identifying a location. May be a descriptive name or a numeric address string. If an empty string and the passive flag has been specified, the resolved endpoints are suitable for local service binding. If an empty string and passive is not specified, the resolved endpoints will use the loopback address.]]
+
+[[service_name][A string identifying the requested service. This may be a descriptive name or a numeric string corresponding to a port number. May be an empty string, in which case all resolved endpoints will have a port number of 0.]]
+
+[[resolve_flags][A set of flags that determine how name resolution should be performed. The default flags are suitable for communication with remote hosts.]]
+
+]
+
+
+[heading Remarks]
+      
+On POSIX systems, host names may be locally defined in the file `/etc/hosts`. On Windows, host names may be defined in the file `c:\windows\system32\drivers\etc\hosts`. Remote host name resolution is performed using DNS. Operating systems may use additional locations when resolving host names (such as NETBIOS names on Windows).
+
+On POSIX systems, service names are typically defined in the file `/etc/services`. On Windows, service names may be found in the file `c:\windows\system32\drivers\etc\services`. Operating systems may use additional locations when resolving service names. 
 
 
 [endsect]
@@ -42687,8 +43882,33 @@ Construct with specified host name and service name for a given protocol.
       const protocol_type & protocol,
       const std::string & host_name,
       const std::string & service_name,
-      int flags = address_configured);
+      resolver_query_base::flags resolve_flags = address_configured);
 
+
+This constructor is typically used to perform name resolution for communication with remote hosts.
+
+
+[heading Parameters]
+    
+
+[variablelist
+  
+[[protocol][A protocol object, normally representing either the IPv4 or IPv6 version of an internet protocol.]]
+
+[[host_name][A string identifying a location. May be a descriptive name or a numeric address string. If an empty string and the passive flag has been specified, the resolved endpoints are suitable for local service binding. If an empty string and passive is not specified, the resolved endpoints will use the loopback address.]]
+
+[[service_name][A string identifying the requested service. This may be a descriptive name or a numeric string corresponding to a port number. May be an empty string, in which case all resolved endpoints will have a port number of 0.]]
+
+[[resolve_flags][A set of flags that determine how name resolution should be performed. The default flags are suitable for communication with remote hosts.]]
+
+]
+
+
+[heading Remarks]
+      
+On POSIX systems, host names may be locally defined in the file `/etc/hosts`. On Windows, host names may be defined in the file `c:\windows\system32\drivers\etc\hosts`. Remote host name resolution is performed using DNS. Operating systems may use additional locations when resolving host names (such as NETBIOS names on Windows).
+
+On POSIX systems, service names are typically defined in the file `/etc/services`. On Windows, service names may be found in the file `c:\windows\system32\drivers\etc\services`. Operating systems may use additional locations when resolving service names. 
 
 
 [endsect]
@@ -42706,8 +43926,32 @@ Construct with specified host name and service name for a given protocol.
 Determine the canonical name of the host specified in the query. 
 
 
-  static const int canonical_name = implementation_defined;
+  static const flags canonical_name = implementation_defined;
 
+
+
+[endsect]
+
+
+
+[section:flags ip::basic_resolver_query::flags]
+
+
+['Inherited from ip::resolver_query_base.]
+
+[indexterm2 flags..ip::basic_resolver_query] 
+A bitmask type (C++ Std [lib.bitmask.types]). 
+
+
+  typedef unspecified flags;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/basic_resolver_query.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
 
 
 [endsect]
@@ -42751,7 +43995,7 @@ Get the host name associated with the query.
 Host name should be treated as a numeric string defining an IPv4 or IPv6 address and no name resolution should be attempted. 
 
 
-  static const int numeric_host = implementation_defined;
+  static const flags numeric_host = implementation_defined;
 
 
 
@@ -42768,7 +44012,7 @@ Host name should be treated as a numeric string defining an IPv4 or IPv6 address
 Service name should be treated as a numeric string defining a port number and no name resolution should be attempted. 
 
 
-  static const int numeric_service = implementation_defined;
+  static const flags numeric_service = implementation_defined;
 
 
 
@@ -42785,7 +44029,7 @@ Service name should be treated as a numeric string defining a port number and no
 Indicate that returned endpoint is intended for use as a locally bound socket endpoint. 
 
 
-  static const int passive = implementation_defined;
+  static const flags passive = implementation_defined;
 
 
 
@@ -42837,7 +44081,7 @@ Get the service name associated with the query.
 If the query protocol family is specified as IPv6, return IPv4-mapped IPv6 addresses on finding no IPv6 addresses. 
 
 
-  static const int v4_mapped = implementation_defined;
+  static const flags v4_mapped = implementation_defined;
 
 
 
@@ -42927,14 +44171,14 @@ Encapsulates the flags needed for ICMP.
   [
 
     [[link boost_asio.reference.ip__icmp.resolver_iterator [*resolver_iterator]]]
-    [The type of a resolver iterator. ]
+    [(Deprecated: use resolver::iterator.) The type of a resolver iterator. ]
   
   ]
 
   [
 
     [[link boost_asio.reference.ip__icmp.resolver_query [*resolver_query]]]
-    [The type of a resolver query. ]
+    [(Deprecated: use resolver::query.) The type of a resolver query. ]
   
   ]
 
@@ -43118,8 +44362,23 @@ The type of a ICMP endpoint.
   ]
   
   [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_lt__eq_ [*operator<=]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.ip__basic_endpoint.operator_eq__eq_ [*operator==]]]
     [Compare two endpoints for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt_ [*operator>]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt__eq_ [*operator>=]]]
+    [Compare endpoints for ordering. ]
   ]
   
 ]
@@ -43370,7 +44629,7 @@ The [link boost_asio.reference.ip__basic_resolver `ip::basic_resolver`] class te
 [section:resolver_iterator ip::icmp::resolver_iterator]
 
 [indexterm2 resolver_iterator..ip::icmp] 
-The type of a resolver iterator. 
+(Deprecated: use `resolver::iterator`.) The type of a resolver iterator. 
 
 
   typedef basic_resolver_iterator< icmp > resolver_iterator;
@@ -43390,6 +44649,39 @@ The type of a resolver iterator.
     [Create an iterator from an addrinfo list returned by getaddrinfo. 
 
      Create an iterator from an endpoint, host name and service name. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator__star_ [*operator *]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_ [*operator++]]]
+    [Increment operator (prefix). 
+
+     Increment operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_arrow_ [*operator->]]]
+    [Dereference an iterator. ]
+  ]
+  
+]
+
+[heading Friends]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_not__eq_ [*operator!=]]]
+    [Test two iterators for inequality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_eq__eq_ [*operator==]]]
+    [Test two iterators for equality. ]
   ]
   
 ]
@@ -43427,7 +44719,7 @@ The iterator's value\_type, obtained when the iterator is dereferenced, is:
 [section:resolver_query ip::icmp::resolver_query]
 
 [indexterm2 resolver_query..ip::icmp] 
-The type of a resolver query. 
+(Deprecated: use `resolver::query`.) The type of a resolver query. 
 
 
   typedef basic_resolver_query< icmp > resolver_query;
@@ -43436,6 +44728,13 @@ The type of a resolver query.
 [heading Types]
 [table
   [[Name][Description]]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.flags [*flags]]]
+    [A bitmask type (C++ Std \[lib.bitmask.types\]). ]
+  
+  ]
 
   [
 
@@ -44206,6 +45505,19 @@ The [link boost_asio.reference.ip__resolver_query_base `ip::resolver_query_base`
   class resolver_query_base
 
 
+[heading Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_asio.reference.ip__resolver_query_base.flags [*flags]]]
+    [A bitmask type (C++ Std \[lib.bitmask.types\]). ]
+  
+  ]
+
+]
+
 [heading Protected Member Functions]
 [table
   [[Name][Description]]
@@ -44271,7 +45583,7 @@ The [link boost_asio.reference.ip__resolver_query_base `ip::resolver_query_base`
 Only return IPv4 addresses if a non-loopback IPv4 address is configured for the system. Only return IPv6 addresses if a non-loopback IPv6 address is configured for the system. 
 
 
-  static const int address_configured = implementation_defined;
+  static const flags address_configured = implementation_defined;
 
 
 
@@ -44285,7 +45597,7 @@ Only return IPv4 addresses if a non-loopback IPv4 address is configured for the 
 If used with v4\_mapped, return all matching IPv6 and IPv4 addresses. 
 
 
-  static const int all_matching = implementation_defined;
+  static const flags all_matching = implementation_defined;
 
 
 
@@ -44299,8 +45611,29 @@ If used with v4\_mapped, return all matching IPv6 and IPv4 addresses.
 Determine the canonical name of the host specified in the query. 
 
 
-  static const int canonical_name = implementation_defined;
+  static const flags canonical_name = implementation_defined;
 
+
+
+[endsect]
+
+
+
+[section:flags ip::resolver_query_base::flags]
+
+[indexterm2 flags..ip::resolver_query_base] 
+A bitmask type (C++ Std [lib.bitmask.types]). 
+
+
+  typedef unspecified flags;
+
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/ip/resolver_query_base.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
 
 
 [endsect]
@@ -44313,7 +45646,7 @@ Determine the canonical name of the host specified in the query.
 Host name should be treated as a numeric string defining an IPv4 or IPv6 address and no name resolution should be attempted. 
 
 
-  static const int numeric_host = implementation_defined;
+  static const flags numeric_host = implementation_defined;
 
 
 
@@ -44327,7 +45660,7 @@ Host name should be treated as a numeric string defining an IPv4 or IPv6 address
 Service name should be treated as a numeric string defining a port number and no name resolution should be attempted. 
 
 
-  static const int numeric_service = implementation_defined;
+  static const flags numeric_service = implementation_defined;
 
 
 
@@ -44341,7 +45674,7 @@ Service name should be treated as a numeric string defining a port number and no
 Indicate that returned endpoint is intended for use as a locally bound socket endpoint. 
 
 
-  static const int passive = implementation_defined;
+  static const flags passive = implementation_defined;
 
 
 
@@ -44355,7 +45688,7 @@ Indicate that returned endpoint is intended for use as a locally bound socket en
 If the query protocol family is specified as IPv6, return IPv4-mapped IPv6 addresses on finding no IPv6 addresses. 
 
 
-  static const int v4_mapped = implementation_defined;
+  static const flags v4_mapped = implementation_defined;
 
 
 
@@ -44712,7 +46045,76 @@ The type of a resolver implementation.
 The iterator type. 
 
 
-  typedef InternetProtocol::resolver_iterator iterator_type;
+  typedef basic_resolver_iterator< InternetProtocol > iterator_type;
+
+
+[heading Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.basic_resolver_iterator [*basic_resolver_iterator]]]
+    [Default constructor creates an end iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.create [*create]]]
+    [Create an iterator from an addrinfo list returned by getaddrinfo. 
+
+     Create an iterator from an endpoint, host name and service name. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator__star_ [*operator *]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_ [*operator++]]]
+    [Increment operator (prefix). 
+
+     Increment operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_arrow_ [*operator->]]]
+    [Dereference an iterator. ]
+  ]
+  
+]
+
+[heading Friends]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_not__eq_ [*operator!=]]]
+    [Test two iterators for inequality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_eq__eq_ [*operator==]]]
+    [Test two iterators for equality. ]
+  ]
+  
+]
+
+The [link boost_asio.reference.ip__basic_resolver_iterator `ip::basic_resolver_iterator`] class template is used to define iterators over the results returned by a resolver.
+
+The iterator's value\_type, obtained when the iterator is dereferenced, is: 
+
+   const basic_resolver_entry<InternetProtocol> 
+
+
+
+
+
+[heading Thread Safety]
+  
+[*Distinct] [*objects:] Safe.
+
+[*Shared] [*objects:] Unsafe. 
+
 
 
 
@@ -44754,7 +46156,111 @@ The protocol type.
 The query type. 
 
 
-  typedef InternetProtocol::resolver_query query_type;
+  typedef basic_resolver_query< InternetProtocol > query_type;
+
+
+[heading Types]
+[table
+  [[Name][Description]]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.flags [*flags]]]
+    [A bitmask type (C++ Std \[lib.bitmask.types\]). ]
+  
+  ]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.protocol_type [*protocol_type]]]
+    [The protocol type associated with the endpoint query. ]
+  
+  ]
+
+]
+
+[heading Member Functions]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.basic_resolver_query [*basic_resolver_query]]]
+    [Construct with specified service name for any protocol. 
+
+     Construct with specified service name for a given protocol. 
+
+     Construct with specified host name and service name for any protocol. 
+
+     Construct with specified host name and service name for a given protocol. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.hints [*hints]]]
+    [Get the hints associated with the query. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.host_name [*host_name]]]
+    [Get the host name associated with the query. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.service_name [*service_name]]]
+    [Get the service name associated with the query. ]
+  ]
+  
+]
+
+[heading Data Members]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.address_configured [*address_configured]]]
+    [Only return IPv4 addresses if a non-loopback IPv4 address is configured for the system. Only return IPv6 addresses if a non-loopback IPv6 address is configured for the system. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.all_matching [*all_matching]]]
+    [If used with v4_mapped, return all matching IPv6 and IPv4 addresses. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.canonical_name [*canonical_name]]]
+    [Determine the canonical name of the host specified in the query. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.numeric_host [*numeric_host]]]
+    [Host name should be treated as a numeric string defining an IPv4 or IPv6 address and no name resolution should be attempted. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.numeric_service [*numeric_service]]]
+    [Service name should be treated as a numeric string defining a port number and no name resolution should be attempted. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.passive [*passive]]]
+    [Indicate that returned endpoint is intended for use as a locally bound socket endpoint. ]
+  ]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_query.v4_mapped [*v4_mapped]]]
+    [If the query protocol family is specified as IPv6, return IPv4-mapped IPv6 addresses on finding no IPv6 addresses. ]
+  ]
+
+]
+
+The [link boost_asio.reference.ip__basic_resolver_query `ip::basic_resolver_query`] class template describes a query that can be passed to a resolver.
+
+
+[heading Thread Safety]
+  
+[*Distinct] [*objects:] Safe.
+
+[*Shared] [*objects:] Unsafe. 
+
 
 
 
@@ -44848,7 +46354,7 @@ Construct a new resolver service for the specified [link boost_asio.reference.io
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -44909,14 +46415,14 @@ Encapsulates the flags needed for TCP.
   [
 
     [[link boost_asio.reference.ip__tcp.resolver_iterator [*resolver_iterator]]]
-    [The type of a resolver iterator. ]
+    [(Deprecated: use resolver::iterator.) The type of a resolver iterator. ]
   
   ]
 
   [
 
     [[link boost_asio.reference.ip__tcp.resolver_query [*resolver_query]]]
-    [The type of a resolver query. ]
+    [(Deprecated: use resolver::query.) The type of a resolver query. ]
   
   ]
 
@@ -45429,8 +46935,23 @@ The type of a TCP endpoint.
   ]
   
   [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_lt__eq_ [*operator<=]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.ip__basic_endpoint.operator_eq__eq_ [*operator==]]]
     [Compare two endpoints for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt_ [*operator>]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt__eq_ [*operator>=]]]
+    [Compare endpoints for ordering. ]
   ]
   
 ]
@@ -45781,7 +47302,7 @@ The [link boost_asio.reference.ip__basic_resolver `ip::basic_resolver`] class te
 [section:resolver_iterator ip::tcp::resolver_iterator]
 
 [indexterm2 resolver_iterator..ip::tcp] 
-The type of a resolver iterator. 
+(Deprecated: use `resolver::iterator`.) The type of a resolver iterator. 
 
 
   typedef basic_resolver_iterator< tcp > resolver_iterator;
@@ -45801,6 +47322,39 @@ The type of a resolver iterator.
     [Create an iterator from an addrinfo list returned by getaddrinfo. 
 
      Create an iterator from an endpoint, host name and service name. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator__star_ [*operator *]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_ [*operator++]]]
+    [Increment operator (prefix). 
+
+     Increment operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_arrow_ [*operator->]]]
+    [Dereference an iterator. ]
+  ]
+  
+]
+
+[heading Friends]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_not__eq_ [*operator!=]]]
+    [Test two iterators for inequality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_eq__eq_ [*operator==]]]
+    [Test two iterators for equality. ]
   ]
   
 ]
@@ -45838,7 +47392,7 @@ The iterator's value\_type, obtained when the iterator is dereferenced, is:
 [section:resolver_query ip::tcp::resolver_query]
 
 [indexterm2 resolver_query..ip::tcp] 
-The type of a resolver query. 
+(Deprecated: use `resolver::query`.) The type of a resolver query. 
 
 
   typedef basic_resolver_query< tcp > resolver_query;
@@ -45847,6 +47401,13 @@ The type of a resolver query.
 [heading Types]
 [table
   [[Name][Description]]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.flags [*flags]]]
+    [A bitmask type (C++ Std \[lib.bitmask.types\]). ]
+  
+  ]
 
   [
 
@@ -46416,14 +47977,14 @@ Encapsulates the flags needed for UDP.
   [
 
     [[link boost_asio.reference.ip__udp.resolver_iterator [*resolver_iterator]]]
-    [The type of a resolver iterator. ]
+    [(Deprecated: use resolver::iterator.) The type of a resolver iterator. ]
   
   ]
 
   [
 
     [[link boost_asio.reference.ip__udp.resolver_query [*resolver_query]]]
-    [The type of a resolver query. ]
+    [(Deprecated: use resolver::query.) The type of a resolver query. ]
   
   ]
 
@@ -46607,8 +48168,23 @@ The type of a UDP endpoint.
   ]
   
   [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_lt__eq_ [*operator<=]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.ip__basic_endpoint.operator_eq__eq_ [*operator==]]]
     [Compare two endpoints for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt_ [*operator>]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_endpoint.operator_gt__eq_ [*operator>=]]]
+    [Compare endpoints for ordering. ]
   ]
   
 ]
@@ -46859,7 +48435,7 @@ The [link boost_asio.reference.ip__basic_resolver `ip::basic_resolver`] class te
 [section:resolver_iterator ip::udp::resolver_iterator]
 
 [indexterm2 resolver_iterator..ip::udp] 
-The type of a resolver iterator. 
+(Deprecated: use `resolver::iterator`.) The type of a resolver iterator. 
 
 
   typedef basic_resolver_iterator< udp > resolver_iterator;
@@ -46879,6 +48455,39 @@ The type of a resolver iterator.
     [Create an iterator from an addrinfo list returned by getaddrinfo. 
 
      Create an iterator from an endpoint, host name and service name. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator__star_ [*operator *]]]
+    [Dereference an iterator. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_plus__plus_ [*operator++]]]
+    [Increment operator (prefix). 
+
+     Increment operator (postfix). ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_arrow_ [*operator->]]]
+    [Dereference an iterator. ]
+  ]
+  
+]
+
+[heading Friends]
+[table
+  [[Name][Description]]
+
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_not__eq_ [*operator!=]]]
+    [Test two iterators for inequality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.ip__basic_resolver_iterator.operator_eq__eq_ [*operator==]]]
+    [Test two iterators for equality. ]
   ]
   
 ]
@@ -46916,7 +48525,7 @@ The iterator's value\_type, obtained when the iterator is dereferenced, is:
 [section:resolver_query ip::udp::resolver_query]
 
 [indexterm2 resolver_query..ip::udp] 
-The type of a resolver query. 
+(Deprecated: use `resolver::query`.) The type of a resolver query. 
 
 
   typedef basic_resolver_query< udp > resolver_query;
@@ -46925,6 +48534,13 @@ The type of a resolver query.
 [heading Types]
 [table
   [[Name][Description]]
+
+  [
+
+    [[link boost_asio.reference.ip__basic_resolver_query.flags [*flags]]]
+    [A bitmask type (C++ Std \[lib.bitmask.types\]). ]
+  
+  ]
 
   [
 
@@ -47796,8 +49412,23 @@ Describes an endpoint for a UNIX socket.
   ]
   
   [
+    [[link boost_asio.reference.local__basic_endpoint.operator_lt__eq_ [*operator<=]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.local__basic_endpoint.operator_eq__eq_ [*operator==]]]
     [Compare two endpoints for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.local__basic_endpoint.operator_gt_ [*operator>]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.local__basic_endpoint.operator_gt__eq_ [*operator>=]]]
+    [Compare endpoints for ordering. ]
   ]
   
 ]
@@ -48080,6 +49711,28 @@ The output stream.
 
 
 
+[section:operator_lt__eq_ local::basic_endpoint::operator<=]
+
+[indexterm2 operator<=..local::basic_endpoint] 
+Compare endpoints for ordering. 
+
+
+  friend bool operator<=(
+      const basic_endpoint< Protocol > & e1,
+      const basic_endpoint< Protocol > & e2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/local/basic_endpoint.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
 [section:operator_eq_ local::basic_endpoint::operator=]
 
 [indexterm2 operator=..local::basic_endpoint] 
@@ -48102,6 +49755,50 @@ Compare two endpoints for equality.
 
 
   friend bool operator==(
+      const basic_endpoint< Protocol > & e1,
+      const basic_endpoint< Protocol > & e2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/local/basic_endpoint.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt_ local::basic_endpoint::operator>]
+
+[indexterm2 operator>..local::basic_endpoint] 
+Compare endpoints for ordering. 
+
+
+  friend bool operator>(
+      const basic_endpoint< Protocol > & e1,
+      const basic_endpoint< Protocol > & e2);
+
+
+[heading Requirements]
+
+[*Header: ][^boost/asio/local/basic_endpoint.hpp]
+
+[*Convenience header: ][^boost/asio.hpp]
+
+
+[endsect]
+
+
+
+[section:operator_gt__eq_ local::basic_endpoint::operator>=]
+
+[indexterm2 operator>=..local::basic_endpoint] 
+Compare endpoints for ordering. 
+
+
+  friend bool operator>=(
       const basic_endpoint< Protocol > & e1,
       const basic_endpoint< Protocol > & e2);
 
@@ -48489,8 +50186,23 @@ The type of a UNIX domain endpoint.
   ]
   
   [
+    [[link boost_asio.reference.local__basic_endpoint.operator_lt__eq_ [*operator<=]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.local__basic_endpoint.operator_eq__eq_ [*operator==]]]
     [Compare two endpoints for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.local__basic_endpoint.operator_gt_ [*operator>]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.local__basic_endpoint.operator_gt__eq_ [*operator>=]]]
+    [Compare endpoints for ordering. ]
   ]
   
 ]
@@ -49468,8 +51180,23 @@ The type of a UNIX domain endpoint.
   ]
   
   [
+    [[link boost_asio.reference.local__basic_endpoint.operator_lt__eq_ [*operator<=]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
     [[link boost_asio.reference.local__basic_endpoint.operator_eq__eq_ [*operator==]]]
     [Compare two endpoints for equality. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.local__basic_endpoint.operator_gt_ [*operator>]]]
+    [Compare endpoints for ordering. ]
+  ]
+  
+  [
+    [[link boost_asio.reference.local__basic_endpoint.operator_gt__eq_ [*operator>=]]]
+    [Compare endpoints for ordering. ]
   ]
   
 ]
@@ -52555,6 +54282,8 @@ Perform an IO control command on the descriptor.
 Perform an IO control command on the descriptor. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   void io_control(
       IoControlCommand & command);
 
@@ -52612,6 +54341,8 @@ Getting the number of bytes ready to read:
 Perform an IO control command on the descriptor. 
 
 
+  template<
+      typename ``[link boost_asio.reference.IoControlCommand IoControlCommand]``>
   boost::system::error_code io_control(
       IoControlCommand & command,
       boost::system::error_code & ec);
@@ -54056,7 +55787,7 @@ Read some data from the stream.
 Destroy all user-defined descriptorr objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -54960,7 +56691,7 @@ Disable sends or receives on the socket.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -55143,7 +56874,7 @@ This function is used to read a certain number of bytes of data from a stream. T
 * The supplied buffers are full. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's read\_some function.
 
@@ -55227,7 +56958,7 @@ This function is used to read a certain number of bytes of data from a stream. T
 * The supplied buffers are full. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's read\_some function.
 
@@ -55355,7 +57086,7 @@ Attempt to read a certain amount of data from a stream before returning.
 This function is used to read a certain number of bytes of data from a stream. The call will block until one of the following conditions is true:
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's read\_some function.
 
@@ -55425,7 +57156,7 @@ Attempt to read a certain amount of data from a stream before returning.
 This function is used to read a certain number of bytes of data from a stream. The call will block until one of the following conditions is true:
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's read\_some function.
 
@@ -55651,7 +57382,7 @@ This function is used to read a certain number of bytes of data from a random ac
 * The supplied buffers are full. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's read\_some\_at function.
 
@@ -55738,7 +57469,7 @@ This function is used to read a certain number of bytes of data from a random ac
 * The supplied buffers are full. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's read\_some\_at function.
 
@@ -55872,7 +57603,7 @@ Attempt to read a certain amount of data at the specified offset before returnin
 This function is used to read a certain number of bytes of data from a random access device at the specified offset. The call will block until one of the following conditions is true:
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's read\_some\_at function.
 
@@ -55945,7 +57676,7 @@ Attempt to read a certain amount of data at the specified offset before returnin
 This function is used to read a certain number of bytes of data from a random access device at the specified offset. The call will block until one of the following conditions is true:
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's read\_some\_at function.
 
@@ -56154,7 +57885,22 @@ To read data into a streambuf until a newline is encountered:
    std::getline(is, line); 
 
 
+After the `read_until` operation completes successfully, the buffer `b` contains the delimiter: 
 
+   { 'a', 'b', ..., 'c', '\n', 'd', 'e', ... } 
+
+
+The call to `std::getline` then extracts the data up to and including the delimiter, so that the string `line` contains: 
+
+   { 'a', 'b', ..., 'c', '\n' } 
+
+
+The remaining data is left in the buffer `b` as follows: 
+
+   { 'd', 'e', ... } 
+
+
+This data may be the start of a new line, to be extracted by a subsequent `read_until` operation. 
 
 
 
@@ -56293,7 +58039,22 @@ To read data into a streambuf until a newline is encountered:
    std::getline(is, line); 
 
 
+After the `read_until` operation completes successfully, the buffer `b` contains the delimiter: 
 
+   { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } 
+
+
+The call to `std::getline` then extracts the data up to and including the delimiter, so that the string `line` contains: 
+
+   { 'a', 'b', ..., 'c', '\r', '\n' } 
+
+
+The remaining data is left in the buffer `b` as follows: 
+
+   { 'd', 'e', ... } 
+
+
+This data may be the start of a new line, to be extracted by a subsequent `read_until` operation. 
 
 
 
@@ -56432,7 +58193,22 @@ To read data into a streambuf until a CR-LF sequence is encountered:
    std::getline(is, line); 
 
 
+After the `read_until` operation completes successfully, the buffer `b` contains the data which matched the regular expression: 
 
+   { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } 
+
+
+The call to `std::getline` then extracts the data up to and including the match, so that the string `line` contains: 
+
+   { 'a', 'b', ..., 'c', '\r', '\n' } 
+
+
+The remaining data is left in the buffer `b` as follows: 
+
+   { 'd', 'e', ... } 
+
+
+This data may be the start of a new line, to be extracted by a subsequent `read_until` operation. 
 
 
 
@@ -58109,7 +59885,7 @@ Set a serial port option.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -58762,7 +60538,7 @@ Set a socket option.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -62312,7 +64088,7 @@ Set peer verification mode.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -64187,7 +65963,7 @@ Shut down SSL on the stream.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -64292,33 +66068,33 @@ The [link boost_asio.reference.io_service__strand `io_service::strand`] class pr
 Given:
 
 
-* a strand object s 
+* a strand object `s` 
 
 
-* an object a meeting completion handler requirements
+* an object `a` meeting completion handler requirements
 
 
-* an object a1 which is an arbitrary copy of a made by the implementation
+* an object `a1` which is an arbitrary copy of `a` made by the implementation
 
 
-* an object b meeting completion handler requirements
+* an object `b` meeting completion handler requirements
 
 
-* an object b1 which is an arbitrary copy of b made by the implementation
+* an object `b1` which is an arbitrary copy of `b` made by the implementation
 
 if any of the following conditions are true:
 
 
-* s.post(a) happens-before s.post(b) 
+* `s.post(a)` happens-before `s.post(b)` 
 
 
-* s.post(a) happens-before s.dispatch(b), where the latter is performed outside the strand
+* `s.post(a)` happens-before `s.dispatch(b)`, where the latter is performed outside the strand
 
 
-* s.dispatch(a) happens-before s.post(b), where the former is performed outside the strand
+* `s.dispatch(a)` happens-before `s.post(b)`, where the former is performed outside the strand
 
 
-* s.dispatch(a) happens-before s.dispatch(b), where both are performed outside the strand
+* `s.dispatch(a)` happens-before `s.dispatch(b)`, where both are performed outside the strand
 
 then `asio_handler_invoke(a1, &a1)` happens-before `asio_handler_invoke(b1, &b1)`.
 
@@ -65094,7 +66870,7 @@ Disable sends or receives on the socket.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -69774,7 +71550,7 @@ Read some data from the specified offset.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -70355,7 +72131,7 @@ Read some data from the stream.
 Destroy all user-defined handler objects owned by the service. 
 
 
-  void shutdown_service();
+  virtual void shutdown_service();
 
 
 
@@ -70572,7 +72348,7 @@ This function is used to write a certain number of bytes of data to a stream. Th
 * All of the data in the supplied buffers has been written. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's write\_some function.
 
@@ -70656,7 +72432,7 @@ This function is used to write a certain number of bytes of data to a stream. Th
 * All of the data in the supplied buffers has been written. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's write\_some function.
 
@@ -70715,7 +72491,7 @@ Write all of the supplied data to a stream before returning.
 This function is used to write a certain number of bytes of data to a stream. The call will block until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
 * An error occurred.
@@ -70787,10 +72563,10 @@ Write a certain amount of data to a stream before returning.
 This function is used to write a certain number of bytes of data to a stream. The call will block until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's write\_some function.
 
@@ -70860,10 +72636,10 @@ Write a certain amount of data to a stream before returning.
 This function is used to write a certain number of bytes of data to a stream. The call will block until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the stream's write\_some function.
 
@@ -71089,7 +72865,7 @@ This function is used to write a certain number of bytes of data to a random acc
 * All of the data in the supplied buffers has been written. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's write\_some\_at function.
 
@@ -71176,7 +72952,7 @@ This function is used to write a certain number of bytes of data to a random acc
 * All of the data in the supplied buffers has been written. That is, the bytes transferred is equal to the sum of the buffer sizes.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's write\_some\_at function.
 
@@ -71238,7 +73014,7 @@ Write all of the supplied data at the specified offset before returning.
 This function is used to write a certain number of bytes of data to a random access device at a specified offset. The call will block until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
 * An error occurred.
@@ -71313,10 +73089,10 @@ Write a certain amount of data at a specified offset before returning.
 This function is used to write a certain number of bytes of data to a random access device at a specified offset. The call will block until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's write\_some\_at function.
 
@@ -71389,10 +73165,10 @@ Write a certain amount of data at a specified offset before returning.
 This function is used to write a certain number of bytes of data to a random access device at a specified offset. The call will block until one of the following conditions is true:
 
 
-* All of the data in the supplied basic_streambuf has been written.
+* All of the data in the supplied [link boost_asio.reference.basic_streambuf `basic_streambuf`] has been written.
 
 
-* The completion_condition function object returns 0.
+* The completion\_condition function object returns 0.
 
 This operation is implemented in terms of zero or more calls to the device's write\_some\_at function.
 

@@ -7,6 +7,122 @@
 
 [section:history Revision History]
 
+[heading Asio 1.4.7 / Boost 1.45]
+
+* Fixed a problem on kqueue-based platforms where a `deadline_timer` may
+  never fire if the `io_service` is running in a background thread
+  ([@https://svn.boost.org/trac/boost/ticket/4568 #4568]).
+* Fixed a const-correctness issue that prevented valid uses of
+  `has_service<>` from compiling
+  ([@https://svn.boost.org/trac/boost/ticket/4638 #4638]).
+* Fixed MinGW cross-compilation
+  ([@https://svn.boost.org/trac/boost/ticket/4491 #4491]).
+* Removed dependency on deprecated Boost.System functions
+  ([@https://svn.boost.org/trac/boost/ticket/4672 #4672]).
+* Ensured `close()`\/`closesocket()` failures are correctly propagated
+  ([@https://svn.boost.org/trac/boost/ticket/4573 #4573]).
+* Added a check for errors returned by `InitializeCriticalSectionAndSpinCount`
+  ([@https://svn.boost.org/trac/boost/ticket/4574 #4574]).
+* Added support for hardware flow control on QNX
+  ([@https://svn.boost.org/trac/boost/ticket/4625 #4625]).
+* Always use `pselect()` on HP-UX, if it is available
+  ([@https://svn.boost.org/trac/boost/ticket/4578 #4578]).
+* Ensured handler arguments are passed as lvalues
+  ([@https://svn.boost.org/trac/boost/ticket/4744 #4744]).
+* Fixed Windows build when thread support is disabled
+  ([@https://svn.boost.org/trac/boost/ticket/4680 #4680]).
+* Fixed a Windows-specific problem where `deadline_timer` objects with expiry
+  times set more than 5 minutes in the future may never expire
+  ([@https://svn.boost.org/trac/boost/ticket/4745 #4745]).
+* Fixed the `resolver` backend on BSD platforms so that an empty service name
+  resolves to port number `0`, as per the documentation
+  ([@https://svn.boost.org/trac/boost/ticket/4690 #4690]).
+* Fixed read operations so that they do not accept buffer sequences of type
+  `const_buffers_1` ([@https://svn.boost.org/trac/boost/ticket/4746 #4746]).
+* Redefined `Protocol` and `id` to avoid clashing with Objective-C++ keywords
+  ([@https://svn.boost.org/trac/boost/ticket/4191 #4191]).
+* Fixed a `vector` reallocation performance issue that can occur when there are
+  many active `deadline_timer` objects
+  ([@https://svn.boost.org/trac/boost/ticket/4780 #4780]).
+* Fixed the kqueue backend so that it compiles on NetBSD
+  ([@https://svn.boost.org/trac/boost/ticket/4662 #4662]).
+* Fixed the socket `io_control()` implementation on 64-bit Mac OS X and BSD
+  platforms ([@https://svn.boost.org/trac/boost/ticket/4782 #4782]).
+* Fixed a Windows-specific problem where failures from `accept()` are
+  incorrectly treated as successes
+  ([@https://svn.boost.org/trac/boost/ticket/4859 #4859]).
+* Deprecated the separate compilation header `<boost/asio/impl/src.cpp>` in
+  favour of `<boost/asio/impl/src.hpp>`
+  ([@https://svn.boost.org/trac/boost/ticket/4560 #4560]).
+
+[heading Asio 1.4.6 / Boost 1.44]
+
+* Reduced compile times. (Note that some programs may need to add additional
+  `#include`s, e.g. if the program uses `boost::array` but does not explicitly
+  include `<boost/array.hpp>`.)
+* Reduced the size of generated code.
+* Refactored `deadline_timer` implementation to improve performance.
+* Improved multiprocessor scalability on Windows by using a dedicated hidden
+  thread to wait for timers.
+* Improved performance of `asio::streambuf` with `async_read()` and 
+  `async_read_until()`. These read operations now use the existing capacity of
+  the `streambuf` when reading, rather than limiting the read to 512 bytes.
+* Added optional separate compilation. To enable, add
+  `#include <boost/asio/impl/src.cpp>` to one source file in a program, then
+  build the program with `BOOST_ASIO_SEPARATE_COMPILATION` defined in the
+  project\/compiler settings. Alternatively, `BOOST_ASIO_DYN_LINK` may be
+  defined to build a separately-compiled Asio as part of a shared library.
+* Added new macro `BOOST_ASIO_DISABLE_FENCED_BLOCK` to permit the disabling of
+  memory fences around completion handlers, even if thread support is enabled.
+* Reworked timeout examples to better illustrate typical use cases.
+* Ensured that handler arguments are passed as `const` types.
+* Fixed incorrect parameter order in `null_buffers` variant of `async_send_to`
+  ([@https://svn.boost.org/trac/boost/ticket/4170 #4170]).
+* Ensured `unsigned char` is used with `isdigit` in `getaddrinfo` emulation
+  ([@https://svn.boost.org/trac/boost/ticket/4201 #4201]).
+* Fixed handling of very small but non-zero timeouts
+  ([@https://svn.boost.org/trac/boost/ticket/4205 #4205]).
+* Fixed crash that occurred when an empty buffer sequence was passed to a
+  composed read or write operation.
+* Added missing `operator+` overload in `buffers_iterator`
+  ([@https://svn.boost.org/trac/boost/ticket/4382 #4382]).
+* Implemented cancellation of `null_buffers` operations on Windows.
+
+[heading Asio 1.4.5 / Boost 1.43]
+
+* Improved performance.
+* Reduced compile times.
+* Reduced the size of generated code.
+* Extended the guarantee that background threads don't call user code to all
+  asynchronous operations
+  ([@https://svn.boost.org/trac/boost/ticket/3923 #3923]).
+* Changed to use edge-triggered epoll on Linux.
+* Changed to use `timerfd` for dispatching timers on Linux, when available.
+* Changed to use one-shot notifications with kqueue on Mac OS X and BSD
+  platforms.
+* Added a bitmask type `ip::resolver_query_base::flags` as per the TR2 proposal.
+  This type prevents implicit conversion from `int` to `flags`, allowing the
+  compiler to catch cases where users incorrectly pass a numeric port number as
+  the service name.
+* Added `#define NOMINMAX` for all Windows compilers. Users can define
+  `BOOST_ASIO_NO_NOMINMAX` to suppress this definition
+  ([@https://svn.boost.org/trac/boost/ticket/3901 #3901]).
+* Fixed a bug where 0-byte asynchronous reads were incorrectly passing an
+  `error::eof` result to the completion handler
+  ([@https://svn.boost.org/trac/boost/ticket/4023 #4023]).
+* Changed the `io_control()` member functions to always call `ioctl` on the
+  underlying descriptor when modifying blocking mode
+  ([@https://svn.boost.org/trac/boost/ticket/3307 #3307]).
+* Changed the resolver implementation to longer require the typedefs
+  `InternetProtocol::resolver_query` and `InternetProtocol::resolver_iterator`,
+  as neither typedef is part of the documented `InternetProtocol` requirements.
+  The corresponding typedefs in the `ip::tcp`, `ip::udp` and `ip::icmp` classes
+  have been deprecated.
+* Fixed out-of-band handling for reactors not based on `select()`.
+* Added new `BOOST_ASIO_DISABLE_THREADS` macro that allows Asio's threading
+  support to be independently disabled.
+* Minor documentation improvements.
+
 [heading Asio 1.4.4 / Boost 1.42]
 
 * Added a new HTTP Server 4 example illustrating the use of stackless coroutines

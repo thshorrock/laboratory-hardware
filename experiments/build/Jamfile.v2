@@ -20,6 +20,15 @@ project  experiment_water
 	<include>$(BOOST_BASE)/
 ;
 
+project  experiment_water_2011_01_09
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+;
 project experiment_test
 	: source-location ../src
 	: default-build  <threading>multi 
@@ -47,6 +56,13 @@ exe experiment_water : experiment_water.cpp
     /lib/readme					     
      ;
 
+exe experiment_water_2011_01_09 : experiment_water_2011_01_09.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
 
 
 exe experiment_test : experiment_test.cpp  
@@ -60,6 +76,7 @@ exe experiment_test : experiment_test.cpp
 
 
 install experiment_water-exe : experiment_water : <location>$(TOP)/bin ;
+install experiment_water_2011_01_09-exe : experiment_water_2011_01_09 : <location>$(TOP)/bin ;
 
 install experiment1-exe : experiment1 : <location>$(TOP)/bin ;
 install experiment_test-exe : experiment_test : <location>$(TOP)/bin ;

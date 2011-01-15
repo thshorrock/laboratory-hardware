@@ -130,6 +130,15 @@ name of the `boost_system` library may vary depending on the compiler version):
 
 ]
 
+[heading Optional separate compilation]
+
+By default, Boost.Asio is a header-only library. However, some developers may
+prefer to build Boost.Asio using separately compiled source code. To do this,
+add `#include <boost/asio/impl/src.hpp>` to one (and only one) source file in a
+program, then build the program with `BOOST_ASIO_SEPARATE_COMPILATION` defined
+in the project\/compiler settings. Alternatively, `BOOST_ASIO_DYN_LINK` may be
+defined to build a separately-compiled Boost.Asio as part of a shared library.
+
 [heading Macros]
 
 The macros listed in the table below may be used to control the behaviour of
@@ -196,6 +205,13 @@ Boost.Asio.
     ]
   ]
   [
+    [`BOOST_ASIO_DISABLE_THREADS`]
+    [
+      Explicitly disables Boost.Asio's threading support, independent of whether
+      or not Boost as a whole supports threads.
+    ]
+  ]
+  [
     [`BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN`]
     [
       By default, Boost.Asio will automatically define `WIN32_LEAN_AND_MEAN` when
@@ -203,6 +219,15 @@ Boost.Asio.
       and features that are included. The presence of
       `BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN` prevents `WIN32_LEAN_AND_MEAN` from
       being defined.
+    ]
+  ]
+  [
+    [`BOOST_ASIO_NO_NOMINMAX`]
+    [
+      By default, Boost.Asio will automatically define `NOMINMAX` when
+      compiling for Windows, to suppress the definition of the `min()` and
+      `max()` macros. The presence of `BOOST_ASIO_NO_NOMINMAX` prevents
+      `NOMINMAX` from being defined.
     ]
   ]
   [
@@ -302,6 +327,6 @@ Gmane].
 [heading Wiki]
 
 Users are encouraged to share examples, tips and FAQs on the Boost.Asio wiki,
-which is located at [@http://asio.sourceforge.net].
+which is located at [@http://think-async.com/Asio/].
 
 [endsect]

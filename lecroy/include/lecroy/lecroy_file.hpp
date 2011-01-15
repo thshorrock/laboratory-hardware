@@ -41,6 +41,11 @@ namespace ICR{
       
       BOOST_SERIALIZATION_SPLIT_MEMBER()
     public:
+      
+      /** Constructor.
+       **/
+      aline();
+      
       /** Constructor.
        * @param time An array of times
        * @param trace An array of data
@@ -111,7 +116,13 @@ namespace ICR{
       aline&
       operator-=(const aline& other);
 
-      
+      /** Multiply  by a scalar
+       * @param other The aline to add to the preset.
+       * @return The resultant aline.
+       */
+      aline&
+      operator*=(const double& other);
+
     };
     
     /** Save the aline in binary format @param a The aline to save @param filename The filename to use */
@@ -181,6 +192,36 @@ namespace ICR{
      */
     aline 
     operator-(const aline& a, const aline& b);
+
+    /** Multiply  every element of an aline by a constant
+     * @param a The  aline.
+     * @param b The constant.
+     * @return The resultant aline.
+     */
+    inline
+    aline 
+    operator*(const aline& a, const double& b)
+    {
+      aline tmp(a); tmp *= b; return tmp;
+    }
+    
+    /** Multiply every element of  an aline by a constant
+     * @param a The constant.
+     * @param b The  aline.
+     * @return The resultant aline.
+     */
+    inline
+    aline 
+    operator*(const double& a, const aline& b) {return b*a;}
+
+    /** Divide every element of an aline by a constant
+     * @param a The  aline.
+     * @param b The constant.
+     * @return The resultant aline.
+     */
+    inline
+    aline 
+    operator/(const aline& a, const double& b){return a*(1.0/b);}
 
     /** The lecroy_file class.
      * This class holds the data from the lecroy scope and enables you to pull individual alines.

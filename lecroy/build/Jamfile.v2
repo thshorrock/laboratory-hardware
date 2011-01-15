@@ -1,6 +1,6 @@
 
 project  lecroy/build//lecroyCM
-	: source-location ../src
+	: source-location ../src/library
 	: default-build  <threading>multi 
 	: build-dir $(TOP)/build
   	: usage-requirements <include>../include
@@ -17,8 +17,16 @@ lib lecroyCM : lecroy_com_manager.cpp  lecroy_com.cpp lecroy_header.cpp lecroy_f
     : <toolset>msvc:<link>static
               ;
 
-exe lecroy_ctr : example/example1.cpp lecroyCM
+exe lecroy_ctr : ../example/example1.cpp lecroyCM
     : <toolset>msvc:<link>static ;
+
+
+exe average_lecroy : ../analysis/average_files.cpp  
+    lecroyCM 
+    /lib/filename
+    /lib/stringify
+    $(TOP)//program_options-library
+    :  <toolset>msvc:<link>static ;
 
 install headers 
 	: [ glob ../include/*.hpp ] [ glob ../include/lecroy/*.hpp ] 
@@ -30,3 +38,7 @@ install lecroyCM-lib : lecroyCM  :  <location>$(TOP)/lib <install-type>LIB ;
 
 
 install lecroy_ctr-exe : lecroy_ctr : <location>$(TOP)/bin ;
+
+
+install average_lecroy-exe : average_lecroy : <location>$(TOP)/bin ;
+

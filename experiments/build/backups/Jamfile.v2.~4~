@@ -1,0 +1,65 @@
+
+project  experiment1
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+#	<include>$(TOP)/boost_files/
+;
+
+project  experiment_water
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+;
+
+project experiment_test
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+#	<include>$(TOP)/boost_files/
+;
+
+exe experiment1 : experiment1.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+exe experiment_water : experiment_water.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+
+
+exe experiment_test : experiment_test.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+
+
+install experiment_water-exe : experiment_water : <location>$(TOP)/bin ;
+
+install experiment1-exe : experiment1 : <location>$(TOP)/bin ;
+install experiment_test-exe : experiment_test : <location>$(TOP)/bin ;

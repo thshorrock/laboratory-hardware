@@ -58,6 +58,10 @@ path-constant BOOST_ROOT : ./boost/ ;
 #install date_time-lib-inst  : date_time-library : <location>$(TOP)/lib  ;
 
 
+alias program_options-library     
+      : $(BOOST_BASE)/libs/program_options/build//boost_program_options
+      : <include>$(BOOST_BASE) <toolset>msvc:<link>static
+      ;
 alias threaded-library     
       : $(BOOST_BASE)/libs/thread/build//boost_thread
       : <include>$(BOOST_BASE) <toolset>msvc:<link>static
@@ -89,7 +93,8 @@ alias filesystem-library
 
 alias regex-library     
       : $(BOOST_BASE)/libs/regex/build//boost_regex
-      : <include>$(BOOST_BASE) <toolset>msvc:<link>static
+      : <include>$(BOOST_BASE)
+	<toolset>msvc:<link>static
       ;
 
 
@@ -101,6 +106,7 @@ install date_time-library-lib : date_time-library  :  <location>$(TOP)/lib <inst
 install regex-lib : regex-library : <location>$(TOP)/lib <install-type>LIB ;
 
 install filesystem-lib : filesystem-library : <location>$(TOP)/lib <install-type>LIB ;
+install program_options-lib : program_options-library : <location>$(TOP)/lib <install-type>LIB ;
 	
 
 #Name the directory structure

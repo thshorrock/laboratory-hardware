@@ -2,7 +2,7 @@
 // Copyright 2005-2008 Daniel James.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//http://old.nabble.com/missing-checks-of-compilation-flags-in-boost-detail-container_fwd.hpp-p28680880.html
+
 #if !defined(BOOST_DETAIL_CONTAINER_FWD_HPP)
 #define BOOST_DETAIL_CONTAINER_FWD_HPP
 
@@ -13,13 +13,12 @@
 #include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
 
-#if ((defined(__GLIBCPP__) || defined(__GLIBCXX__)) && \
-     (defined(_GLIBCXX_DEBUG) || defined(_GLIBCXX_PROFILE) \
-      || defined(_GLIBCXX_PARALLEL))) \
-      || BOOST_WORKAROUND(__BORLANDC__, > 0x551) \
-      || BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x842)) \
-      || (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) 
-
+#if defined(BOOST_DETAIL_NO_CONTAINER_FWD) \
+    || ((defined(__GLIBCPP__) || defined(__GLIBCXX__)) \
+        && (defined(_GLIBCXX_DEBUG) || defined(_GLIBCXX_PARALLEL))) \
+    || BOOST_WORKAROUND(__BORLANDC__, > 0x551) \
+    || BOOST_WORKAROUND(__DMC__, BOOST_TESTED_AT(0x842)) \
+    || (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION))
 
 #include <deque>
 #include <list>

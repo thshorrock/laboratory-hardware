@@ -2,6 +2,8 @@
 // (C) Copyright Jonathan Turkanis 2004.
 // (C) Copyright Jonathan Graehl 2004.
 // (C) Copyright Jorge Lodos 2008.
+// Distributed under the Boost Software License, Version 1.0. (See accompanying
+// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt.)
 
 // Define BOOST_IOSTREAMS_SOURCE so that <boost/iostreams/detail/config.hpp>
 // knows that we are building the library (possibly exporting code), rather
@@ -128,12 +130,13 @@ void mapped_file_impl::resize(stream_offset new_size)
         cleanup_and_throw("failed unmapping file");
 #ifdef BOOST_IOSTREAMS_WINDOWS
     stream_offset offset = ::SetFilePointer(handle_, 0, NULL, FILE_CURRENT);
-    if (::GetLastError() != NO_ERROR)
-        cleanup_and_throw("failed querying file pointer");
+    if (offset == INVALID_SET_FILE_POINTER && ::GetLastError() != NO_ERROR)
+         cleanup_and_throw("failed querying file pointer");
     LONG sizehigh = (new_size >> (sizeof(LONG) * 8));
     LONG sizelow = (new_size & 0xffffffff);
-    ::SetFilePointer(handle_, sizelow, &sizehigh, FILE_BEGIN);
-    if (::GetLastError() != NO_ERROR || !::SetEndOfFile(handle_))
+    DWORD result = ::SetFilePointer(handle_, sizelow, &sizehigh, FILE_BEGIN);
+    if ((result == INVALID_SET_FILE_POINTER && ::GetLastError() != NO_ERROR)
+        || !::SetEndOfFile(handle_))
         cleanup_and_throw("failed resizing mapped file");
     sizehigh = (offset >> (sizeof(LONG) * 8));
     sizelow = (offset & 0xffffffff);
@@ -165,7 +168,10 @@ void mapped_file_impl::open_file(param_type p)
 #ifdef BOOST_IOSTREAMS_WINDOWS
 
     // Open file
-    DWORD dwDesiredAccess = readonly ? GENERIC_READ : GENERIC_ALL;
+    DWORD dwDesiredAccess =
+        readonly ?
+            GENERIC_READ :
+            (GENERIC_READ | GENERIC_WRITE);
     DWORD dwCreationDisposition = (p.new_file_size != 0 && !readonly) ? 
         CREATE_ALWAYS : 
         OPEN_EXISTING;
@@ -197,8 +203,9 @@ void mapped_file_impl::open_file(param_type p)
     if (p.new_file_size != 0 && !readonly) {
         LONG sizehigh = (p.new_file_size >> (sizeof(LONG) * 8));
         LONG sizelow = (p.new_file_size & 0xffffffff);
-        ::SetFilePointer(handle_, sizelow, &sizehigh, FILE_BEGIN);
-        if (::GetLastError() != NO_ERROR || !::SetEndOfFile(handle_))
+        DWORD result = ::SetFilePointer(handle_, sizelow, &sizehigh, FILE_BEGIN);
+        if ((result == INVALID_SET_FILE_POINTER && ::GetLastError() != NO_ERROR)
+            || !::SetEndOfFile(handle_))
             cleanup_and_throw("failed setting file size");
     }
 

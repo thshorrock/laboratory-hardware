@@ -1,4 +1,4 @@
-//  This file was automatically generated on Sun Oct 11 13:04:18 2009
+//  This file was automatically generated on Sat Sep 25 16:53:42 2010
 //  by libs/config/tools/generate.cpp
 //  Copyright John Maddock 2002-4.
 //  Use, modification and distribution are subject to the 
@@ -6,7 +6,7 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org/libs/config for the most recent version.//
-//  Revision $Id: config_test.cpp 56776 2009-10-13 12:56:44Z bemandawes $
+//  Revision $Id: config_test.cpp 65703 2010-10-01 09:19:44Z johnmaddock $
 //
 
 // Test file for config setup
@@ -112,6 +112,11 @@ namespace boost_no_0x_hdr_thread = empty_boost;
 #else
 namespace boost_no_0x_hdr_tuple = empty_boost;
 #endif
+#ifndef BOOST_NO_0X_HDR_TYPEINDEX
+#include "boost_no_0x_hdr_typeindex.ipp"
+#else
+namespace boost_no_0x_hdr_typeindex = empty_boost;
+#endif
 #ifndef BOOST_NO_0X_HDR_TYPE_TRAITS
 #include "boost_no_0x_hdr_type_traits.ipp"
 #else
@@ -171,6 +176,11 @@ namespace boost_no_char16_t = empty_boost;
 #include "boost_no_char32_t.ipp"
 #else
 namespace boost_no_char32_t = empty_boost;
+#endif
+#ifndef BOOST_NO_COMPLETE_VALUE_INITIALIZATION
+#include "boost_no_com_value_init.ipp"
+#else
+namespace boost_no_complete_value_initialization = empty_boost;
 #endif
 #ifndef BOOST_NO_CONCEPTS
 #include "boost_no_concepts.ipp"
@@ -331,6 +341,11 @@ namespace boost_no_limits = empty_boost;
 #include "boost_no_limits_const_exp.ipp"
 #else
 namespace boost_no_limits_compile_time_constants = empty_boost;
+#endif
+#ifndef BOOST_NO_NUMERIC_LIMITS_LOWEST
+#include "boost_no_limits_lowest.ipp"
+#else
+namespace boost_no_numeric_limits_lowest = empty_boost;
 #endif
 #ifndef BOOST_NO_LONG_LONG_NUMERIC_LIMITS
 #include "boost_no_ll_limits.ipp"
@@ -571,6 +586,11 @@ namespace boost_no_using_declaration_overloads_from_typename_base = empty_boost;
 #include "boost_no_using_template.ipp"
 #else
 namespace boost_no_using_template = empty_boost;
+#endif
+#ifndef BOOST_NO_VARIADIC_MACROS
+#include "boost_no_variadic_macros.ipp"
+#else
+namespace boost_no_variadic_macros = empty_boost;
 #endif
 #ifndef BOOST_NO_VARIADIC_TEMPLATES
 #include "boost_no_variadic_templates.ipp"
@@ -1191,6 +1211,11 @@ int main( int, char *[] )
       std::cerr << "Failed test for BOOST_NO_0X_HDR_TUPLE at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
+   if(0 != boost_no_0x_hdr_typeindex::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_0X_HDR_TYPEINDEX at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
    if(0 != boost_no_0x_hdr_type_traits::test())
    {
       std::cerr << "Failed test for BOOST_NO_0X_HDR_TYPE_TRAITS at: " << __FILE__ << ":" << __LINE__ << std::endl;
@@ -1249,6 +1274,11 @@ int main( int, char *[] )
    if(0 != boost_no_char32_t::test())
    {
       std::cerr << "Failed test for BOOST_NO_CHAR32_T at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
+   if(0 != boost_no_complete_value_initialization::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_COMPLETE_VALUE_INITIALIZATION at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
    if(0 != boost_no_concepts::test())
@@ -1409,6 +1439,11 @@ int main( int, char *[] )
    if(0 != boost_no_limits_compile_time_constants::test())
    {
       std::cerr << "Failed test for BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
+   if(0 != boost_no_numeric_limits_lowest::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_NUMERIC_LIMITS_LOWEST at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
    if(0 != boost_no_long_long_numeric_limits::test())
@@ -1649,6 +1684,11 @@ int main( int, char *[] )
    if(0 != boost_no_using_template::test())
    {
       std::cerr << "Failed test for BOOST_NO_USING_TEMPLATE at: " << __FILE__ << ":" << __LINE__ << std::endl;
+      ++error_count;
+   }
+   if(0 != boost_no_variadic_macros::test())
+   {
+      std::cerr << "Failed test for BOOST_NO_VARIADIC_MACROS at: " << __FILE__ << ":" << __LINE__ << std::endl;
       ++error_count;
    }
    if(0 != boost_no_variadic_templates::test())

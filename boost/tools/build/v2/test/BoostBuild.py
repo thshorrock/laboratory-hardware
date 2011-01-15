@@ -131,8 +131,6 @@ if os.name == 'posix':
     def _failed(self, status=0):
         if self.status is None:
             return None
-        if os.WIFSIGNALED(status):
-            return None
         return _status(self) != status
     def _status(self):
         if os.WIFEXITED(self.status):
@@ -246,8 +244,8 @@ class Tester(TestCmd.TestCmd):
 
             # Find where jam_src is located. Try for the debug version if it is
             # lying around.
-            dirs = [os.path.join('../../../jam/src', jam_build_dir + '.debug'),
-                    os.path.join('../../../jam/src', jam_build_dir),
+            dirs = [os.path.join('../engine/src', jam_build_dir + '.debug'),
+                    os.path.join('../engine/src', jam_build_dir),
                     os.path.join('../../jam_src', jam_build_dir + '.debug'),
                     os.path.join('../../jam_src', jam_build_dir),
                     os.path.join('../jam_src', jam_build_dir + '.debug'),
@@ -458,8 +456,8 @@ class Tester(TestCmd.TestCmd):
 
             annotation("failure", '"%s" returned %d%s'
                 % (kw['program'], _status(self), expect))
-
-            annotation("reason", "error returned by bjam")
+            
+            annotation("reason", "unexpected status returned by bjam")
             self.fail_test(1)
 
         if not (stdout is None) and not match(self.stdout(), stdout):
@@ -660,11 +658,13 @@ class Tester(TestCmd.TestCmd):
             self.ignore('*.pdb')       # MSVC program database files.
             self.ignore('*.rsp')       # Response files.
             self.ignore('*.tds')       # Borland debug symbols.
-            self.ignore('*.manifest')  # MSVC DLL manifests.
+            self.ignore('*.manifest')  # MSVC DLL manifests.            
 
         # Debug builds of bjam built with gcc produce this profiling data.
         self.ignore('gmon.out')
         self.ignore('*/gmon.out')
+
+        self.ignore("bin/config.log")
 
         if not self.unexpected_difference.empty():
             annotation('failure', 'Unexpected changes found')

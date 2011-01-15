@@ -10,8 +10,14 @@ project
       # There are unidentified linker problems on these platforms:
       <toolset>mipspro-7.4:<link>static
       <toolset>sun-5.9:<link>static
+      <toolset>msvc:<warnings>all
+      <toolset>gcc:<warnings>all
+      <toolset>gcc:<cxxflags>-Wextra
+      <define>U_USING_ICU_NAMESPACE=0
+      #<toolset>gcc-mw:<link>static
+	  #<toolset>gcc-mingw:<link>static
+	  <toolset>gcc-cygwin:<link>static
     ;
-
 
 rule regex-test-run ( sources + : input * : name * )
 {
@@ -59,6 +65,8 @@ test-suite regex-examples :
   : : :  <threading>multi <define>BOOST_REGEX_MATCH_EXTRA=1 ]
 
 ;
+
+
 
 
 
