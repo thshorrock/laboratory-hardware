@@ -55,7 +55,7 @@ void
 ICR::lecroy::save_gnuplot(const aline& a, const std::string filename)
 {
   boost::scoped_ptr<std::fstream> 
-    pOut(new std::fstream(filename.c_str(), std::ios_base::out ));
+    pOut(new std::fstream(filename.c_str(), std::ios_base::out|std::ios_base::binary ));
 
   
   size_t count=0;
@@ -64,6 +64,7 @@ ICR::lecroy::save_gnuplot(const aline& a, const std::string filename)
   const size_t points_per_row = vec_size+1;
   const size_t no_rows = 1; //time
   const size_t no_bytes   = sf*(no_rows*points_per_row);
+
       
   float* buffer = new float[no_rows*points_per_row];//no_bytes
     
@@ -87,12 +88,51 @@ ICR::lecroy::save_gnuplot(const aline& a, const std::string filename)
   pOut->close();
 }
 
+void 
+ICR::lecroy::load_gnuplot( aline& a, const std::string filename)
+{
+  boost::scoped_ptr<std::fstream> 
+    pIn(new std::fstream(filename.c_str(), std::ios_base::in |std::ios_base::binary ));
+
+  float size_buffer;
+  pIn->read(reinterpret_cast<char*>(&size_buffer),sizeof(float));
+  
+  size_t vec_size = (size_t)(size_buffer);
+  
+  const size_t sf= sizeof(float);
+  const size_t points_per_row = vec_size+1;
+  const size_t no_rows = 1; //time
+  const size_t no_bytes   = sf*(no_rows*points_per_row);
+      
+  float* buffer = new float[no_rows*points_per_row];//no_bytes
+  
+  boost::shared_array<double> t(new double[vec_size]);
+  boost::shared_array<double> trace(new double[vec_size]);
+	
+  pIn->seekg (0, std::ios::beg); 
+  
+  pIn->read(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  
+  for(size_t i=1;i<points_per_row;++i)
+    t[i-1] = buffer[i]; 
+  
+  pIn->read(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  
+  for(size_t i=1;i<points_per_row;++i)
+    trace[i-1] = buffer[i]; 
+  
+       
+  delete[] buffer;
+	    
+  pIn->close();
+  a = aline(t,trace,vec_size);
+}
 
 
 void 
 ICR::lecroy::save(const aline& a, const std::string filename)
 {
-  std::ofstream ofs(filename.c_str());
+  std::ofstream ofs(filename.c_str(), std::ios::binary);
   boost::archive::binary_oarchive oa(ofs);
   oa<<a;
 }
@@ -100,8 +140,10 @@ ICR::lecroy::save(const aline& a, const std::string filename)
 void 
 ICR::lecroy::load( aline& a,const std::string filename)
 {
-  std::ifstream ifs(filename.c_str());
+  std::ifstream ifs(filename.c_str(), std::ios::binary );
   boost::archive::binary_iarchive ia(ifs);
+  std::cout<<"filename = "<<filename<<std::endl;
+
   ia>>a;
 }
 

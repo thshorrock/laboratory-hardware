@@ -138,14 +138,18 @@ ICR::file::decode(void)
   
   std::vector<string> results;
   std::string text = stub();
+  std::cout<<"stub = "<<text<<std::endl;
+
   const string regx = "(([[:alpha:]_=\\s]+)|([-+]?[0-9]+\\.?[0-9]*[eE]?[-+]?[0-9]*))+";
   boost::regex e(regx);
   boost::smatch what;
   if(boost::regex_match(text, what, e, boost::match_extra))
     {
+
       if (what.size()>=1){
         for(size_t j = 0; j < what.captures(1).size(); ++j)
           {
+	    std::cout<<"what = "<<what.captures(1)[j]<<std::endl;
             results.push_back(what.captures(1)[j]);
           }
       }

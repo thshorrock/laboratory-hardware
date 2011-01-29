@@ -50,9 +50,6 @@ path-constant BOOST_ROOT : ./boost/ ;
 #      : <include>$(BOOST_BASE)  <search>$(TOP)/lib ;
 
 
-#alias date_time-library-inst    
-#      : $(BOOST_BASE)/libs/date_time/build
-#      : <include>$(BOOST_BASE) <search>$(TOP)/lib ;
 
 #install asio-lib-inst  : asio-library : <location>$(TOP)/lib  ;
 #install date_time-lib-inst  : date_time-library : <location>$(TOP)/lib  ;
