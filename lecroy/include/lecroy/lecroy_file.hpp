@@ -10,6 +10,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/array.hpp>
+#include <boost/serialization/version.hpp>
 namespace ICR{
 
     namespace exception{
@@ -28,7 +29,7 @@ namespace ICR{
     class aline
     {
       
-    private: 
+    protected: 
       boost::shared_array<double> m_t, m_trace;
       size_t m_size;
 
@@ -124,8 +125,8 @@ namespace ICR{
       operator*=(const double& other);
 
     };
-    
-    /** Save the aline in binary format @param a The aline to save @param filename The filename to use */
+
+   /** Save the aline in binary format @param a The aline to save @param filename The filename to use */
     void save(const aline& a, const std::string filename);
     /** Load the aline in binary format  @param a The aline to save @param filename The filename to use*/
     void load(aline& a, const std::string filename);
@@ -191,22 +192,22 @@ namespace ICR{
       // unsigned int size;
       ar & m_size;
       //m_size = size;
-      std::cout<<"size1 = "<<m_size<<std::endl;
+      //std::cout<<"size1 = "<<m_size<<std::endl;
       
        std::bitset<64> size_bytes(m_size);
        std::string string_bytes = size_bytes.to_string();
-       std::cout<<"bytes = "<<string_bytes<<std::endl;
+       //std::cout<<"bytes = "<<string_bytes<<std::endl;
 
        // for(size_t i=0;i<64;++i){
        // 	 std::cout<<"string bytes ["<<i<<"] = "<<string_bytes[i]<<std::endl;
        // }
        
-       std::cout<<"should be "<<std::endl;
+       //std::cout<<"should be "<<std::endl;
 
 
        std::bitset<64> size_bytes_cor(250002);
        std::string string_bytes_cor = size_bytes_cor.to_string();
-       std::cout<<"bytes = "<<string_bytes_cor<<std::endl;
+       //std::cout<<"bytes = "<<string_bytes_cor<<std::endl;
        // for(size_t i=0;i<64;++i){
        // 	 std::cout<<"string bytes ["<<i<<"] = "<<string_bytes[i]<<std::endl;
        // }
@@ -231,12 +232,12 @@ namespace ICR{
       	boost::serialization::make_array<double>(m_t.get(), m_size);
       boost::serialization::array<double> sa_trace = 
       	boost::serialization::make_array<double>(m_trace.get(), m_size);
-      std::cout<<"get times"<<std::endl;
+      //std::cout<<"get times"<<std::endl;
 
       ar & sa_time;
-      std::cout<<"get data"<<std::endl;
+      //std::cout<<"get data"<<std::endl;
       ar & sa_trace;
-      std::cout<<"done"<<std::endl;
+      //std::cout<<"done"<<std::endl;
       
       // for(size_t i=0;i<m_size;++i){
       // 	ar& m_t[i];
@@ -355,3 +356,5 @@ namespace ICR{
 
   }
 }
+BOOST_CLASS_VERSION(ICR::lecroy::aline , 1);
+    

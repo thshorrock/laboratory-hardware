@@ -67,6 +67,8 @@ alias threaded-library
 alias serialization-library     
       : $(BOOST_BASE)/libs/serialization/build//boost_serialization
       : <include>$(BOOST_BASE) <toolset>msvc:<link>static
+    : 
+    : <include>$(BOOST_BASE) 
       ;
 
 

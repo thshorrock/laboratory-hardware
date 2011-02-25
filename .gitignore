@@ -13,7 +13,19 @@
 *.dat
 *.txt
 
+#EMACS BACKUPS
+*~ 
 
+#files
+git_forever_remove
+
+
+# Directories #
+##############
+lib/
+include/
+build/
+boost/bin.v2/
 
 # Packages #
 ############

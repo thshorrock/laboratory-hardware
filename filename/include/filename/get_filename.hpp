@@ -73,6 +73,10 @@ namespace ICR{
      */
     string 
     stub() const {return m_path.stem();};
+    
+    /** Remove - delete - the file from the hard disk.
+     */
+    void remove() {boost::filesystem::remove (m_path);}
 
     /** Return the extension of the filename.
      * (i.e. after the final . (dot) marking an extension.
@@ -121,10 +125,23 @@ namespace ICR{
     directory(const string directory) throw(exception::directory_does_not_exist);
       
     /** Get all the files in the directory.
-     * @return A vector containing all the filenames
+     * @return A list containing all the filenames
      */
     list<string>
     get_filenames() const;
+    
+    /** Get all the subdirectories.
+     * @return A list containing all the filenames
+     */
+    list<string>
+    get_subdirectories() const;
+    
+    /** Get all the files in the directory and subdirectories.
+     * @return A list containing all the filenames
+     */
+    list<string>
+    get_filenames_recursive() const;
+    
 
     /** Get the pathname of the directory.
      */
@@ -168,7 +185,6 @@ namespace ICR{
     friend class file;
   };
 
-    
   
 }
 

@@ -132,6 +132,62 @@ ICR::directory::get_filenames() const
   return files;
 }
 
+std::list<std::string>
+ICR::directory::get_subdirectories() const
+{
+  std::list<std::string> dirs;
+  fs::directory_iterator end_iter;
+  for ( fs::directory_iterator dir_itr( m_path );
+        dir_itr != end_iter;
+        ++dir_itr )
+    {
+      try {
+        if ( fs::is_directory( dir_itr->status() ) ){
+          fs::path p =  system_complete(dir_itr->path());
+          dirs.push_back(p.file_string());
+        }
+      }
+      catch ( const std::exception & ex ){
+        std::cerr << dir_itr->path().filename() << " " << ex.what() << "\n";
+      }
+    }
+  return dirs;
+}
+
+std::list<std::string>
+ICR::directory::get_filenames_recursive() const
+{
+  std::list<std::string> files;
+  std::list<std::string> dirs;
+  fs::directory_iterator end_iter;
+  dirs.push_back(m_path.file_string());
+  while(dirs.size()>0){
+    for ( fs::directory_iterator dir_itr( dirs.front() );
+	  dir_itr != end_iter;
+	  ++dir_itr )
+      {
+	try {
+	  if ( fs::is_regular_file( dir_itr->status() ) ){
+	    fs::path p =  system_complete(dir_itr->path());
+	    files.push_back(p.file_string());
+	  }
+	  if ( fs::is_directory( dir_itr->status() ) ){
+	    fs::path p =  system_complete(dir_itr->path());
+	    dirs.push_back(p.file_string());
+	  }
+	
+	}
+	catch ( const std::exception & ex ){
+	  std::cerr << dir_itr->path().filename() << " " << ex.what() << "\n";
+	}
+      }
+    dirs.pop_front();
+  }
+  return files;
+}
+
+
+
 std::vector<std::string>
 ICR::file::decode(void)
 {

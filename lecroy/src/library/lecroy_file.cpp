@@ -1,3 +1,4 @@
+
 #include "lecroy/lecroy_file.hpp"
 #include <string.h>
 
@@ -142,7 +143,7 @@ ICR::lecroy::load( aline& a,const std::string filename)
 {
   std::ifstream ifs(filename.c_str(), std::ios::binary );
   boost::archive::binary_iarchive ia(ifs);
-  std::cout<<"filename = "<<filename<<std::endl;
+  //  std::cout<<"filename = "<<filename<<std::endl;
 
   ia>>a;
 }

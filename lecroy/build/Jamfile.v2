@@ -29,7 +29,7 @@ exe average_lecroy : ../analysis/average_files.cpp
     :  <toolset>msvc:<link>static ;
 
 install headers 
-	: [ glob ../include/*.hpp ] [ glob ../include/lecroy/*.hpp ] 
+	: [ glob ../../include/*.hpp ] [ glob ../../include/lecroy/*.hpp ] 
 	: <location>$(TOP)/include  
 	  <install-source-root>../include  <install-dependencies>on
 ;
