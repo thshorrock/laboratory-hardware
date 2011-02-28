@@ -35,9 +35,16 @@ ICR::coms::IPmanager::open() throw (boost::system::system_error)
 	sleep(1000);
 	++count;
       }
+      else if (e.code().value() == boost::asio::error::connection_reset) {
+	std::cout<<"Connection reset by peer, trying to fix..."<<std::endl;
+	//go to sleep
+	sleep(1000);
+	++count;
+      }
       else
 	throw;
     }
+    
   }
 }
 			
@@ -251,7 +258,7 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
 	  //   open();
 	  // }
 	  ///if (*read_result == boost::asio::error::operation_aborted ) 
-	    throw exception::timeout_exceeded();
+	  //  throw exception::timeout_exceeded();
 	  // else if (
 	  // 	   (*read_result == boost::asio::error::connection_reset)
 	  // 	   || 
@@ -268,7 +275,7 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
 	  //   { 
 	  //     std::cout<<"timed recv error"<<std::endl;
 
-	  //     throw boost::system::system_error(*read_result);
+	      throw boost::system::system_error(*read_result);
 	      
 	  //   }
 	  

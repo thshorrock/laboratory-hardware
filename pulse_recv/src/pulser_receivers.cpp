@@ -22,6 +22,7 @@ ICR::pulser::RPL2::RPL2()
   m_prf         = m_pf.prf(5000);
 
   m_voltage  = m_pf.voltage(275,500);
+  m_voltage->set(300);
 	
   // m_internal_trig = m_pf.internal_trigger();
   // m_external_trig = m_pf.external_trigger();

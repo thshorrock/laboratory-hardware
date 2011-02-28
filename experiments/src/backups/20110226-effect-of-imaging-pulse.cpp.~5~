@@ -1,0 +1,133 @@
+#include "lecroy.hpp"
+#include "agilent.hpp"
+#include "DPR500.hpp"
+#include "filename.hpp"
+#include "readme.hpp"
+#include "stringify.hpp"
+#include "boost/progress.hpp"
+#include <sstream>
+
+
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread.hpp>
+using namespace ICR;
+using namespace ICR::lecroy;
+using namespace ICR::pulser;
+using namespace ICR::agilent;
+
+
+
+
+
+int
+main  (int ac, char **av)
+{
+  lecroy_64Xi            scope("10.0.0.10");
+  WG33220A<agilent::IP>  driving_pulse("10.0.0.20");
+  DPR500                 pulser("/dev/ttyUSB0");
+  PulserReceiverFactory  factory;   
+  RPL2* imaging_pulse = factory.make_RPL2();
+
+  //variables
+  double lecroy_timebase = 10e-6;
+  double lecroy_trigger_delay = -20e-6;
+  unsigned long lecroy_samples = 250000;
+  double lecroy_alines = 1;
+  
+  //double driving_voltage;
+  double driving_voltage = 50e-3; //peak-to-peak
+  double driving_voltage_steps = 20;
+  double driving_phase = 0;
+  double driving_frequency = 0.5e6;
+  double driving_offset = 0;
+  unsigned int driving_cycles = 10;
+  
+
+  double imaging_voltage = 300;
+  int    imaging_gain = 50;
+  
+  unsigned int experimental_repeats;
+
+  //setup
+  
+
+  //IMAGING PULSE
+  pulser.blink(200);  
+  imaging_pulse->set_external_trigger();
+  imaging_pulse->set_pulser_mode(damping_RPL2::fourtyfour_Ohm,
+				 energy_policy::HIGH,
+				 receive_mode::RECEIVE_ONLY);
+  imaging_pulse->set_voltage(imaging_voltage);
+  pulser.attach_A(imaging_pulse);
+  pulser.notify();
+  //)  filter::HPFA::   ten_kHz    sevenpointfive_MHz
+  pulser.set_high_pass_filter_A(filter::HPFA::sevenpointfive_MHz);
+  pulser.set_low_pass_filter_A(filter::LPFA::fifty_MHz);
+  pulser.set_gain_A(imaging_gain);
+  
+  pulser.notify();
+
+  driving_pulse.turn_off();
+  driving_pulse.shape(shape::SIN);
+  driving_pulse.frequency(driving_frequency);
+  driving_pulse.burst_ext(edge::POSITIVE);
+  driving_pulse.cycles(driving_cycles);
+  driving_pulse.phase(driving_phase);
+  driving_pulse.voltage(driving_voltage); 
+  driving_pulse.offset(driving_offset) ;
+  driving_pulse.trigger(trigger::BUS);
+  driving_pulse.burst_on();
+
+  driving_pulse.turn_on();
+ 
+  //LECROY SETUP
+  //scope.auto_calibrate(false); //turn calibration off
+   scope.set_date();
+
+   scope.trigger_mode(trigger_mode::NORM);
+   scope.trace_on (location::C1);
+   scope.trace_off(location::C2);
+   scope.trace_on(location::C3);
+   scope.trace_off(location::C4);
+   //scope.set_coupling(location::C1, coupling::D50);
+   //scope.set_coupling(location::C2, coupling::D50);
+   //scope.set_coupling(location::C3, coupling::D50);
+   //scope.set_coupling(location::C4, coupling::D50);
+
+
+    scope.trigger_level(location::C1, 1.0);
+    scope.trigger_level(location::C3, 1.0);
+    scope.trigger_coupling(location::C1, coupling::DC);
+    scope.trigger_coupling(location::C3, coupling::DC);
+    scope.trigger_positive_edge(location::C1);
+    scope.trigger_positive_edge(location::C3);
+    scope.trigger_select(trigger_type::EDGE,location::C1,trigger_hold_type::NO_HOLD);
+
+    scope.trigger_delay(lecroy_trigger_delay);
+    scope.set_timebase(lecroy_timebase);
+    scope.volts_per_div(location::C1,1.0);
+    scope.volts_per_div(location::C3,0.1);
+    scope.volts_per_div(location::C4,1.0);
+    scope.sequence(lecroy_alines,lecroy_samples);
+   
+
+  
+
+    pulser.turn_on_A();
+    std::cout<<"ON"<<std::endl;
+
+    for(size_t i=0;i<1000;++i){
+      driving_pulse.trigger_now();
+    }
+
+    
+    pulser.turn_off_A();  //make sure the pulser perminantely running
+    std::cout<<"OFF"<<std::endl;
+  
+
+
+    driving_pulse.turn_off();
+    pulser.turn_off_A();  //make sure the pulser perminantely running
+    scope.auto_calibrate(true); //turn calibration on as people expect this to be set.
+
+}

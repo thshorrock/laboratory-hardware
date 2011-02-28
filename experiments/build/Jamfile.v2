@@ -40,6 +40,49 @@ project experiment_test
 #	<include>$(TOP)/boost_files/
 ;
 
+project 20110226-effect-of-imaging-pulse
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+;
+
+
+project 20110228-driving_pulse
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+;
+
+project 20110228-driving_pulse-longer-window
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+;
+
+project 20110228-imaging_pulse_short_window
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+;
+
+
+
 exe experiment1 : experiment1.cpp  
     /lib/hardware-lecroyCM//lecroyCM 
     /lib/hardware-agilentWG   
@@ -64,6 +107,43 @@ exe experiment_water_2011_01_09 : experiment_water_2011_01_09.cpp
     /lib/readme					     
      ;
 
+exe 20110226-effect-of-imaging-pulse : 20110226-effect-of-imaging-pulse.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+exe  20110228-driving_pulse : 20110228-driving_pulse.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+
+exe  20110228-driving_pulse-longer-window : 20110228-driving_pulse-longer-window.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+
+exe  20110228-imaging_pulse_short_window : 20110228-imaging_pulse_short_window.cpp  
+    /lib/hardware-lecroyCM//lecroyCM 
+    /lib/hardware-agilentWG   
+    /lib/hardware-pulse-recv
+    /lib/filename	
+    /lib/readme					     
+     ;
+
+
+
+
 
 exe experiment_test : experiment_test.cpp  
     /lib/hardware-lecroyCM//lecroyCM 
@@ -77,6 +157,10 @@ exe experiment_test : experiment_test.cpp
 
 install experiment_water-exe : experiment_water : <location>$(TOP)/bin ;
 install experiment_water_2011_01_09-exe : experiment_water_2011_01_09 : <location>$(TOP)/bin ;
+install 20110226-effect-of-imaging-pulse-exe : 20110226-effect-of-imaging-pulse : <location>$(TOP)/bin ;
+install 20110228-driving_pulse-exe : 20110228-driving_pulse : <location>$(TOP)/bin ;
+install 20110228-driving_pulse-longer-window-exe : 20110228-driving_pulse-longer-window : <location>$(TOP)/bin ;
+install 20110228-imaging_pulse_short_window-exe : 20110228-imaging_pulse_short_window : <location>$(TOP)/bin ;
 
 install experiment1-exe : experiment1 : <location>$(TOP)/bin ;
 install experiment_test-exe : experiment_test : <location>$(TOP)/bin ;

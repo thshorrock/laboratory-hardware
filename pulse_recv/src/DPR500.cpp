@@ -272,7 +272,6 @@ ICR::pulser::DPR500::timed_recv(const boost::shared_ptr<command::recv_cmd>& c,
 {
   
 
-   // std::cout<<"send"<<std::endl;
    // std::string cmd = *c;
    // for(size_t i=0;i<cmd.size();++i){
    //   std::cout<<"["<<i<<"] = "<<(int) cmd[i]<<std::endl;
@@ -288,7 +287,7 @@ ICR::pulser::DPR500::timed_recv(const boost::shared_ptr<command::recv_cmd>& c,
       //A small pause here helps
       boost::this_thread::sleep(boost::posix_time::milliseconds(100)); 
     }
-    catch (boost::system::system_error& e)  {
+    catch (ICR::exception::timeout_exceeded& e)  {  //boost::system::system_error
       //Failed, give it a large pause to sort itself out before trying again
       boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
     }
@@ -297,6 +296,8 @@ ICR::pulser::DPR500::timed_recv(const boost::shared_ptr<command::recv_cmd>& c,
   if (not_sent) 
     std::cout<<"Failed to communicate command"<<std::endl;
   
+
+
   // std::cout<<"ans = "<<std::endl;
   // for(size_t i=0;i<ans.size();++i){
   //   std::cout<<"["<<i<<"] = "<<(int) ans[i]<<std::endl;

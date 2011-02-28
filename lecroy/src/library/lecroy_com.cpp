@@ -356,7 +356,7 @@ L::lecroy_com<coms_method>::demand_fresh_aquisition()
   int INR_bit = 0;
   //wait for new waveform
   int count = 0;
-  int count_max = 5;
+  int count_max = 50;
   //std::cout<<"demand fresh"<<std::endl;
 
   while (INR_bit == 0 && count <count_max){
@@ -389,7 +389,7 @@ L::lecroy_com<coms_method>::get_waveform(const enum location::type& channel)
 
   
   lecroy_com_manager<coms_method>::wait(5);
-  demand_fresh_aquisition();
+  //demand_fresh_aquisition();
   
   // boost::this_thread::sleep(boost::posix_time::milliseconds(200)); 
   //stop the scope from aquiring

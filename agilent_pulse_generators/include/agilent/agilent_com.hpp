@@ -283,6 +283,98 @@ namespace ICR {
 
 
     }
+
+    
+    /** Create a waveform that is a sin after n microseconds.
+     * @attention the number of points in an arbitrary waveform is at most 16000. This limits the rise-time of the pulse
+     * for pulses that have a large temporal offset.
+     */     
+    template<class com_method>
+    void
+    sin_after_n_microseconds(agilent_com<com_method>* gen, double frequency,  double delay, double voltage = 2.5, size_t cycles = 10 )
+    {
+      //max samples = 16000
+      unsigned long samples = 16000;
+      double duration = cycles/frequency;
+      //max temp resolution = ((delay + duration)/16000 )e-6 seconds
+      //last point = 0 to make it pulse so have only 15999 points
+      double temp_res = ((delay+duration)/(samples-1))*1e-6; //seconds
+      double freq_res = 1.0/temp_res;
+      // if (freq_res >15e6) // round to 15MHz
+      // 	freq_res = 15e6;
+      // temp_res = 1.0/freq_res;
+      samples = (delay+duration)/(temp_res*1e6)+1;
+      std::cout<<"samples= "<<samples<<std::endl;
+
+      boost::shared_array<float> data(new float[samples]);
+      std::cout<<"temp_res = "<<temp_res<<std::endl;
+
+      for(size_t i=0;i<(samples-1);++i){
+	if (i*temp_res*1e6 < delay){
+	  data[i] = 0;
+	  // std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
+
+	}
+	else if (i*temp_res*1e6<(delay+duration)) {
+	  data[i] = voltage*std::sin(2*M_PI*frequency*1.0e6*temp_res*i);
+	  //std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
+	}
+	else {
+	  data[i] = 0;
+	  // std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
+	}
+      }
+      data[samples-1]=0;
+      //std::cout<<"data["<<samples-1<<"]="<<data[samples-1]<<std::endl;
+      
+      apply_waveform<com_method>(gen,"sin_delay",freq_res, data.get(),samples);
+
+
+    }
+
+ 
+    /** Create a waveform that is a sin after n microseconds.
+     * @attention the number of points in an arbitrary waveform is at most 16000. This limits the rise-time of the pulse
+     * for pulses that have a large temporal offset.
+     */     
+    template<class com_method>
+    void
+    n_microseconds_after_sin(agilent_com<com_method>* gen, double frequency,  double delay, double voltage = 2.5, size_t cycles = 10 )
+    {
+      //max samples = 16000
+      unsigned long samples = 16000;
+      double duration = cycles/frequency;
+      //max temp resolution = ((delay + duration)/16000 )e-6 seconds
+      //last point = 0 to make it pulse so have only 15999 points
+      double temp_res = ((delay+duration)/(samples))*1e-6; //seconds
+      double freq_res = 1.0/temp_res;
+      // if (freq_res >15e6) // round to 15MHz
+      // 	freq_res = 15e6;
+      // temp_res = 1.0/freq_res;
+      samples = (delay+duration)/(temp_res*1e6);
+      std::cout<<"samples= "<<samples<<std::endl;
+
+      boost::shared_array<float> data(new float[samples]);
+      std::cout<<"temp_res = "<<temp_res<<std::endl;
+
+      for(size_t i=0;i<(samples-1);++i){
+	if (i*temp_res*1e6<(duration)) {
+	  data[i] = voltage*std::sin(2*M_PI*frequency*1.0e6*temp_res*i);
+	  //std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
+	}
+	else {
+	  data[i] = 0;
+	}
+      }
+      //std::cout<<"data["<<samples-1<<"]="<<data[samples-1]<<std::endl;
+      
+      apply_waveform<com_method>(gen,"sin_delay",freq_res, data.get(),samples);
+
+
+    }
+
+
+
   }
 }
 

@@ -19,13 +19,12 @@ ICR::coms::serial_manager::serial_manager(const std::string& name,
     m_SerialPort(m_io_service,name)
     
 {
-  
   m_SerialPort.set_option(boost::asio::serial_port::baud_rate(baud_rate));
   m_SerialPort.set_option(boost::asio::serial_port::flow_control(flow_control));
   m_SerialPort.set_option(boost::asio::serial_port::parity(parity));
   m_SerialPort.set_option(boost::asio::serial_port::stop_bits(stop_bits));
   m_SerialPort.set_option(boost::asio::serial_port::character_size(char_size));
-  
+
 }
 
 ICR::coms::serial_manager::~serial_manager()

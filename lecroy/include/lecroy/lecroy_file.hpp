@@ -123,6 +123,13 @@ namespace ICR{
        */
       aline&
       operator*=(const double& other);
+      
+      /** divide  by a scalar
+       * @param other The aline to add to the preset.
+       * @return The resultant aline.
+       */
+      aline&
+      operator/=(const double& other) {return *this*=(1.0/other);}
 
     };
 
