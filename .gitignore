@@ -26,6 +26,7 @@ lib/
 include/
 build/
 boost/bin.v2/
+doc/
 
 # Packages #
 ############
