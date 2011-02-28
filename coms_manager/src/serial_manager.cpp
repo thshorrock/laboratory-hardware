@@ -5,7 +5,7 @@
 #include <boost/array.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
-
+//#include <boost/system/error_code.hpp>
 ICR::coms::serial_manager::serial_manager(const std::string& name,
 					  const unsigned int& baud_rate,
 					  const enum flow_control::type& flow_control,
@@ -13,12 +13,20 @@ ICR::coms::serial_manager::serial_manager(const std::string& name,
 					  const enum stop_bits::type&    stop_bits,
 					  const unsigned int& char_size
 					  ) 
+  throw(exception::serial_port_does_not_exist)
   : coms_manager(),
     m_io_service(),
     m_name(name),
-    m_SerialPort(m_io_service,name)
+    m_SerialPort(m_io_service)
     
 {
+  m_SerialPort.open(name, m_error);
+  
+  if (m_error == boost::system::errc::no_such_file_or_directory ) //boost::system::error_code::errc::
+    {
+      throw exception::serial_port_does_not_exist(name);
+    }
+
   m_SerialPort.set_option(boost::asio::serial_port::baud_rate(baud_rate));
   m_SerialPort.set_option(boost::asio::serial_port::flow_control(flow_control));
   m_SerialPort.set_option(boost::asio::serial_port::parity(parity));

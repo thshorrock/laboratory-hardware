@@ -42,7 +42,9 @@ namespace ICR{
 		     const enum parity::type&         parity        = parity::none,
 		     const enum stop_bits::type&      stop_bits     = stop_bits::one,
 		     const unsigned int& char_size  = 8
-		     ) ;
+		     ) 
+	throw(exception::serial_port_does_not_exist)
+	;
     
       /** A destructor.*/
       virtual 
