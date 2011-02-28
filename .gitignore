@@ -26,7 +26,7 @@ git_forever_remove
 ./include/
 ./build/
 ./boost/bin.v2/
-./doc/
+doc/
 
 # Packages #
 ############
