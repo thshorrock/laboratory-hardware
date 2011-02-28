@@ -143,6 +143,7 @@ build-project ./hardware-header/build  ;
 #build app
 
 build-project ./experiments/build ;
+build-project ./test_programs/analogic_with_coms_manager/build ;
 
 
 #docs
