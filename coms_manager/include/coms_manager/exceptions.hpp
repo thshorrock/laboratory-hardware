@@ -21,5 +21,14 @@ namespace ICR{
       {std::cerr<<"timeout for communication was exceeded\n";}
     };
     
+    struct serial_port_does_not_exist : public hardware_exception
+    {
+      std::string device;
+      serial_port_does_not_exist(std::string d) : device(d) {}
+      void debug_print()
+      {std::cerr<<"serial port "<<device<<" does not seem to exist\n";}
+    };
+    
+    
   }
 }
