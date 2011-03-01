@@ -25,8 +25,7 @@ main  (int ac, char **av)
   //Open a serial connection to a device attached to "COM1" port
   analogic_remote_control analogic("COM1");
   
-  analogic.clock_rate(1.25e-9);  //set fastest clock speed
-  analogic.expression("AT TRIG FOR 28u 0.0 FOR 2u 0.5 FOR 1u 0");  //create a pulse
+  analogic.expression("AT TRIG FOR 28u 0.0 FOR 2u 0.5 FOR 1u 0 CLK = 1.25n MARK = 20u");  //create a pulse
   analogic.turn_on();  //run
 
   

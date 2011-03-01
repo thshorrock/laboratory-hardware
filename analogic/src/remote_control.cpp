@@ -9,7 +9,7 @@ ICR::analogic::analogic_remote_control::analogic_remote_control(const std::strin
 								const enum stop_bits::type&      stop_bits)
   : m_serial(address, baud_rate, flow_control, parity, stop_bits)
 {
-  
+  ICR::coms::sleep(500);
 }
 
 ICR::analogic::analogic_remote_control::~analogic_remote_control()
