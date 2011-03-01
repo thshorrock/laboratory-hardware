@@ -1,0 +1,25 @@
+
+
+project  analogic
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+;
+
+lib analogic : remote_control.cpp 
+     /lib/hardware-coms-manager	
+     /lib/stringify
+    : <toolset>msvc:<link>static
+              ;
+
+install headers 
+	: [ glob ../include/*.hpp ] [ glob ../include/agilent/*.hpp ] 
+	: <location>$(TOP)/include  
+	  <install-source-root>../include 
+;
+
+install analogic-lib : analogic  :  <location>$(TOP)/lib   <install-type>LIB ;
+
