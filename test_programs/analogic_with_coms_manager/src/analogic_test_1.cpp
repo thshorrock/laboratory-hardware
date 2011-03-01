@@ -14,6 +14,7 @@ main  (int ac, char **av)
   
   
   
+  ICR::coms::sleep(1000);
   //send a command to the serial device
   serial.send("RUN\r");
 
