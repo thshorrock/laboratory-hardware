@@ -1,51 +1,54 @@
 #include "coms_manager/serial_manager.hpp"
-
+#include "stringify.hpp"
+#include <boost/assign/list_of.hpp> // for 'map_list_of()'
 #include <string>
+#include <map>
 
 
 namespace ICR {
   namespace analogic {
 
-    /** A class that maps the allowed clock rates */
-    class clock_rate
-    {
-      map<std::string, float> m_value;
-    public:
-      /** Constructor */
-      clock_rate();
-      /** Get the clock rate from the provided string.
-       * @param rate The desired clock rate.
-       * Acceptable values are:
-       *
-       *  - 1.25ns 
-       *  - 2.5ns
-       *  - 5ns
-       *  - 10ns
-       *  - 20ns
-       *  - 50ns
-       *  - 100ns
-       *  - 200ns
-       *  - 500ns
-       *  - 1us
-       *  - 2us
-       *  - 5us
-       *  - 10us
-       *  - 100us
-       *  - 1ms
-       *  - 2ms
-       *  - 5ms
-       *  - 10ms
-       *  - 20ms
-       *  - 50ms
-       *  - 100ms
-       *  - 1s
-       */
-      float 
-      value(const string& rate) const 
-      {
-	return m_value[rate];
-      } 
-    };
+    // /** A class that maps the allowed clock rates */
+    // class clock_rate
+    // {
+    //   static std::map<const std::string, float> m_value;
+    // public:
+    //   /** Constructor */
+    //   clock_rate();
+    //   /** Get the clock rate from the provided string.
+    //    * @param rate The desired clock rate.
+    //    * Acceptable values are:
+    //    *
+    //    *  - 1.25ns 
+    //    *  - 2.5ns
+    //    *  - 5ns
+    //    *  - 10ns
+    //    *  - 20ns
+    //    *  - 50ns
+    //    *  - 100ns
+    //    *  - 200ns
+    //    *  - 500ns
+    //    *  - 1us
+    //    *  - 2us
+    //    *  - 5us
+    //    *  - 10us
+    //    *  - 100us
+    //    *  - 1ms
+    //    *  - 2ms
+    //    *  - 5ms
+    //    *  - 10ms
+    //    *  - 20ms
+    //    *  - 50ms
+    //    *  - 100ms
+    //    *  - 1s
+    //    */
+    //   static
+    //   float 
+    //   value(const std::string rate)
+    //   {
+    // 	return m_value[rate];
+    //   } 
+    // };
     
     /** The allowed trigger modes */
     struct trigmode
@@ -80,7 +83,7 @@ namespace ICR {
     class analogic_remote_control 
     {
     private:
-      serial_manager serial;
+      ICR::coms::serial_manager m_serial;
       
       
     public:
@@ -96,40 +99,41 @@ namespace ICR {
       /** Send a command.
        *  @param cmd The comand to send. These must be appended with a carriage return character ("\r")
        */
+      void
       send(const std::string& cmd)
 	throw (boost::system::system_error) 
-      {serial.send(cmd);}
+      {m_serial.send(cmd + "\r");}
       
       
       /** Set the output to be on.  */
-      void turn_on()   {send("RUN\r");}
+      void turn_on()   {send("RUN");}
       /** Set the output to be off.  */
-      void turn_off()  {send("STOP\r");} 
+      void turn_off()  {send("STOP");} 
       /** Set the fequency.
        * @param frequency The frequency
        */
-      void frequency(const float frequency) {send("FREQ="+stringify(frequency)+"\r");}
+      void frequency(const float frequency) {send("FREQ="+stringify(frequency));}
 
       /** Set the voltage.
        * @param V The voltage requested
        */
-      void voltage(const float V) {send("AMP="+stringify(V)+"\r");}
+      void voltage(const float V) {send("AMP="+stringify(V));}
       
       /** Set the voltage offset.
        * @param offset The offset (in volts)
        */
-      void offset(const float offset) {send("OFST="+stringify(offset)+"\r");}
+      void offset(const float offset) {send("OFST="+stringify(offset));}
 
       /** Set the delay.
        * @param delay The delay (in seconds)
        */
-      void delay(const float delay) {send("DLT="+stringify(delay)+"\r");}
+      void delay(const float delay) {send("DLT="+stringify(delay));}
 
       
       /** Set the pulse_width.
-       * @param delay The pulse_width (in seconds)
+       * @param pw The pulse_width (in seconds)
        */
-      void pulse_width(const float pulse_width) {send("PLSW="+stringify(pulse_width)+"\r");}
+      void pulse_width(const float pw) {send("PLSW="+stringify(pw));}
       
       /* Select the active signal output
        *  @param option The output channel (A or B)
@@ -138,7 +142,7 @@ namespace ICR {
 
       /** Select the number of points to compute
         * @param points The approximate number of points to compute.
-	* @attension The number of points calculated will be as close as possible to points.
+	* @attention The number of points calculated will be as close as possible to points.
 	*  However, the exact number depends upon the druation of the math function in relationto ta clock rate, 
 	*  amonst other things, so the actual number of points can for certian parameters be many orders
 	*  of magnitudes different from points.
@@ -175,30 +179,30 @@ namespace ICR {
        *  - 100ms
        *  - 1s
        */
-      void clock_rate(const string& rate)
+      void clock_rate(const float& rate)
       {
-	send("CLK="+stringify(clock_rate.value(rate)));
+	send("CLK="+stringify(rate)); //stringify(analogic::clock_rate::value(rate)));
       }
       
       /** Set the maximum of the standard waveform.
        *  Maximum of sin, square or triangular waves.
-       *  @Param V the max voltage of the wave.
+       *  @param V the max voltage of the wave.
        *  @attention max and min are alternatives to the voltage and offset 
        *  @see min
        *  @see voltage
        *  @see offset
        */
-      void max(const float V) {send("HIGH="+stingify(V)); }
+      void max(const float V) {send("HIGH="+stringify(V)); }
 
        /** Set the minimum of the standard waveform.
        *  Minimum of sin, square or triangular waves.
-       *  @Param V the min voltage of the wave.
+       *  @param V the min voltage of the wave.
        *  @attention max and min are alternatives to the voltage and offset 
        *  @see max
        *  @see voltage
        *  @see offset
        */
-      void min(const float V)   {send("LOW="+stingify(V)); }
+      void min(const float V)   {send("LOW="+stringify(V)); }
 
       /** Set phase angle between the leading edge of sync out and the first positve zero crossing of sine wave.
        * @param degree The phase angle in degrees 
@@ -225,7 +229,7 @@ namespace ICR {
        * @param is_echo Is in echo mode
        */
       void 
-      echo(bool is_echo) {send{"ECHO"+stringify(is_echo));}
+      echo(bool is_echo) {send("ECHO"+stringify(is_echo));}
       
       /** Return the control to the local state.
        *  Enables the front panel keys
@@ -265,13 +269,13 @@ namespace ICR {
       }
       
       /** Toggles standard square wave function. */
-      void sin()
+      void square()
       {
 	send("SSQR");
       }
       
       /** Toggles standard triangle wave function. */
-      void sin()
+      void triangle()
       {
 	send("STRI");
       }
@@ -302,13 +306,13 @@ namespace ICR {
        *  @attention If echo is enabled then the display will change the FREQ field to the period_length format.
        */
       void
-      period_length(float time){send("PER="+stringify(time));}
+      period_length(float seconds){send("PER="+stringify(time));}
       
       /** Set a polynomial expression
        * @param expr The expression to enter
        */
       void 
-      expression(const string& expr)
+      expression(const std::string& expr)
       {
 	send("POLY");  //put into POLY mode
 	send(expr);    //send the expression
@@ -336,7 +340,8 @@ namespace ICR {
       
       /** Set the duty cycle.
        * The amount of time (in percent of one cycle or period) that a square wave will stay high.
-       * @attension When duty cycle is changed, symmetry parameter for sine save and standard triangle
+       * @param dc The duty cycle (in percent)
+       * @attention When duty cycle is changed, symmetry parameter for sine save and standard triangle
        *  will also change.  An alternative is pulse width
        *  @see pulse_width
        *  @see symmetry
