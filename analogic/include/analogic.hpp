@@ -33,6 +33,18 @@ main  (int ac, char **av)
 }
 @endcode
 
+\section not_working_sec In case it is not working.
+Sometimes to get the link to the usb working at all you need to reset the RS232 connection (even if it seems to be set correctly).
+
+To do this 
+  - unplug the RS232 cable from the back of the analogic.
+  - Click the OP 4 command (with the buttons on the front of the 2045)
+  - Scroll to CMD DEVICE=SER0: option.
+  - move it away from CMD DEVICE=SER0: and then back again.
+  - Make sure the output is OFF.
+  - Plug in the RS232 cable into the RS 232 DCE slot (no null terminating cable)
+  - run ./bin/test_anologic_1 (this should turn the output on).
+
 
 
 \section dependancies_sec Dependancies.
