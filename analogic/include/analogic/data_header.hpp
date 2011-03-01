@@ -117,13 +117,13 @@ namespace ICR {
 	 * @return The outer loop count.
 	 */
 	unsigned  short
-	outer_loop() const {return m_loop_type;}
+	loop_type() const {return m_loop_type;}
 	
 	/** The neested loop value.
 	 * @return The nested loop count.
 	 */
 	unsigned  short
-	nested_loop() const {return m_repeats;}
+	repeats() const {return m_repeats;}
       };
       
       /** The repeat_end type specialisation */
@@ -186,30 +186,45 @@ namespace ICR {
     
     class data_header : 
     {
-      float[10] m_header;
+      boost::array<char,10> m_header;
     public:
       template<int segment_type>
+      void
       set_header(); //undeclared
       
       template<>
+      void
       set_header(segment_type::BLOCK, const unsigned int& block_length);
       
       template<>
+      void
       set_header(segment_type::CONSTANT, const unsigned int clock_pulses, const float value);
       
       template<>
+      void
       set_header(segment_type::END);
 
       template<>
+      void
       set_header(segment_type::REPEAT, const enum repeat_type& repeat_option, const unsigned short& repeats);
 
       
       template<>
+      void
       set_header(segment_type::REPEAT_END, const enum repeat_type& repeat_option);
 
-      
-      float[10] 
+      boost::array<char,10> 
       header() const {return m_header;}
+
+
+      std::string
+      header_str() const {
+	std::string tmp;
+	for(size_t i=0;i<10;++i){
+	  tmp.push_back(m_header[i]);
+	}
+	return tmp;
+      }
 
 
     };
@@ -217,3 +232,61 @@ namespace ICR {
   }
 }
 
+
+template<>
+void
+ICR::analogic::data_header::set_header(segment_type::BLOCK, const unsigned int& block_length)
+{
+  m_header[0] = (char) segment_type::BLOCK;
+  segment_length<segment_type::BLOCK> len(block_length);
+  constant_value<segment_type::BLOCK> c;
+  m_header[2] = (char) len.block_length();
+  m_header[6] = (char) c.value();
+}
+
+
+template<>
+void
+ICR::analogic::data_header::set_header(segment_type::CONSTANT, const unsigned int clock_pulses, const float value)
+{
+  m_header[0] = (char) segment_type::CONSTANT;
+  segment_length<segment_type::CONSTANT> len(clock_pulses);
+  constant_value<segment_type::CONSTANT> c(value);
+  m_header[2] = (char) len.constant_clock_pulses();
+  m_header[6] = (char) c.value();
+}
+
+template<>
+void
+ICR::analogic::data_header::set_header(segment_type::END)
+{
+  m_header[0] = (char) segment_type::END;
+  segment_length<segment_type::END> len;
+  constant_value<segment_type::END> c;
+  m_header[2] = (char) len.end_value();
+  m_header[6] = (char) c.value();
+}
+
+template<>
+void
+ICR::analogic::data_header::set_header(segment_type::REPEAT, const enum repeat_type& repeat_option, const unsigned short& repeats)
+{
+  m_header[0] = (char) segment_type::REPEAT;
+  segment_length<segment_type::REPEAT> len(repeat_option,repeats);
+  constant_value<segment_type::REPEAT> c;
+  m_header[2] = (char) len.loop_type();
+  m_header[4] = (char) len.repeats();
+  m_header[6] = (char) c.value();
+}
+
+template<>
+void
+ICR::analogic::data_header::set_header(segment_type::REPEAT_END, const enum repeat_type& repeat_option)
+{
+  m_header[0] = (char) segment_type::REPEAT;
+  segment_length<segment_type::REPEAT> len(repeat_option);
+  constant_value<segment_type::REPEAT> c;
+  m_header[2] = (char) len.end_repeat_value();
+  m_header[6] = (char) c.value();
+  
+}
