@@ -23,8 +23,8 @@ git_forever_remove
 # Directories #
 ##############
 bin.v2/
+bin/
 backups/
-docs/
 
 # Packages #
 ############

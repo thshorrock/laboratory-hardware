@@ -1,0 +1,34 @@
+project analogic/doc ;
+import boostbook : boostbook ; 
+import doxygen : doxygen ;
+
+import toolset : using ;
+using doxygen ;
+
+doxygen analogic.html : [ glob ../../include/*.hpp ] ../../include/analogic/remote_control.hpp  #[ glob ../../include/analogic/*.hpp ]
+:
+    <doxygen:param>PROJECT_NAME=icr.analogic
+    <doxygen:param>PROJECT_NUMBER=0.1	
+    <doxygen:param>OUTPUT_DIRECTORY=$(TOP)/doc/
+    <doxygen:param>HIDE_UNDOC_MEMBERS=YES
+    <doxygen:param>EXTRACT_PRIVATE=NO
+    <doxygen:param>ENABLE_PREPROCESSING=YES
+    <doxygen:param>MACRO_EXPANSION=YES
+    <doxygen:param>EXPAND_ONLY_PREDEF=YES
+    <doxygen:param>QUIET=YES
+    <doxygen:param>WARNINGS=YES
+    <doxygen:param>WARN_IF_UNDOCUMENTED=YES
+    <doxygen:param>WARN_IF_DOC_ERROR=YES
+    <doxygen:param>WARN_NO_PARAMDOC=YES
+    <doxygen:param>SHORT_NAMES=YES
+    <doxygen:param>JAVADOC_AUTOBRIEF=YES
+    <doxygen:param>INTERNAL_DOCS=NO
+    <doxygen:param>INLINE_INHERITED_MEMB=YES
+    <doxygen:param>INHERIT_DOCS=YES
+#    <doxygen:param>HTML_OUTPUT=html
+#    <doxygen:param>GENERATE_LATEX=YES
+#    <doxygen:param>LATEX_OUTPUT=latex
+    #<doxygen:param>GENERATE_XML=YES
+    #<doxygen:param>XML_OUTPUT=xml
+	  <install-source-root>../../include 
+;
