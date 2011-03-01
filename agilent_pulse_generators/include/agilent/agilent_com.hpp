@@ -103,6 +103,10 @@ namespace ICR {
 
 	  throw;
 	}
+	catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
+	  std::cout<<"AGILENT receive exception caught (in send), resending command"<<std::endl;
+	  send(cmd);
+	}
       }
       /** Receive a response from the device.
        * @param cmd The command requesting a response.
@@ -112,13 +116,20 @@ namespace ICR {
       std::string recv(const std::string& cmd)
 	throw(boost::system::system_error )
       {
-	std::string ret = com_method::recv(cmd);
-	if (m_burst_mode) {
-	  com_method::send("*WAI\n");
-	  std::string opc_code = com_method::recv("*OPC?\n");
-	  //std::cout<<"opc_code = "<<opc_code<<std::endl;
+	try{
+	  std::string ret = com_method::recv(cmd);
+	  return ret;
+
+	  if (m_burst_mode) {
+	    com_method::send("*WAI\n");
+	    std::string opc_code = com_method::recv("*OPC?\n");
+	    //std::cout<<"opc_code = "<<opc_code<<std::endl;
+	  }
 	}
-	return ret;
+	catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
+	  std::cout<<"AGILENT receive exception caught (in recv), resending command"<<std::endl;
+	  recv(cmd);
+	}
       }
       
       /** Get the error response of the scope.
