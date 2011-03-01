@@ -34,7 +34,7 @@ main  (int ac, char **av)
 @endcode
 
 \section not_working_sec In case it is not working.
-Sometimes to get the link to the usb working at all you need to reset the RS232 connection (even if it seems to be set correctly).
+Sometimes to get the link to the serial port working at all you need to reset the RS232 connection options set in the analogic (even if it seems to be set correctly).
 
 To do this 
   - unplug the RS232 cable from the back of the analogic.
