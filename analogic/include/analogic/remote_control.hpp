@@ -1,46 +1,56 @@
+#include "coms_manager/serial_manager.hpp"
+
+#include <string>
 
 
 namespace ICR {
   namespace analogic {
 
+    /** A class that maps the allowed clock rates */
     class clock_rate
     {
       map<std::string, float> m_value;
     public:
-      clock_rate()
-	: m_value();
+      /** Constructor */
+      clock_rate();
+      /** Get the clock rate from the provided string.
+       * @param rate The desired clock rate.
+       * Acceptable values are:
+       *
+       *  - 1.25ns 
+       *  - 2.5ns
+       *  - 5ns
+       *  - 10ns
+       *  - 20ns
+       *  - 50ns
+       *  - 100ns
+       *  - 200ns
+       *  - 500ns
+       *  - 1us
+       *  - 2us
+       *  - 5us
+       *  - 10us
+       *  - 100us
+       *  - 1ms
+       *  - 2ms
+       *  - 5ms
+       *  - 10ms
+       *  - 20ms
+       *  - 50ms
+       *  - 100ms
+       *  - 1s
+       */
+      float 
+      value(const string& rate) const 
       {
-	m_value["1.25ns"] = 1.25e-9;
-	m_value["2.5ns"] = 2.5e-9;
-	m_value["5ns"] = 5e-9;
-	m_value["10ns"] = 10-9;
-	m_value["20ns"] = 20e-9;
-	m_value["50ns"] = 50e-9;
-	m_value["100ns"] = 100e-9;
-	m_value["200ns"] = 200e-9;
-	m_value["500ns"] = 500e-9;
-	m_value["1us"] = 1e-6;
-	m_value["2us"] = 2e-6;
-	m_value["5us"] = 5e-6;
-	m_value["10us"] = 10e-6;
-	m_value["100us"] = 100e-6;
-	m_value["1ms"] = 1e-3;
-	m_value["2ms"] = 2e-3;
-	m_value["5ms"] = 5e-3;
-	m_value["10ms"] = 10e-3;
-	m_value["20ms"] = 20e-3;
-	m_value["50ms"] = 50e-3;
-	m_value["100ms"] = 100e-3;
-	m_value["1s"] = 1.0;
-      }
-      float value(const string& rate) const {return m_value[rate];}
-    
-     
+	return m_value[rate];
+      } 
     };
-
+    
+    /** The allowed trigger modes */
     struct trigmode
     {
-      /** The trigger modes.
+      /** An enumeration of the trigger modes.
        *  @attention Modes 9 and 10 (START AND STOP) only work with GET (group execute trigger) response (GPIB)
        */
       enum type 
@@ -57,8 +67,16 @@ namespace ICR {
 	  START=9, //!< A GET will start output
 	  STOP=10, //!< A GET will stop output.
 	};
-    }
+    };
 
+    /** A class for controlling the analogic by remote control.
+     *  
+     * This class allows you to access the "button" control of the analogic.
+     * (That is everything that you can do by pressing the buttons on the analogic).
+     * It does not allow you to download arbitrary waveforms.
+     * To do that use the analogic_program class.
+     * @see analogic_program.
+     */
     class analogic_remote_control 
     {
     private:
@@ -67,7 +85,7 @@ namespace ICR {
       
     public:
       /** Constructor.
-       * @param address the address of the device. For example "COM1" for a serial device, or the IP address for a TCP connection.
+       * @param address the address of the device. For example "COM1" for a serial device in Windows 
        */
       analogic_remote_control(const std::string& address);
 	
@@ -90,28 +108,28 @@ namespace ICR {
       /** Set the fequency.
        * @param frequency The frequency
        */
-      void frequency(const double frequency) {send("FREQ="+stringify(frequency)+"\r");}
+      void frequency(const float frequency) {send("FREQ="+stringify(frequency)+"\r");}
 
       /** Set the voltage.
        * @param V The voltage requested
        */
-      void voltage(const double V) {send("AMP="+stringify(V)+"\r");}
+      void voltage(const float V) {send("AMP="+stringify(V)+"\r");}
       
       /** Set the voltage offset.
        * @param offset The offset (in volts)
        */
-      void offset(const double offset) {send("OFST="+stringify(offset)+"\r");}
+      void offset(const float offset) {send("OFST="+stringify(offset)+"\r");}
 
       /** Set the delay.
        * @param delay The delay (in seconds)
        */
-      void delay(const double delay) {send("DLT="+stringify(delay)+"\r");}
+      void delay(const float delay) {send("DLT="+stringify(delay)+"\r");}
 
       
       /** Set the pulse_width.
        * @param delay The pulse_width (in seconds)
        */
-      void pulse_width(const double pulse_width) {send("PLSW="+stringify(pulse_width)+"\r");}
+      void pulse_width(const float pulse_width) {send("PLSW="+stringify(pulse_width)+"\r");}
       
       /* Select the active signal output
        *  @param option The output channel (A or B)
@@ -133,7 +151,7 @@ namespace ICR {
       
       /** Set the clock rate.
        *  @param rate The requested clock rate.
-       * Accpetable values are
+       * Accpetable values are:
        *  - 1.25ns 
        *  - 2.5ns
        *  - 5ns
@@ -170,7 +188,7 @@ namespace ICR {
        *  @see voltage
        *  @see offset
        */
-      void max(const double V) {send("HIGH="+stingify(V)); }
+      void max(const float V) {send("HIGH="+stingify(V)); }
 
        /** Set the minimum of the standard waveform.
        *  Minimum of sin, square or triangular waves.
@@ -180,14 +198,14 @@ namespace ICR {
        *  @see voltage
        *  @see offset
        */
-      void min(const double V)   {send("LOW="+stingify(V)); }
+      void min(const float V)   {send("LOW="+stingify(V)); }
 
       /** Set phase angle between the leading edge of sync out and the first positve zero crossing of sine wave.
        * @param degree The phase angle in degrees 
        */
-      void phase(const double& degree)
+      void phase(const float& degree)
       {
-	double frac = degree/360.0;
+	float frac = degree/360.0;
 	send("PHS="+stringify(frac));
       }
 
@@ -271,7 +289,7 @@ namespace ICR {
        * @param percent The symmetry (50 by default)
        * @attention This command will aslo hcange the duty or pulse_width parameter in square wave function
        */
-      void symmetry(const double percent)
+      void symmetry(const float percent)
       {
 	send("SYM="+stringify(percent));
       }
@@ -284,7 +302,7 @@ namespace ICR {
        *  @attention If echo is enabled then the display will change the FREQ field to the period_length format.
        */
       void
-      period_length(double time){send("PER="+stringify(time));}
+      period_length(float time){send("PER="+stringify(time));}
       
       /** Set a polynomial expression
        * @param expr The expression to enter
@@ -324,7 +342,7 @@ namespace ICR {
        *  @see symmetry
        */
       void
-      duty_cycle(const double& dc)
+      duty_cycle(const float& dc)
       {
 	send("DUTY="+stringify(dc));
       }
