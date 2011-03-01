@@ -12,9 +12,9 @@
  * using namespace ICR::lecroy;
  * lecroy_com lc("ip_address");   //where ip_address is the IP address of the scope, 
                                   //for example 193.62.12.322 
- * lc.set_coupling(ICR::lecroy::location::C1, ICR::lecroy::coupling::D50); //set C1 to 50 ohm DC coupling
- * @endcode
- */
+				  * lc.set_coupling(ICR::lecroy::location::C1, ICR::lecroy::coupling::D50); //set C1 to 50 ohm DC coupling
+				  * @endcode
+				  */
 
 
 #include "lecroy_com_manager.hpp"
@@ -25,49 +25,51 @@
 /** Institute of Cancer Research Namespace. */
 namespace ICR{
 
-    namespace exception{ 
-      /** Option not recognised. */
-      struct option_not_recognised : public lecroy_exception {};
+  namespace exception{ 
+    /** Option not recognised. */
+    struct option_not_recognised : public lecroy_exception {};
       
-      /** Scope failed to reset. */
-      struct failed_to_reset : public lecroy_exception {};
+    /** Scope failed to reset. */
+    struct failed_to_reset : public lecroy_exception {};
       
-      /**Channel value not valid. */
-      struct channel_value_not_valid : public lecroy_exception {}; 
+    /**Channel value not valid. */
+    struct channel_value_not_valid : public lecroy_exception {}; 
 
-      /** store mode not valid. */
-      struct store_mode_not_valid : public lecroy_exception {};  
+    /** store mode not valid. */
+    struct store_mode_not_valid : public lecroy_exception {};  
       
-      /** store format not valid. */
-      struct store_format_not_valid : public lecroy_exception {};
+    /** store format not valid. */
+    struct store_format_not_valid : public lecroy_exception {};
       
-      /** coupling option not recognised. */
-      struct coupling_option_not_recognised : public lecroy_exception {};  
+    /** coupling option not recognised. */
+    struct coupling_option_not_recognised : public lecroy_exception {};  
       
-      /**trigger mode not recognised. */
-      struct trigger_mode_not_recognised : public lecroy_exception {};
+    /**trigger mode not recognised. */
+    struct trigger_mode_not_recognised : public lecroy_exception {};
 
-      /**  trigger state not recognised. */
-      struct trigger_state_not_recognised : public lecroy_exception {}; 
+    /**  trigger state not recognised. */
+    struct trigger_state_not_recognised : public lecroy_exception {}; 
       
-      /**trigger type not recognised. */
-      struct trigger_type_not_recognised : public lecroy_exception {};  
+    /**trigger type not recognised. */
+    struct trigger_type_not_recognised : public lecroy_exception {};  
       
-      /**  trigger hold type not recognised. */
-      struct trigger_hold_type_not_recognised : public lecroy_exception {};
+    /**  trigger hold type not recognised. */
+    struct trigger_hold_type_not_recognised : public lecroy_exception {};
 
-      /** Scope calibration failed. */
-      struct calibration_failed_exception : public lecroy_exception {}; 
+    /** Scope calibration failed. */
+    struct calibration_failed_exception : public lecroy_exception {}; 
 
-      /** Invalid memory option.*/
-      struct invalid_memory_option : public lecroy_exception {};
+    /** Invalid memory option.*/
+    struct invalid_memory_option : public lecroy_exception {};
 
-      /** More than 160 characters in the waveform description */
-      struct waveform_description_too_long : public lecroy_exception {};
+    /** More than 160 characters in the waveform description */
+    struct waveform_description_too_long : public lecroy_exception {};
 
-      /** Could not get fresh aquisition. */
-      struct could_not_get_fresh_aquisition : public lecroy_exception {};
-    } 
+    /** Could not get fresh aquisition. */
+    struct could_not_get_fresh_aquisition : public lecroy_exception {};
+
+    struct lecroy_file_corrupted_on_scope : public lecroy_exception {};
+  } 
 
   /** Lecroy Namespace. */
   namespace lecroy{
@@ -226,8 +228,8 @@ namespace ICR{
        * lecroy_com lc("ip_address");
        * lc.send("BUZZ BEEP\n");
        * @endcode
-      */
-       using lecroy_com_manager<coms_method>::send;
+       */
+      using lecroy_com_manager<coms_method>::send;
 
       
       /** Receive a command from the scope.
@@ -238,11 +240,11 @@ namespace ICR{
        * lecroy_com lc("ip_address");
        * std::string ans = lc.recv("*cal?\n"); //ans = "*CAL 0" if calibration successful.
        * @endcode
-      */
-       using lecroy_com_manager<coms_method>::recv;
+       */
+      using lecroy_com_manager<coms_method>::recv;
       //       using lecroy_com_manager<coms_method>::timed_recv;
       
-       using lecroy_com_manager<coms_method>::recv_surp;
+      using lecroy_com_manager<coms_method>::recv_surp;
       /** Set the coupling for a channel on the scope.
        *  @param channel  Acceptable values are ICR::lecroy::location::C1, ICR::lecroy::location::C2, ICR::lecroy::location::C3 and ICR::lecroy::location::C4.
        *  @param opt  Accepatable values are  
@@ -368,7 +370,7 @@ namespace ICR{
        */
       virtual void set_date();
       
-       /** Aquire a single trace.
+      /** Aquire a single trace.
        *
        * @code  
        * lecroy_com lc("ip_address");
@@ -408,7 +410,7 @@ namespace ICR{
        * lecroy_com lc("ip_address");
        * lc.vertical_offset_constant(true);
        * @endcode
-      */
+       */
       virtual void vertical_offset_constant(const bool& scale_with_gain);
 
       /** Turn persisence on or off.
@@ -418,7 +420,7 @@ namespace ICR{
        * lecroy_com lc("ip_address");
        * lc.peristence(true);
        * @endcode
-      */
+       */
       virtual void persistence(const bool& persistence_on);
 
       /** Reset the scope
@@ -427,7 +429,7 @@ namespace ICR{
        * lecroy_com lc("ip_address");
        * lc.reset();
        * @endcode
-      */
+       */
       virtual void reset(){send("*RST\n");}
 
       /** Turn on/off sequence mode.
@@ -441,7 +443,7 @@ namespace ICR{
        * lecroy_com lc("ip_address");
        * lc.sequence(10, 1e6);
        * @endcode
-      */
+       */
       virtual void sequence(const int& segments, const double& max_samples);
 
 
@@ -469,7 +471,7 @@ namespace ICR{
        * lc.store(ICR::lecroy::location::C1, ICR::lecroy::location::FILE);
        * @endcode
        * @see trigger_mode
-      */
+       */
       virtual void store(const enum location::type& trace, const enum location::type& dest);
       
       /** Setup the way the data is stored.
@@ -520,7 +522,7 @@ namespace ICR{
        * @see toggle_trace
        * @see trace_off
        */
-       virtual void trace_on(const enum location::type& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA ON\n");}
+      virtual void trace_on(const enum location::type& trace) {send(ICR::lecroy::location::get_string(trace)+":TRA ON\n");}
        
       /** Turn trace off.
        *  @param trace  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
@@ -561,8 +563,8 @@ namespace ICR{
        * \see trigger_delay, trigger_level, trigger_mode
        */
       virtual void trigger_coupling(const enum location::type& channel, const enum coupling::type& coupling);
-       /** Set the trigger delay.
-	* Negative numbers indicate a post trigger.
+      /** Set the trigger delay.
+       * Negative numbers indicate a post trigger.
        * @param delay Time in seconds. Negative numbers indicate a post trigger.
        *
        * Example: delay of 50us
@@ -573,7 +575,7 @@ namespace ICR{
        * \see trigger_coupling, trigger_level, trigger_mode
        */
       virtual void trigger_delay(const double& delay);// negive numbers for post trigger
-       /** Set the trigger level.
+      /** Set the trigger level.
        * @param channel  Acceptable values are ICR::lecroy::location::C1,..., ICR::lecroy::location::C4.
        * @param level Level in volts.
        *
@@ -610,7 +612,7 @@ namespace ICR{
        * Notation:
        * - L LOW H HIGH
        * - AND OR
-(const enum location::type& trace)       * - NAND NOR
+       (const enum location::type& trace)       * - NAND NOR
        *
        * @param pattern The pattern string to send to the scope.
        *
@@ -674,7 +676,7 @@ namespace ICR{
        * @endcode
        * @see trigger_positive_edge
        * @see trigger_negative_edge
-      */
+       */
       virtual void trigger_select(const enum trigger_type::type& type,const enum location::type& source,const enum trigger_hold_type::type& hold_type, const double& hold_value1 = 1.0, const double& hold_value2 = 1.0);
       
       /** Trigger on positive edge of selected channel.
@@ -736,7 +738,7 @@ namespace ICR{
        * lc.wait(); 
        * @endcode
        */
-       using lecroy_com_manager<coms_method>::wait;
+      using lecroy_com_manager<coms_method>::wait;
       // virtual void wait(const unsigned int secs= 0) {
       // 	std::string cmd = "WAIT "+stringify(secs)+"\n";
       // 	send(cmd,true);

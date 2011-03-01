@@ -358,7 +358,7 @@ ICR::lecroy::lecroy_file::set_data1( const double* data1)
   const size_t pnts_per_aline =  m_header.wave_array_1()/alines;
 	
   size_t count = 0;
-
+  //fails if alines = 0 // will result in aline_does_not_exit_crash.
   while (count<alines){
     boost::shared_array<double> data(new double[pnts_per_aline]);
     memcpy(data.get(), &data1[pnts_per_aline*count], pnts_per_aline*sizeof(double));
@@ -400,7 +400,7 @@ void ICR::lecroy::lecroy_file::set_data2( const double* data2)
 ICR::lecroy::aline 
 ICR::lecroy::lecroy_file::get_data1(size_t i ) const
 {
-  if (i>= m_data1.size() ) throw exception::aline_does_not_exist();
+  if (i>= m_data1.size() ) throw ICR::exception::aline_does_not_exist();
 
   //std::cout<<"trigger time ("<<i<<")   = "<<m_header.trigger_time(i)<<std::endl;
 

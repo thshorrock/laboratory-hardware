@@ -28,7 +28,7 @@ ICR::lecroy::lecroy_header::read(boost::shared_ptr<std::iostream>& pIn, char* va
   else
      pIn->read( variable ,bytes);
   if (!pIn->good() ) {
-    std::cout<<"READ NOT GOOD"<<std::endl;
+    throw ICR::exception::lecroy_file_is_corrupted();
   }
 }
 

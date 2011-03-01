@@ -13,7 +13,14 @@
 
 namespace ICR{
 
+    namespace exception
+    {
+      struct lecroy_file_is_corrupted{};
+      
+    }
   namespace lecroy{
+    
+
 
     using std::string;
     using std::vector;
