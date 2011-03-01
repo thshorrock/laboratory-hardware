@@ -2,8 +2,12 @@
 #include <boost/assign.hpp>
 #include "analogic/remote_control.hpp"
 
-ICR::analogic::analogic_remote_control::analogic_remote_control(const std::string& address)
-  : m_serial(address)
+ICR::analogic::analogic_remote_control::analogic_remote_control(const std::string& address,
+								const unsigned int& baud_rate  ,
+								const enum flow_control::type&   flow_control,
+								const enum parity::type&         parity,
+								const enum stop_bits::type&      stop_bits)
+  : m_serial(address, baud_rate, flow_control, parity, stop_bits)
 {
   
 }

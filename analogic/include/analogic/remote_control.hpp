@@ -72,6 +72,11 @@ namespace ICR {
 	};
     };
 
+    using ICR::coms::flow_control;
+    using ICR::coms::parity;
+    using ICR::coms::stop_bits;
+    
+
     /** A class for controlling the analogic by remote control.
      *  
      * This class allows you to access the "button" control of the analogic.
@@ -88,9 +93,17 @@ namespace ICR {
       
     public:
       /** Constructor.
-       * @param address the address of the device. For example "COM1" for a serial device in Windows 
+       * @param address the address of the device. For example "COM1"  (windows, or "/dev/ttyS0" (linux).
+       *  @param baud_rate The baud rate. 
+       *  @param flow_control The flow control. Acceptable values are flow_control::none, flow_control::software, flow_control::hardware.
+       *  @param parity The parity of the connection. Acceptable values are parity::none, parity::even, parity::odd.
+       *  @param stop_bits The number of stop bits. Acceptable values are stop_bits::one, stop_bits::one_point_five, stop::bits::two
        */
-      analogic_remote_control(const std::string& address);
+      analogic_remote_control(const std::string& address,
+			      const unsigned int& baud_rate                  = 9600,
+			      const enum flow_control::type&   flow_control  = ICR::coms::flow_control::hardware,
+			      const enum parity::type&         parity        = ICR::coms::parity::none,
+			      const enum stop_bits::type&      stop_bits     = ICR::coms::stop_bits::one);
 	
       /** Destructor */
       virtual ~analogic_remote_control() ;
