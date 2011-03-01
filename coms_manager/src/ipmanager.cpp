@@ -13,8 +13,6 @@ ICR::coms::IPmanager::open() throw (boost::system::system_error)
   int count = 0;
   bool connection_failed = true;
   while (connection_failed && count<5){
-    try{
-  
       boost::asio::ip::tcp::resolver resolver(m_io_service);
       boost::asio::ip::tcp::resolver::query query(m_address, m_port);
       boost::asio::ip::tcp::resolver::iterator iter = resolver.resolve(query);
@@ -24,29 +22,33 @@ ICR::coms::IPmanager::open() throw (boost::system::system_error)
 	  m_socket.close();
 	  m_socket.connect(*iter++, m_error);
 	}
-      if (m_error){
-	throw boost::system::system_error(m_error);
-      }
-      connection_failed = false;
-    } catch(boost::system::system_error& e){
-      if (e.code().value() == boost::asio::error::broken_pipe) {
-	std::cout<<"broken pipe, trying to fix..."<<std::endl;
-	//go to sleep
-	sleep(1000);
-	++count;
-      }
-      else if (e.code().value() == boost::asio::error::connection_reset) {
-	std::cout<<"Connection reset by peer, trying to fix..."<<std::endl;
-	//go to sleep
-	sleep(1000);
+      if (m_error){ //still
+	std::cout<<"open erroc_code value = "<<m_error.value()<<std::endl;
+	if ( m_error == boost::asio::error::connection_aborted) {
+	  std::cout<<"open connection aborted, retrying"<<std::endl;
+	}
+	else if (m_error == boost::asio::error::connection_reset)
+	  {
+	    std::cout<<"connection reset  by peer error in open"<<std::endl;
+	  }
+	else if (m_error == boost::asio::error::broken_pipe) {
+	  std::cout<<"broken pipe in open, trying to fix..."<<std::endl;
+	}
+	//try to recue
+	sleep(1000);//go to sleep
 	++count;
       }
       else
-	throw;
-    }
-    
+	connection_failed = false;
   }
+  if (count==5) //could not rescue
+    {
+      std::cout<<"open error"<<std::endl;
+      throw boost::system::system_error(m_error);
+    }
 }
+    
+
 			
 
 
@@ -83,8 +85,6 @@ void
 ICR::coms::IPmanager::send(const std::string& cmd) 
 	throw (boost::system::system_error) 
 {
-  // std::cout<<"base cmd = "<<cmd<<std::endl;
-
   if (!m_error) 
     boost::asio::write(m_socket, 
 		       boost::asio::buffer(cmd), 
@@ -92,39 +92,33 @@ ICR::coms::IPmanager::send(const std::string& cmd)
 		       m_error
 		       ); 
 
-  if ( m_error == boost::asio::error::connection_aborted) {
-    std::cout<<"send connection aborted, retrying"<<std::endl;
-    
-    cancel();
-    close();
-    open();//reopen socket
-    //resend
-    send(cmd);
+  if (m_error)
+    { 
+      std::cout<<"send erroc_code value = "<<m_error.value()<<std::endl;
+      if ( m_error == boost::asio::error::connection_aborted) {
+	std::cout<<"send connection aborted, retrying"<<std::endl;
+      }
+      else if ( m_error == boost::asio::error::broken_pipe) {
+	std::cout<<"broken pipe in send, trying to fix..."<<std::endl;
+      }
+      //try to rescue
+      cancel();
+      close();
+      open();//reopen socket
+      //resend
+      std::cout<<"RESENDING AFTER ERROR"<<std::endl;
 
-  }
-  else if ( m_error == boost::asio::error::broken_pipe) {
-    std::cout<<"broken pipe in send, trying to fix..."<<std::endl;
-    cancel();
-    close();
-    open();//reopen socket
-    //resend
-    send(cmd);
-  }
-  else if(m_error) {
-    
-    std::cout<<"send error"<<std::endl;
-    std::cout<<"erroc_code value = "<<m_error.value()<<std::endl;
+      send(cmd);
 
-    throw boost::system::system_error(m_error);
-
-  }
+    }
   // boost::this_thread::sleep(boost::posix_time::milliseconds(100)); 
 }
 
 
 std::string
 ICR::coms::IPmanager::recv( const unsigned long& buffsize, const bool& size_exactly ) 
-  throw(boost::system::system_error )
+  throw(boost::system::system_error, 
+	exception::exception_in_receive_you_must_resend_command )
 {
   std::string ret;
   char * buf = (char*) malloc(buffsize);
@@ -155,56 +149,44 @@ ICR::coms::IPmanager::recv( const unsigned long& buffsize, const bool& size_exac
   //     //this is okay
   //   }
   //else  		       ); 
-  if ( m_error == boost::asio::error::connection_aborted) {
-    std::cout<<"recv connection aborted, retrying"<<std::endl;
-    
-    cancel();
-    close();
-    open();//reopen socket
-      std::cout<<"reopened"<<std::endl;
-    //resend
-      // recv(buffsize,size_exactly);
-
-  }
-  if (m_error == boost::asio::error::connection_reset)
-    {
-      std::cout<<"connection reset error in recv"<<std::endl;
-      free(buf);
-      cancel();
-      close();
-      //may need to reset the io_serice here
-      open();
-      std::cout<<"reopened"<<std::endl;
-      
-      //recv(buffsize,size_exactly);
+  if (m_error) { //some kind of exception 
+    free(buf);  //cleanup
+    std::cout<<"recv erroc_code value = "<<m_error.value()<<std::endl;
+    if ( m_error == boost::asio::error::connection_aborted) {
+      std::cout<<"recv connection aborted, retrying"<<std::endl;
     }
-  else if (m_error == boost::asio::error::broken_pipe) {
-    std::cout<<"broken pipe in recv, trying to fix..."<<std::endl;
-    free(buf);
+    else if (m_error == boost::asio::error::connection_reset)
+      {
+	std::cout<<"connection reset error in recv"<<std::endl;
+      }
+    else if (m_error == boost::asio::error::broken_pipe) {
+      std::cout<<"broken pipe in recv, trying to fix..."<<std::endl;
+    }
+    //try to recue
     cancel();
     close();
     open();//reopen socket
-      std::cout<<"reopened"<<std::endl;
-    //resend
-    // recv(buffsize,size_exactly);
-  }
-  else if (m_error){
-    free(buf);
-    std::cout<<"recv error"<<std::endl;
+    //receive_some to cleanup spillage (excess characters this have not been sent).
+    std::cout<<"problem in recv - about to try to cleanup "<<std::endl;
+    try{
+      timed_recv(buffsize,1, false); //retry
+    } catch (...)  {}
+    std::cout<<"  ... cleanup complete\n \n ****** you must now resend the command   ******* "<<std::endl;
 
-    throw boost::system::system_error(m_error);
+    throw exception::exception_in_receive_you_must_resend_command();
   }
-  //std::cout<<"buff size = "<< boost::asio::buffer_size(buf)<<std::endl;
-  // std::string ret(buf);
+  else //no error
+    free(buf);  //cleanup
 
-  free(buf);
   return ret;
 }
 
 std::string
 ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& seconds, const bool& size_exactly  ) 
   throw(exception::timeout_exceeded,
-	boost::system::system_error )
+	boost::system::system_error,
+	exception::exception_in_receive_you_must_resend_command
+	)
 {
 
   char * buf = (char*) malloc(buffsize);
@@ -235,49 +217,78 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
     { 
       if (read_result) {
         timer.cancel(); 
-
       }
       else if (timer_result) 
 	{
 	  m_socket.cancel(); 
+	  throw exception::timeout_exceeded();
 	}
     }
   if (*read_result) 
     {
-     
-	  free(buf);
-	  std::cout<<"read result = "<<read_result<<std::endl;
-	  if (!m_socket.is_open()) {
-	    std::cout<<"socket closed trying to reopen"<<std::endl;
-	    open();
-	  }
-	  // else{
-	  //   std::cout<<"socket open, will try to reopen"<<std::endl;
-	  //   cancel();
-	  //   close();
-	  //   open();
-	  // }
-	  ///if (*read_result == boost::asio::error::operation_aborted ) 
-	  //  throw exception::timeout_exceeded();
-	  // else if (
-	  // 	   (*read_result == boost::asio::error::connection_reset)
-	  // 	   || 
-	  // 	   (*read_result == boost::asio::error::connection_refused)
-	  // 	   )  {
-	  //   std::cout<<"connection reset error in  timed_recv"<<std::endl;
-	  //   cancel();
-	  //   close();
-	  //   //may need to reset the io_serice here
-	  //   open();
-	  //   timed_recv(buffsize,seconds, size_exactly);
-	  // }
-	  // else
-	  //   { 
-	  //     std::cout<<"timed recv error"<<std::endl;
+      //some sort of exception.
+      free(buf);
+      std::cout<<"timed_recv erroc_code value = "<<m_error.value()<<std::endl;
+      if ( *read_result == boost::asio::error::connection_aborted) {
+	std::cout<<"timed_recv connection aborted, retrying"<<std::endl;
+      }
+      else if (*read_result == boost::asio::error::connection_reset)
+	{
+	  std::cout<<"connection reset error in timed_recv"<<std::endl;
+	}
+      else if (*read_result == boost::asio::error::broken_pipe) {
+	std::cout<<"broken pipe in timed_recv, trying to fix..."<<std::endl;
+      }
 
-	      throw boost::system::system_error(*read_result);
+      //try to recue
+      cancel();
+      close();
+      open();//reopen socket
+      std::cout<<"reopened"<<std::endl;
+      std::cout<<"problem in timed_recv - about to try to cleanup "<<std::endl;
+      //resend
+      try{
+	timed_recv(buffsize,seconds, false); //retry
+      } catch (...)  {}
+      
+      std::cout<<"  ... cleanup complete\n \n ****** you must now resend the command   ******* "<<std::endl;
+      
+      throw exception::exception_in_receive_you_must_resend_command();
+      // free(buf);
+      // std::cout<<"read result = "<<read_result<<std::endl;
+      // if (!m_socket.is_open()) {
+      //   std::cout<<"socket closed trying to reopen"<<std::endl;
+      //   open();
+      // }
+
+
+      // else{
+      //   std::cout<<"socket open, will try to reopen"<<std::endl;
+      //   cancel();
+      //   close();
+      //   open();
+      // }
+      ///if (*read_result == boost::asio::error::operation_aborted ) 
+      //  throw exception::timeout_exceeded();
+      // else if (
+      // 	   (*read_result == boost::asio::error::connection_reset)
+      // 	   || 
+      // 	   (*read_result == boost::asio::error::connection_refused)
+      // 	   )  {
+      //   std::cout<<"connection reset error in  timed_recv"<<std::endl;
+      //   cancel();
+      //   close();
+      //   //may need to reset the io_serice here
+      //   open();
+      //   timed_recv(buffsize,seconds, size_exactly);
+      // }
+      // else
+      //   { 
+      //     std::cout<<"timed recv error"<<std::endl;
+
+      //   throw boost::system::system_error(*read_result);
 	      
-	  //   }
+      //   }
 	  
     }
   std::string ret;
@@ -286,7 +297,6 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
   }
 
   //ret.append(buf);
-  free(buf);
   return ret;
 }
 
@@ -296,8 +306,15 @@ ICR::coms::IPmanager::recv(const std::string& cmd, const unsigned long& buffsize
 throw(boost::system::system_error )
 {
   //send quiery and await repsonse
-  IPmanager::send(cmd);
-  return recv(buffsize,size_exactly);
+  try{
+    IPmanager::send(cmd);
+    return recv(buffsize,size_exactly);
+  }
+  catch(exception::exception_in_receive_you_must_resend_command& e)
+    {
+      std::cout<<"exception in recv caught - resending the command"<<std::endl;
+      recv(cmd, buffsize, size_exactly);
+    }
   
 }
 
@@ -307,6 +324,13 @@ ICR::coms::IPmanager::timed_recv(const std::string& cmd, const unsigned long& bu
 	boost::system::system_error )
 {
   //send quiery and await repsonse
-  IPmanager::send(cmd);
-  return timed_recv(buffsize,seconds,size_exactly);
+  try{
+    IPmanager::send(cmd);
+    return timed_recv(buffsize,size_exactly);
+  }
+  catch(exception::exception_in_receive_you_must_resend_command& e)
+    {
+      std::cout<<"exception in timed_recv caught - resending the command"<<std::endl;
+      timed_recv(cmd, buffsize, seconds, size_exactly);
+    }
 }

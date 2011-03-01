@@ -28,7 +28,11 @@ namespace ICR{
       void debug_print()
       {std::cerr<<"serial port "<<device<<" does not seem to exist\n";}
     };
-    
+    struct exception_in_receive_you_must_resend_command : public hardware_exception
+    {
+      void debug_print()
+      {std::cerr<<"exception in receive you must resend command\n";}
+    };
     
   }
 }

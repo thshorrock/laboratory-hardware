@@ -94,13 +94,14 @@ namespace ICR{
 		 const double& seconds = 5, 
 		 const bool& size_exactly = false) 
 	throw(exception::timeout_exceeded,
-	      boost::system::system_error );
+	      boost::system::system_error);
 
       virtual 
       std::string 
       recv( const unsigned long& buffsize = 128, 
 	    const bool& size_exactly = false)
-	throw (boost::system::system_error) ;
+	throw (boost::system::system_error,
+	      exception::exception_in_receive_you_must_resend_command) ;
       
       virtual 
       std::string 
@@ -108,7 +109,8 @@ namespace ICR{
 		  const double& seconds = 5, 
 		  const bool& size_exactly = false)
 	throw(exception::timeout_exceeded,
-	      boost::system::system_error ) ;
+	      boost::system::system_error ,
+	      exception::exception_in_receive_you_must_resend_command) ;
       
     };
   }
