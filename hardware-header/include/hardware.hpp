@@ -17,7 +17,8 @@
  * <LI> <a href="./com_manager/index.html"> General Communication Manager</a>
  * <LI> <a href="./lecroy/index.html"> Lecroy</a>
  * <LI> <a href="./DPR500/index.html"> DPR500</a>
- * <LI> <a href="./agilent/index.html"> Agilent</a>
+ * <LI> <a href="./agilent/index.html"> Agilent waveform generators</a>
+ * <LI> <a href="./analogic/index.html"> Analogic 2045</a>
  * </UL>
  *
  * The following auxillary libraries can also be helpful
