@@ -112,6 +112,7 @@ install program_options-lib : program_options-library : <location>$(TOP)/lib <in
 use-project /lib/stringify : general/stringify/build ;
 use-project /lib/hardware-coms-manager : coms_manager/build ;
 use-project /lib/hardware-lecroyCM : lecroy/build ;
+use-project /lib/hardware-analogic : analogic/build ;
 use-project /lib/hardware-agilentWG : agilent_pulse_generators/build ;
 use-project /lib/hardware-pulse-recv : pulse_recv/build ;
 
@@ -124,6 +125,7 @@ use-project  /lib/readme : readme/build ;
 build-project ./general/stringify/build ;
 build-project ./coms_manager/build ;
 build-project ./agilent_pulse_generators/build ;
+build-project ./analogic/build ;
 build-project ./lecroy/build     ;
 build-project ./pulse_recv/build ;
 build-project ./filename/build   ;
@@ -144,6 +146,7 @@ build-project ./hardware-header/build  ;
 
 build-project ./experiments/build ;
 build-project ./test_programs/analogic_with_coms_manager/build ;
+build-project ./test_programs/analogic/build ;
 
 
 #docs
@@ -151,6 +154,7 @@ build-project ./coms_manager/build/docs ;
 build-project ./lecroy/build/docs ;
 build-project ./pulse_recv/build/docs ;
 build-project ./agilent_pulse_generators/build/docs ;
+build-project ./analogic/build/docs ;
 build-project ./hardware-header/build/docs ;
 
 build-project ./filename/build/docs ;
