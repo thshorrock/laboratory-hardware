@@ -115,7 +115,10 @@ namespace ICR {
       void
       send(const std::string& cmd)
 	throw (boost::system::system_error) 
-      {m_serial.send(cmd + "\r");}
+      {
+	m_serial.send(cmd + "\r");
+	ICR::coms::sleep(200); //sleep to allow command to be set
+      }
       
       
       /** Set the output to be on.  */
