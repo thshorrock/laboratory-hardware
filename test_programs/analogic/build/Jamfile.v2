@@ -1,0 +1,16 @@
+
+project  analogic_test_2
+	: source-location ../src
+	: default-build  <threading>multi 
+	: build-dir $(TOP)/build
+  	: usage-requirements <include>../include
+	: requirements 
+	<include>../include/
+	<include>$(BOOST_BASE)/
+;
+
+exe analogic_test_2  : analogic_test_2.cpp  
+    /lib/hardware-analogic		     
+     ;
+
+install analogic_test_2-exe : analogic_test_2 : <location>$(TOP)/bin ;
