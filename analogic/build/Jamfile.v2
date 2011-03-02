@@ -16,7 +16,7 @@ lib analogic : remote_control.cpp
               ;
 
 install headers 
-	: [ glob ../include/*.hpp ] [ glob ../include/analogic/*.hpp ] 
+	: [ glob ../include/*.hpp ] [ glob ../include/analogic/*.hpp ] [ glob ../include/analogic/construct_data/*.hpp ] 
 	: <location>$(TOP)/include  
 	  <install-source-root>../include 
 ;

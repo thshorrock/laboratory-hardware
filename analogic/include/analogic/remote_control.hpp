@@ -1,6 +1,7 @@
 #include "coms_manager/serial_manager.hpp"
 #include "stringify.hpp"
 #include "trigger_mode.hpp"
+#include "construct_data/analogic_data.hpp"
 
 
 #include <boost/assign/list_of.hpp> // for 'map_list_of()'
@@ -220,9 +221,11 @@ namespace ICR {
        *  Necessary before data can be accepted.
        */
       void
-      data()
+      data(const analogic_data& data)
       {
 	send("DATA");
+	std::vector<std::string> commands = data.collect_data();
+	for_each(commands.begin(), commands.end(), boost::bind(&analogic_remote_control::send, this, _1) );
       }
 
       

@@ -1,14 +1,12 @@
 #pragma once
 /** @defgroup Options Options
-*/
+ */
 
 
 /** ICR namespace */
 namespace ICR {
   /** analogic  namespace */
   namespace analogic {
-
-    
     /** The allowed trigger modes.
      *  @ingroup Options
      */
@@ -30,7 +28,7 @@ namespace ICR {
 	  POS_TO_POS=7, //!< Output toggles from start to stop or vice-versa whenever a positive trigger edge occurs,
 	  NEG_TO_NEG=8, //!< Output toggles from start to stop or vice-versa whenever a negative trigger edge occurs,
 	  START=9, //!< A GET will start output
-	  STOP=10, //!< A GET will stop output.
+	  STOP=10  //!< A GET will stop output.
 	};
     };
   }
