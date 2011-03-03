@@ -1,6 +1,7 @@
 #pragma once
 
 #include "analogic/remote_control.hpp"
+#include "analogic/construct_data/segment.hpp"
 
 
 /**

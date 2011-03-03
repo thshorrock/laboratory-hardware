@@ -5,7 +5,6 @@
 #include "get_min_max.hpp"
 #include "data_builder.hpp"
 
-
 namespace ICR {
 
   namespace analogic {
@@ -17,9 +16,9 @@ namespace ICR {
 	: m_dT(dT), m_mh(dT, trigger_mode), m_segment()
       {}
       
-
+      template <class T>
       void 
-      add( const ::ICR::analogic::segment_container& s) {m_segment.add(s);}
+      add( const T& s) {m_segment.add(s);}
 
       std::vector<std::string>
       collect_data() const;

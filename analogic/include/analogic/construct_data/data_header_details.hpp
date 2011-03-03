@@ -3,16 +3,61 @@
 namespace ICR {
   namespace analogic {
     
+    namespace detail
+    {
+      // struct data_header_pod_const
+      // {
+      // 	short type;
+      // 	unsigned long repeats;
+      // 	double value;	
+      // };
+      
+      // union pack_data_const
+      // {
+      // 	char str[10];
+      // 	data_header_pod_const header;
+      // };
+      
+      struct data_header_1_pod
+      {
+	char  pad;
+	char type;
+	long i;
+	double value;	
+      };
+      
+      union pack_data_header_1
+      {
+	char str[10];
+	data_header_1_pod header;
+      };
+      
+      struct data_header_2_pod
+      {
+	short type;
+	unsigned short loop;
+	unsigned short repeats;
+	float value;	
+      };
+      
+      union pack_data_header_2
+      {
+	char str[10];
+	data_header_2_pod header;
+      };
+      
+    }
+
     /** The type of segment in a data header file.*/
     struct segment_type
     {
       enum value 
        	{
-       	  BLOCK,     //!< a single set of data to be outputted with no repeated segments
-       	  CONSTANT,  //!< a constant value to be outputted for a period of time and programmer does not want to fill memory with the same value
-       	  END,       //!< this is the closing header at the end of the download sequence
-       	  REPEAT,    //!< The data is going to repeated n times ( n is specifed in the segement length)
-       	  REPEAT_END //!< Denotes the end of a repeated segment
+       	  BLOCK = 1,     //!< a single set of data to be outputted with no repeated segments
+       	  CONSTANT = 2,  //!< a constant value to be outputted for a period of time and programmer does not want to fill memory with the same value
+       	  END = 3,       //!< this is the closing header at the end of the download sequence
+       	  REPEAT = 4,    //!< The data is going to repeated n times ( n is specifed in the segement length)
+       	  REPEAT_END = 5 //!< Denotes the end of a repeated segment
        	};
     };
       

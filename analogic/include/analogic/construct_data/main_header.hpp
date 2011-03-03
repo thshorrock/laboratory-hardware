@@ -1,14 +1,14 @@
 #pragma once
-
+#include "main_header_detail.hpp"
 #include "analogic/trigger_mode.hpp"
 
 #include <string>
 
 namespace ICR {
   namespace analogic {
-
+    
     class main_header{
-      boost::array<char,32> result;
+     char result[32];
     public:
       main_header(
 		  const float& clock_period,
@@ -46,17 +46,19 @@ ICR::analogic::main_header::main_header(
 					)
   : result()
 {
-  if (sizeof(short) != 4) throw("float must be 4 bytes for analogic to work, sorry");
-  if (sizeof(short) != 2) throw("short must be 2 bytes for analogic to work, sorry");
-  
-  result[0] = (char) clock_period;
-  result[4] = (char) offset;
-  result[8] = (char) signal_amp;
-  result[12] = (char) noise_amp;
-  result[16] = (char) noise_bandwidth;
-  result[20] = (char) filter_cutoff;
-  result[24] = (char) (short) trigger_mode;
+  detail::main_head_pack p;
+  p.header.clock_period = clock_period;
+  p.header.offset = offset;
+  p.header.signal_amp = signal_amp;
+  p.header.noise_amp = noise_amp;
+  p.header.noise_bandwidth = noise_bandwidth;
+  p.header.filter_cutoff = filter_cutoff;
+  p.header.mode = trigger_mode;
+
+  memcpy(result,p.str,32);
+
   for(size_t i=26;i<32;++i){
-    result[i] = 0x00;
+    result[i] = 0x00; //finish off
   }
+
 }

@@ -41,7 +41,12 @@ namespace ICR {
       bool m_SFM; //standard function mode
       bool m_mod; //modify mode
       
-      
+      void send_no_cr(const std::string& cmd)
+	throw (boost::system::system_error) 
+      {
+	m_serial.send(cmd);
+	ICR::coms::sleep(400); //sleep to allow command to be set
+      }
       
     public:
       //Constructors
@@ -84,8 +89,7 @@ namespace ICR {
       send(const std::string& cmd)
 	throw (boost::system::system_error) 
       {
-	m_serial.send(cmd + "\r");
-	ICR::coms::sleep(200); //sleep to allow command to be set
+	send_no_cr(cmd +"\r");
       }
       ///@}
       
@@ -128,7 +132,10 @@ namespace ICR {
        *///@{
       
       /** Set the output to be on.  */
-      void turn_on()   {send("RUN");}
+      void turn_on()   {
+	send("RUN");
+	ICR::coms::sleep(1000);
+      }
       /** Set the output to be off.  */
       void turn_off()  {send("STOP");} 
 
@@ -225,7 +232,18 @@ namespace ICR {
       {
 	send("DATA");
 	std::vector<std::string> commands = data.collect_data();
-	for_each(commands.begin(), commands.end(), boost::bind(&analogic_remote_control::send, this, _1) );
+	for(size_t i=0;i<commands.size();++i){
+	  std::cout<<"com "<<i<<" = ";
+	  for(size_t j=0;j<commands[i].size();++j){
+	    std::cout<<(int) commands[i][j]<<" ";
+
+	  }
+	  std::cout<<std::endl;
+	  //std::cout<<"com "<<i<<" = "<<commands[i]<<std::endl;
+	  // send_no_cr(commands[i]);
+	}
+
+	//for_each(commands.begin(), commands.end(), boost::bind(&analogic_remote_control::send, this, _1) );
       }
 
       
