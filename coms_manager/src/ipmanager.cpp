@@ -23,7 +23,6 @@ ICR::coms::IPmanager::open() throw (boost::system::system_error)
 	  m_socket.connect(*iter++, m_error);
 	}
       if (m_error){ //still
-	std::cout<<"open erroc_code value = "<<m_error.value()<<std::endl;
 	if ( m_error == boost::asio::error::connection_aborted) {
 	  std::cout<<"open connection aborted, retrying"<<std::endl;
 	}
@@ -34,9 +33,19 @@ ICR::coms::IPmanager::open() throw (boost::system::system_error)
 	else if (m_error == boost::asio::error::broken_pipe) {
 	  std::cout<<"broken pipe in open, trying to fix..."<<std::endl;
 	}
+	else if (m_error == boost::asio::error::host_unreachable) 
+	  {
+	    std::cout<<"host unreachable, please reconnect to the network and press any key..."<<std::endl;
+	    char c;
+	    std::cin>> c;
+	  }
+	else{
+	  std::cout<<"open erroc_code value = "<<m_error.value()<<std::endl;
+	}
 	//try to recue
 	sleep(1000);//go to sleep
 	++count;
+	
       }
       else
 	connection_failed = false;
@@ -151,7 +160,6 @@ ICR::coms::IPmanager::recv( const unsigned long& buffsize, const bool& size_exac
   //else  		       ); 
   if (m_error) { //some kind of exception 
     free(buf);  //cleanup
-    std::cout<<"recv erroc_code value = "<<m_error.value()<<std::endl;
     if ( m_error == boost::asio::error::connection_aborted) {
       std::cout<<"recv connection aborted, retrying"<<std::endl;
     }
@@ -162,6 +170,9 @@ ICR::coms::IPmanager::recv( const unsigned long& buffsize, const bool& size_exac
     else if (m_error == boost::asio::error::broken_pipe) {
       std::cout<<"broken pipe in recv, trying to fix..."<<std::endl;
     }
+    else
+      std::cout<<"recv error :: erroc_code value = "<<m_error.value()<<std::endl;
+
     //try to recue
     cancel();
     close();
@@ -228,7 +239,6 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
     {
       //some sort of exception.
       free(buf);
-      std::cout<<"timed_recv erroc_code value = "<<m_error.value()<<std::endl;
       if ( *read_result == boost::asio::error::connection_aborted) {
 	std::cout<<"timed_recv connection aborted, retrying"<<std::endl;
       }
@@ -239,13 +249,15 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
       else if (*read_result == boost::asio::error::broken_pipe) {
 	std::cout<<"broken pipe in timed_recv, trying to fix..."<<std::endl;
       }
+      else 
+	std::cout<<"timed_recv erroc_code value = "<<m_error.value()<<std::endl;
 
       //try to recue
       cancel();
       close();
       open();//reopen socket
       std::cout<<"reopened"<<std::endl;
-      std::cout<<"problem in timed_recv - about to try to cleanup "<<std::endl;
+      std::cout<<"problem in timed_recv - cleaning up ... "<<std::endl;
       //resend
       try{
 	timed_recv(buffsize,seconds, false); //retry
@@ -326,7 +338,7 @@ ICR::coms::IPmanager::timed_recv(const std::string& cmd, const unsigned long& bu
   //send quiery and await repsonse
   try{
     IPmanager::send(cmd);
-    return timed_recv(buffsize,size_exactly);
+    return timed_recv(buffsize,seconds,size_exactly);
   }
   catch(exception::exception_in_receive_you_must_resend_command& e)
     {
