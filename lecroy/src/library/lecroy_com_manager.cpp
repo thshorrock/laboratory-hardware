@@ -171,7 +171,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd)
   // if (!wait) {
   coms_method::send( header.add("*OPC?\n"));
   try{
-    std::string opc_bit = coms_method::timed_recv(20,30,false);
+    std::string opc_bit = coms_method::timed_recv(20,5,false);
   }
   catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
     {
@@ -237,7 +237,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const 
     while (attempts < 500){
       //	std::cout<<"attempts = "<<attempts<<std::endl;
 
-      std::string h = coms_method::timed_recv(8,30,true);
+      std::string h = coms_method::timed_recv(8,5,true);
       //std::cout<<"h = "<<h<<std::endl;
       // if (attempts<=1) {
       //   for(size_t i=0;i<h.size();++i){
@@ -490,7 +490,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::wait(const double& seconds)
   
   coms_method::send( header.add("*OPC?\n"));
   try{
-    std::string opc_bit = coms_method::timed_recv(20,30,false);
+    std::string opc_bit = coms_method::timed_recv(20,5,false);
   }
   catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
     {

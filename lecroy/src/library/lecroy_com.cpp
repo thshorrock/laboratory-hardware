@@ -374,7 +374,7 @@ L::lecroy_com<coms_method>::demand_fresh_aquisition()
 
     ++count;
   }
-  
+  //send("CHDR SHORT\n");
   if (count>=count_max)
     throw exception::could_not_get_fresh_aquisition();
   
@@ -400,19 +400,26 @@ L::lecroy_com<coms_method>::get_waveform(const enum location::type& channel)
   lecroy_file file;
   bool good_file = false;
   size_t count = 0;
-  while (!good_file && count<5){
+  while (!good_file && count<10){
     try{
       std::string data = recv(location::get_string(channel)+":WF?\n");
+      // std::cout<<"beginning of waveform is "<<std::endl;
+
+      // for(size_t i=0;i<30;++i){
+      // 	std::cout<<data[i] <<" ";
+
+      // }
+      // std::cout<<std::endl;
       file.decode_string(data);
       good_file = true;
     }
     catch(ICR::exception::lecroy_file_is_corrupted e){
       std::cout<<"problem reading lecroy file, requesting that it is resent"<<std::endl;
-      std::cout<<"   ... "<<count<<" attempts remaining"<<std::endl;
+      std::cout<<"   ... "<<10-count<<" attempts remaining"<<std::endl;
       ++count;
     }
   }
-  if (count == 5)
+  if (count == 10)
     throw ICR::exception::lecroy_file_corrupted_on_scope();
   return file;
   // }
