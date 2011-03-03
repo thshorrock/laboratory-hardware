@@ -132,12 +132,12 @@ namespace ICR{
       std::string recv(const std::string cmd, const unsigned int& buffsize = 128, const bool& exact=false)
 	throw (boost::system::system_error)   ;
       
-      /** receive surplus bits.
+      /* receive surplus bits.
        * If a communication fails the sometimes there are bits backed up.
        * this function reads until and end of file bit.
        * @return The surplus bits.
        */
-      std::string recv_surp() ;
+      //std::string recv_surp() ;
       // std::string timed_recv(const std::string& cmd, const unsigned int& buffsize = 128, const double& seconds = 5, const bool& exact=false) ;
       void clear();
 

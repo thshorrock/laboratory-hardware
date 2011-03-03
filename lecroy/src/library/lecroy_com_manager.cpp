@@ -173,6 +173,11 @@ ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd)
   try{
     std::string opc_bit = coms_method::timed_recv(20,5,false);
   }
+  catch(ICR::exception::timeout_exceeded& e) {
+    e.debug_print();
+    std::cout<<"Lecroy timed out in send ... trying to send again"<<std::endl;
+    send(cmd);
+  }
   catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
     {
       
@@ -194,15 +199,17 @@ ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd)
 }
 
 
-template<class coms_method>
-std::string
-ICR::lecroy::lecroy_com_manager<coms_method>::recv_surp()
-{ 
-  std::string surp =coms_method::recv(1e6,false);
-  return surp;
+// template<class coms_method>
+// std::string
+// ICR::lecroy::lecroy_com_manager<coms_method>::recv_surp()
+// { 
+//   std::string surp =coms_method::recv(1e6,false);
 
 
-}
+//   return surp;
+
+
+// }
 
 template<class coms_method>
 void
@@ -265,6 +272,11 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const 
       ++attempts;
     }
   } 
+  catch(ICR::exception::timeout_exceeded& e) {
+    e.debug_print();
+    std::cout<<"Lecroy timed out in recv ... trying to send again"<<std::endl;
+     recv(cmd, buffsize,exact);
+  }
   catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
     {
       
@@ -490,7 +502,12 @@ ICR::lecroy::lecroy_com_manager<coms_method>::wait(const double& seconds)
   
   coms_method::send( header.add("*OPC?\n"));
   try{
-    std::string opc_bit = coms_method::timed_recv(20,5,false);
+    std::string opc_bit = coms_method::timed_recv(20,seconds,false);
+  }
+  catch(ICR::exception::timeout_exceeded& e) {
+    e.debug_print();
+    std::cout<<"Lecroy timed out in wait ... trying to send again"<<std::endl;
+    wait(seconds);
   }
   catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
     {

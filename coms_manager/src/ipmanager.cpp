@@ -232,6 +232,8 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
       else if (timer_result) 
 	{
 	  m_socket.cancel(); 
+	  std::cout<<"timer has exceeded from ip manager"<<std::endl;
+
 	  throw exception::timeout_exceeded();
 	}
     }
@@ -303,6 +305,8 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
       //   }
 	  
     }
+  else //no error
+    free(buf);  //cleanup
   std::string ret;
   for(size_t i=0;i<actually_read;++i){
     ret.push_back(buf[i]);

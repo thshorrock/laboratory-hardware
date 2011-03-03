@@ -17,22 +17,15 @@ ICR::coms::serial_manager::serial_manager(const std::string& name,
   : coms_manager(),
     m_io_service(),
     m_name(name),
+    m_baud_rate(baud_rate),
+    m_flow_control(flow_control),
+    m_parity(parity),
+    m_stop_bits(stop_bits),
+    m_char_size(char_size),
     m_SerialPort(m_io_service)
     
 {
-  m_SerialPort.open(name, m_error);
-  
-  if (m_error == boost::system::errc::no_such_file_or_directory ) //boost::system::error_code::errc::
-    {
-      throw exception::serial_port_does_not_exist(name);
-    }
-
-  m_SerialPort.set_option(boost::asio::serial_port::baud_rate(baud_rate));
-  m_SerialPort.set_option(boost::asio::serial_port::flow_control(flow_control));
-  m_SerialPort.set_option(boost::asio::serial_port::parity(parity));
-  m_SerialPort.set_option(boost::asio::serial_port::stop_bits(stop_bits));
-  m_SerialPort.set_option(boost::asio::serial_port::character_size(char_size));
-
+  open();
 }
 
 ICR::coms::serial_manager::~serial_manager()
@@ -51,7 +44,25 @@ void
 ICR::coms::serial_manager::open()
 { 
   if (!m_SerialPort.is_open()) 
-    m_SerialPort.open(m_name);
+    {
+
+      m_SerialPort.open(m_name, m_error);
+  
+      if (m_error == boost::system::errc::no_such_file_or_directory ) //boost::system::error_code::errc::
+	{
+	  throw exception::serial_port_does_not_exist(m_name);
+	}
+
+      m_SerialPort.set_option(boost::asio::serial_port::baud_rate(m_baud_rate));
+      m_SerialPort.set_option(boost::asio::serial_port::flow_control(m_flow_control));
+      m_SerialPort.set_option(boost::asio::serial_port::parity(m_parity));
+      m_SerialPort.set_option(boost::asio::serial_port::stop_bits(m_stop_bits));
+      m_SerialPort.set_option(boost::asio::serial_port::character_size(m_char_size));
+
+
+
+
+    }
 }
 void
 ICR::coms::serial_manager::send(const std::string& cmd)
@@ -111,14 +122,30 @@ ICR::coms::serial_manager::recv( const unsigned long& buffsize, const bool& size
     ret.push_back(buf[i]);
   }
 
-  if (m_error == boost::asio::error::eof)
-    {
-      //this is okay
-    }
-  else  if (m_error)
-    throw boost::system::system_error(m_error); // Some other error.
+  // if (m_error == boost::asio::error::eof)
+  //   {
+  //     //this is okay
+  //   }
 
-  free(buf);
+  if (m_error) { //some kind of exception 
+    free(buf);  //cleanup
+      std::cout<<"recv error in serial :: erroc_code value = "<<m_error.value()<<std::endl;
+
+    //try to recue
+    close();
+    open();//reopen port
+    //receive_some to cleanup spillage (excess characters this have not been sent).
+    std::cout<<"problem in serial recv - about to try to cleanup "<<std::endl;
+    try{
+      timed_recv(buffsize,1, false); //retry
+    } catch (...)  {}
+    std::cout<<"  ... cleanup complete\n \n ****** you must now resend the command   ******* "<<std::endl;
+
+    throw exception::exception_in_receive_you_must_resend_command();
+  }
+  else //no error
+    free(buf);  //cleanup
+
   return ret;
 }
 
@@ -154,19 +181,39 @@ ICR::coms::serial_manager::timed_recv(const unsigned long& buffsize, const doubl
       else if (timer_result) 
 	{
 	  m_SerialPort.cancel(); 
+	  std::cout<<"timer has exceeded from serial manager"<<std::endl;
+
+	  throw exception::timeout_exceeded();
 	}
     }
   if (*read_result) 
     {
-	  free(buf);
-	  throw exception::timeout_exceeded();
+      //some sort of exception.
+      free(buf);
+	std::cout<<"timed_recv in serial erroc_code value = "<<m_error.value()<<std::endl;
+
+      //try to recue
+      close();
+      open();//reopen socket
+      std::cout<<"reopened"<<std::endl;
+      std::cout<<"problem in timed_recv serial  - cleaning up ... "<<std::endl;
+      //resend
+      try{
+	timed_recv(buffsize,seconds, false); //retry
+      } catch (...)  {}
+      
+      std::cout<<"  ... cleanup complete\n \n ****** you must now resend the command   ******* "<<std::endl;
+      
+      throw exception::exception_in_receive_you_must_resend_command();
+     
     }
+  else //no error
+    free(buf);  //cleanup
   std::string ret;
   for(size_t i=0;i<actually_read;++i){
     ret.push_back(buf[i]);
   }
 
   //ret.append(buf);
-  free(buf);
   return ret;
 }

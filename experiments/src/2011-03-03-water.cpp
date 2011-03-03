@@ -59,7 +59,7 @@ main  (int ac, char **av)
   
   const size_t repeats = 50;
   
-  for(size_t i=50;i<100;i+=50){
+  for(size_t i=50;i<1000;i+=50){
   
      double agilent_delay = i;
     if (agilent_delay<800)
@@ -71,14 +71,36 @@ main  (int ac, char **av)
     std::string imaging_second = "AT TRIG RPT 1 ( FOR "+stringify(analogic_delay)+"u 0.0 FOR 2u "+stringify(analogic_low)+" FOR "+stringify(agilent_delay+18)+"u 0.0 FOR 2u "+stringify(analogic_high)+" FOR 1u 0) CLK ="+stringify(clock)+"n";
 
 
-  std::cout<<"here2"<<std::endl;
     two_sin_with_n_microsecond_gap(&driving_pulse, 0.5, agilent_delay );
-    std::cout<<"here3"<<std::endl;
-    analogic.expression(no_imaging);  //create a pulse
-    analogic.turn_on(); 
-    driving_pulse.turn_on(); 
+
+
     aline aline1;
     aline aline2;
+    
+
+    analogic.expression(no_imaging);  //create a pulse
+
+    analogic.turn_on(); 
+    driving_pulse.turn_on(); 
+    driving_pulse.trigger_now();
+    for(size_t i=0;i<repeats;++i){
+      get_alines(driving_pulse, scope, aline1, aline2);
+      
+      ICR::lecroy::save_gnuplot(aline2-aline1,   "./test.dat");
+    }
+
+    analogic.expression(imaging_first);  //create a pulse
+    
+    analogic.turn_on(); 
+    driving_pulse.trigger_now();
+    for(size_t i=0;i<repeats;++i){
+      get_alines(driving_pulse, scope, aline1, aline2);
+      
+      ICR::lecroy::save_gnuplot(aline2-aline1,   "./test.dat");
+    }
+    
+    analogic.expression(imaging_second);  //create a pulse
+    analogic.turn_on(); 
     
     driving_pulse.trigger_now();
     for(size_t i=0;i<repeats;++i){
@@ -86,7 +108,6 @@ main  (int ac, char **av)
       
       ICR::lecroy::save_gnuplot(aline2-aline1,   "./test.dat");
     }
-    // aline3 = aline1 + aline     ;
     
     
   }

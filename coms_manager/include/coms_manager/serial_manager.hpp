@@ -24,6 +24,11 @@ namespace ICR{
       
       boost::asio::io_service m_io_service;
       std::string m_name;
+      const unsigned int m_baud_rate;
+      const enum flow_control::type m_flow_control;
+       const enum parity::type m_parity;
+      const enum stop_bits::type m_stop_bits;
+      const unsigned int m_char_size;
       boost::asio::serial_port  m_SerialPort;
       boost::system::error_code m_error;
       

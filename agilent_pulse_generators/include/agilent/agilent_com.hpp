@@ -99,7 +99,7 @@ namespace ICR {
 	}
 	catch(ICR::exception::timeout_exceeded& e) {
 	  e.debug_print();
-	  std::cout<<"AGILENT timed out try again"<<std::endl;
+	  std::cout<<"AGILENT timed out in send...  trying to send  again"<<std::endl;
 	  send(cmd);
 	}
 	catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {

@@ -244,7 +244,7 @@ namespace ICR{
       using lecroy_com_manager<coms_method>::recv;
       //       using lecroy_com_manager<coms_method>::timed_recv;
       
-      using lecroy_com_manager<coms_method>::recv_surp;
+      //      using lecroy_com_manager<coms_method>::recv_surp;
       /** Set the coupling for a channel on the scope.
        *  @param channel  Acceptable values are ICR::lecroy::location::C1, ICR::lecroy::location::C2, ICR::lecroy::location::C3 and ICR::lecroy::location::C4.
        *  @param opt  Accepatable values are  
