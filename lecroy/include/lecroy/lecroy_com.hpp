@@ -747,6 +747,11 @@ namespace ICR{
 
       virtual void demand_fresh_aquisition();
 
+      /** Get a waveform trace.
+       * Download a trace directly to your pc.
+       * @param channel The trace that you want to download.
+       * @return The lecroy_file that decodes the trace.
+       */
       virtual lecroy_file get_waveform(const enum location::type& channel);
 
       virtual std::string get_waveform_text(const enum location::type& channel);
