@@ -10,7 +10,8 @@ project  analogic_test_2
 ;
 
 exe analogic_test_2  : analogic_test_2.cpp  
-    /lib/hardware-analogic		     
+    /lib/hardware-analogic 
+    /lib/stringify		     
      ;
 
 install analogic_test_2-exe : analogic_test_2 : <location>$(TOP)/bin ;
