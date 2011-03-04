@@ -26,7 +26,7 @@ namespace ICR{
       std::string m_name;
       const unsigned int m_baud_rate;
       const enum flow_control::type m_flow_control;
-       const enum parity::type m_parity;
+      const enum parity::type m_parity;
       const enum stop_bits::type m_stop_bits;
       const unsigned int m_char_size;
       boost::asio::serial_port  m_SerialPort;
@@ -52,35 +52,31 @@ namespace ICR{
 	;
     
       /** A destructor.*/
-      virtual 
       ~serial_manager();
       
       /** Open the connection. 
        * @attention Automatically called when the serial connection is constructed.
-       */
-      virtual 
+       */ 
       void 
       open();
       
-      /** Close the connection. */
-      virtual 
+      /** Close the connection. */ 
       void 
       close();
     
       /* The following functions are overloads. */
-      virtual
       void 
       send(const std::string& cmd)
 	throw (boost::system::system_error) ;
 
-      virtual
+      
       std::string 
       recv(const std::string& cmd, 
 	   const unsigned long& buffsize = 128, 
 	   const bool& size_exactly=false)
 	throw(boost::system::system_error ) ;
 
-      virtual 
+       
       std::string 
       timed_recv(const std::string& cmd, 
 		 const unsigned long& buffsize = 128, 
@@ -89,13 +85,13 @@ namespace ICR{
 	throw(exception::timeout_exceeded,
 	      boost::system::system_error ) ;
 
-      virtual 
+       
       std::string 
       recv( const unsigned long& buffsize = 128, 
 	    const bool& size_exactly = false)
 	throw(boost::system::system_error );
 
-      virtual 
+       
       std::string 
       timed_recv( const unsigned long& buffsize = 128, 
 		  const double& seconds = 5, 
