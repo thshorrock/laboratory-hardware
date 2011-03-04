@@ -1,8 +1,5 @@
 #pragma once
-#include <string>
-#include <iostream>
-#include "coms_manager.hpp"
-#include <boost/smart_ptr.hpp>
+#include "agilent_com_detail.hpp" 
 //#include "agilent/vxi11_user.h"
 #define BUF_LEN 100000
 
@@ -17,6 +14,8 @@ namespace ICR {
       struct too_few_points{};
       /** To many points */
       struct too_many_points{};
+      
+      struct agilent_failed_to_send_cmd{};
     } 
     
   namespace agilent{
@@ -61,8 +60,10 @@ namespace ICR {
     /** The agilent communication class.
 	@tparam com_method Either ICR::coms::serial_manager or ICR::coms::IPmanager */
     template<class com_method>
-    class agilent_com : public com_method {
+    class agilent_com  //:
+    {
       bool m_burst_mode;
+      com_method comm;
     public:
       /** Constructor.
        * @param address the address of the device. For example "COM1" for a serial device, or the IP address for a TCP connection.
@@ -80,48 +81,55 @@ namespace ICR {
 	throw (boost::system::system_error) 
       {
 	//std::cout<<"cmd = "<<cmd<<std::endl;
-	try{
-	  com_method::send(cmd);
-	  if (m_burst_mode) {
-	  
-	    com_method::send("*WAI\n");
-	    //ICR::coms::sleep(150);
-	    int  opc_code = 0;
-	    while (opc_code!= 1){
-	      //   std::cout<<error()<<std::endl;
-	      //ICR::coms::sleep(250);
-	      opc_code  =  atoi(com_method::timed_recv("*OPC?\n", 128,10).c_str()) ;
-	      //std::cout<<"opc_code = "<<opc_code<<std::endl;
+	
+	bool send_successful = false;
+	// size_t
+	size_t  attempts = 0;
+	while (!send_successful && attempts <10)
+	  {
+	
+	    comm.send(cmd);
+	    send_successful = true;
+	    if (m_burst_mode) {
+	      ICR::coms::sleep(50);
+	      comm.send("*WAI\n");
+	      detail::agilent_command_completed<com_method> complete(comm);
+	      boost::thread thr(complete);
+	      ICR::coms::sleep(50);
+	      
+	      if (!thr.timed_join(boost::posix_time::milliseconds(3000)))
+		{
+		  send_successful= false; 
+		  ++attempts;
+		  std::cout<<"opc signal not returned from agilent, attempts = "<<attempts <<std::endl;
+
+		}
+	     
 	    }
-	    //ICR::coms::sleep(200);
-	    //com_method::send("*WAI\n");
+	    ICR::coms::sleep(100);
 	  }
-	}
-	catch(ICR::exception::timeout_exceeded& e) {
-	  e.debug_print();
-	  std::cout<<"AGILENT timed out in send...  trying to send  again"<<std::endl;
-	  send(cmd);
-	}
-	catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
-	  std::cout<<"AGILENT receive exception caught (in send), resending command"<<std::endl;
-	  send(cmd);
-	}
+	
+	//com_method::send("*WAI\n");
+	
+      
+	if (attempts==10) 
+	  throw ICR::exception::agilent_failed_to_send_cmd();
       }
       /** Receive a response from the device.
        * @param cmd The command requesting a response.
        * @return The response 
        * @throws boost::system::system_error Something went wrong with the communication.
-       */
+     */
       std::string recv(const std::string& cmd)
 	throw(boost::system::system_error )
       {
 	try{
-	  std::string ret = com_method::recv(cmd);
+	  std::string ret = comm.recv(cmd);
 	  return ret;
 
 	  if (m_burst_mode) {
-	    com_method::send("*WAI\n");
-	    std::string opc_code = com_method::recv("*OPC?\n");
+	    comm.send("*WAI\n");
+	    std::string opc_code = comm.recv("*OPC?\n");
 	    //std::cout<<"opc_code = "<<opc_code<<std::endl;
 	  }
 	}
@@ -301,7 +309,7 @@ namespace ICR {
      */     
     template<class com_method>
     void
-    sin_after_n_microseconds(agilent_com<com_method>* gen, double frequency,  double delay, double voltage = 2.5, size_t cycles = 10 )
+    sin_after_n_microseconds(agilent_com<com_method>* gen, double frequency,  double delay, double voltage = 2, size_t cycles = 10 )
     {
       //max samples = 16000
       unsigned long samples = 16000;
@@ -348,21 +356,22 @@ namespace ICR {
      */     
     template<class com_method>
     void
-    two_sin_with_n_microsecond_gap(agilent_com<com_method>* gen, double frequency,  double gap, double voltage = 2.5, size_t cycles = 10 )
+    two_sin_with_n_microsecond_gap(agilent_com<com_method>* gen, double frequency,  double gap, double voltage = 2, size_t cycles = 10 )
     {
       //max samples = 16000
-      unsigned long samples = 16000;
+      unsigned long samples = 65536;
       double duration = cycles/frequency;
+      std::cout<<"duration = "<<duration<<std::endl;
+
       //max temp resolution = ((delay + duration)/16000 )e-6 seconds
       //last point = 0 to make it pulse so have only 15999 points
-      double temp_res = ((gap+2*duration)/(samples-1))*1e-6; //seconds
+      double temp_res = ((gap+2.*duration)/double(samples-1))*1e-6; //seconds
       double freq_res = 1.0/temp_res;
       // if (freq_res >15e6) // round to 15MHz
       // 	freq_res = 15e6;
       // temp_res = 1.0/freq_res;
       samples = (gap+2*duration)/(temp_res*1e6)+1;
       std::cout<<"samples= "<<samples<<std::endl;
-      size_t extra =0;
       boost::shared_array<float> data(new float[samples]);
       std::cout<<"temp_res = "<<temp_res<<std::endl;
       size_t j = 0;
@@ -385,12 +394,17 @@ namespace ICR {
 	  
 	  // std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
 	}
-	else
+	else{
+	  std::cout<<"end zreo"<<std::endl;
+
 	  data[i] = 0;
+	}
       }
       data[samples-1]=0;
+      data[0]=0;
       //std::cout<<"data["<<samples-1<<"]="<<data[samples-1]<<std::endl;
-      
+      std::cout<<"applying two sin waveform"<<std::endl;
+
       apply_waveform<com_method>(gen,"sin_gap",freq_res, data.get(),samples);
 
 
@@ -403,7 +417,7 @@ namespace ICR {
      */     
     template<class com_method>
     void
-    n_microseconds_after_sin(agilent_com<com_method>* gen, double frequency,  double delay, double voltage = 2.5, size_t cycles = 10 )
+    n_microseconds_after_sin(agilent_com<com_method>* gen, double frequency,  double delay, double voltage = 2, size_t cycles = 10 )
     {
       //max samples = 16000
       unsigned long samples = 16000;
@@ -455,13 +469,13 @@ namespace ICR {
 
     template<>
     inline agilent_com<coms::IPmanager>::agilent_com(const std::string& IPaddress)
-      : coms::IPmanager(IPaddress, "5025"),
+      : comm(IPaddress, "5025"),
 	m_burst_mode(false)
     {}
 
     template<>
     inline  agilent_com<coms::serial_manager>::agilent_com(const std::string& port)
-      : coms::serial_manager(port, 9600, ICR::coms::flow_control::hardware,ICR::coms::parity::none,ICR::coms::stop_bits::two,8),
+      : comm(port, 9600, ICR::coms::flow_control::hardware,ICR::coms::parity::none,ICR::coms::stop_bits::two,8),
 	m_burst_mode(false)
     {
       //send("SYST:REM\n");

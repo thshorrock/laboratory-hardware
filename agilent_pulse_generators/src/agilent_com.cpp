@@ -58,7 +58,7 @@ template<class com_method> void
 WG::agilent_com<com_method>::offset(const double o)
 {
   std::string cmd = "VOLT:OFFS "+stringify(o)+"\n";
-  std::cout<<cmd<<std::endl;
+  //std::cout<<cmd<<std::endl;
 
   send(cmd);
   boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
@@ -81,7 +81,7 @@ WG::agilent_com<com_method>::cycles(const unsigned int cycles)
   // if (state == "1") burst_off();
   // else
   //   std::cout<<"state = "<<state<<std::endl;
-
+  
   std::string cmd = "BM:NCYC "+ stringify(cycles)+"\n";
   send(cmd); 
   boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
@@ -94,6 +94,7 @@ WG::agilent_com<com_method>::cycles(const unsigned int cycles)
 template<class com_method> void
 WG::agilent_com<com_method>::burst_on()
 {
+
   send("BM:STAT ON\n");
   m_burst_mode = true;
 }
@@ -231,12 +232,31 @@ WG::agilent_com<com_method>::arb_wave(const std::string& name, const float* data
   for(size_t i=0;i<size-1;++i){
     str<< data[i]<<", ";
   }
+  // std::cout<<"string0 = "<<std::endl;
+  // std::cout<<str.str()<<std::endl;
   str<<data[size-1]<<"\n";
-  send(str.str());
-  send("DATA:COPY " +name +", VOLATILE\n");
-  send("FUNC:USER "+name+"\n");
-  send("FUNC:SHAP USER\n");
+  std::cout<<"send data"<<std::endl;
+  // std::cout<<"... size = "<<str.str().size()<<std::endl;
 
+
+  // std::cout<<"string1 = "<<std::endl;
+  // std::cout<<str.str()<<std::endl;
+  
+  send(str.str());
+ //  ICR::coms::sleep(1000);
+ //   std::cout<<"send copy"<<std::endl;
+
+ //  send("DATA:COPY " +name +", VOLATILE\n");
+ //  ICR::coms::sleep(1000);
+ //  std::cout<<"send name"<<std::endl;
+
+ //  send("FUNC:USER "+name+"\n");
+ //  ICR::coms::sleep(1000);
+ // std::cout<<"send user shape"<<std::endl;
+
+ //  send("FUNC:SHAP USER\n");
+
+ //  ICR::coms::sleep(1000);
 
 }
 
@@ -245,7 +265,7 @@ void
 WG::apply_waveform(agilent_com<com_method>* generator,const std::string& name, const  double& sampling_freq, const  float* voltages, const unsigned long& num_points)
 {
   if (num_points<8) throw ICR::exception::too_few_points();
-  if (num_points>16000) throw ICR::exception::too_many_points();
+  if (num_points>65536) throw ICR::exception::too_many_points();
 
   float min;
   float max;
@@ -262,10 +282,14 @@ WG::apply_waveform(agilent_com<com_method>* generator,const std::string& name, c
     rsv[i] = ((voltages[i])*irange);
   }
   
-  
-  
+  //std::cout<<"wf sending data"<<std::endl;
   generator->arb_wave(name, rsv, num_points);
-  generator->voltage((max-min));
+
+  //std::cout<<"wf setting V"<<std::endl;
+
+ generator->voltage((max-min));
+ //std::cout<<"wf sting freq"<<std::endl;
+
   generator->frequency((sampling_freq/num_points));
 }
 

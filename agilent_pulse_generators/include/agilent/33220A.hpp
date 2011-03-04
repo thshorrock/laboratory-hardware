@@ -1,3 +1,5 @@
+#pragma once
+
 #include "agilent_com.hpp"
 
 namespace ICR {
