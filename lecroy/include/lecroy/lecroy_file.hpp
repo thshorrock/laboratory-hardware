@@ -59,6 +59,18 @@ namespace ICR{
       /** Copy constructor. @param other the aline to copy */
       aline(const aline& other);
 
+      double* 
+      _data()
+      {
+	return m_trace.get();
+      }
+      
+      double* 
+      _time()
+      {
+	return m_t.get();
+      }
+
       /** Assignment operator. 
        * @param other the aline to copy 
        * @return The assigned aline.
