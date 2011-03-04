@@ -26,6 +26,11 @@ ICR::coms::IPmanager::open() throw (boost::system::system_error)
 	if ( m_error == boost::asio::error::connection_aborted) {
 	  std::cout<<"open connection aborted, retrying"<<std::endl;
 	}
+	if ( m_error == boost::asio::error::connection_refused) {
+	  std::cout<<"open connection refused, please sort out the problem (try to reconnect to the network) and press any key followed by enter..."<<std::endl;
+	    char c;
+	    std::cin>> c;
+	}
 	else if (m_error == boost::asio::error::connection_reset)
 	  {
 	    std::cout<<"connection reset  by peer error in open"<<std::endl;
@@ -35,12 +40,18 @@ ICR::coms::IPmanager::open() throw (boost::system::system_error)
 	}
 	else if (m_error == boost::asio::error::host_unreachable) 
 	  {
-	    std::cout<<"host unreachable, please reconnect to the network and press any key..."<<std::endl;
+	    std::cout<<"host unreachable, please check your wires, ping the devices,  reconnect to the network, make sure everything is okay  and press any key followed by enter..."<<std::endl;
 	    char c;
 	    std::cin>> c;
 	  }
+	else if (m_error == boost::asio::error::timed_out) 
+	  {
+	    std::cout<<"connection timed out , trying again"<<std::endl;
+	  }
 	else{
 	  std::cout<<"open erroc_code value = "<<m_error.value()<<std::endl;
+
+	  throw boost::system::system_error(m_error);
 	}
 	//try to recue
 	sleep(1000);//go to sleep
@@ -230,10 +241,19 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
         timer.cancel(); 
       }
       else if (timer_result) 
+
 	{
 	  m_socket.cancel(); 
 	  std::cout<<"timer has exceeded from ip manager"<<std::endl;
 
+	  free(buf);  //cleanup 
+	  //try to recue
+	  cancel();
+	  close();
+	  open();//reopen socket
+	  std::cout<<"reopened"<<std::endl;
+	  std::cout<<"problem in timed_recv ... "<<std::endl;
+	  //resend
 	  throw exception::timeout_exceeded();
 	}
     }
@@ -305,12 +325,11 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
       //   }
 	  
     }
-  else //no error
-    free(buf);  //cleanup
   std::string ret;
   for(size_t i=0;i<actually_read;++i){
     ret.push_back(buf[i]);
   }
+    free(buf);  //cleanup
 
   //ret.append(buf);
   return ret;

@@ -36,15 +36,23 @@ ICR::coms::serial_manager::~serial_manager()
 void
 ICR::coms::serial_manager::close()
 { 
-  if (m_SerialPort.is_open()) 
+  if (m_SerialPort.is_open()) {
+    std::cout<<"closing"<<std::endl;
+
     m_SerialPort.close();
+    std::cout<<"closed"<<std::endl;
+
+  }
 }
 
 void
 ICR::coms::serial_manager::open()
 { 
+    std::cout<<"serial open"<<std::endl;
+
   if (!m_SerialPort.is_open()) 
     {
+      std::cout<<" ... opening"<<std::endl;
 
       m_SerialPort.open(m_name, m_error);
   
@@ -61,6 +69,8 @@ ICR::coms::serial_manager::open()
 
 
 
+      std::cout<<" ... open"<<std::endl;
+
 
     }
 }
@@ -75,8 +85,13 @@ ICR::coms::serial_manager::send(const std::string& cmd)
   // }
   if (!m_error) 
     boost::asio::write(m_SerialPort, boost::asio::buffer(cmd)); 
-  else 
-    throw boost::system::system_error(m_error);
+  
+  if (m_error)
+    { 
+      std::cout<<"exception in serial send"<<std::endl;
+
+      throw boost::system::system_error(m_error);
+    }
   //  boost::this_thread::sleep(boost::posix_time::milliseconds(100)); 
 }
 
@@ -97,8 +112,9 @@ ICR::coms::serial_manager::timed_recv(const std::string& cmd, const unsigned lon
 	boost::system::system_error )
 {
   //send quiery and await repsonse
-    serial_manager::send(cmd);
-    return timed_recv(buffsize,seconds,size_exactly);
+
+  serial_manager::send(cmd);
+  return serial_manager::timed_recv(buffsize,seconds,size_exactly);
 }
 
 
@@ -118,29 +134,18 @@ ICR::coms::serial_manager::recv( const unsigned long& buffsize, const bool& size
   }
   else
     len =m_SerialPort.read_some(boost::asio::buffer(buf, buffsize), m_error);
+  
   for(size_t i=0;i<len;++i){
     ret.push_back(buf[i]);
   }
 
-  // if (m_error == boost::asio::error::eof)
-  //   {
-  //     //this is okay
-  //   }
-
   if (m_error) { //some kind of exception 
     free(buf);  //cleanup
-      std::cout<<"recv error in serial :: erroc_code value = "<<m_error.value()<<std::endl;
+    std::cout<<"recv error in serial :: erroc_code value = "<<m_error.value()<<std::endl;
 
     //try to recue
     close();
     open();//reopen port
-    //receive_some to cleanup spillage (excess characters this have not been sent).
-    std::cout<<"problem in serial recv - about to try to cleanup "<<std::endl;
-    try{
-      timed_recv(buffsize,1, false); //retry
-    } catch (...)  {}
-    std::cout<<"  ... cleanup complete\n \n ****** you must now resend the command   ******* "<<std::endl;
-
     throw exception::exception_in_receive_you_must_resend_command();
   }
   else //no error
@@ -164,33 +169,52 @@ ICR::coms::serial_manager::timed_recv(const unsigned long& buffsize, const doubl
 
   unsigned int actually_read = 0;
   if (size_exactly){
+    //   std::cout<<"size exactly!"<<std::endl;
+
     boost::asio::async_read(m_SerialPort, boost::asio::buffer(buf, buffsize),  
-  boost::bind(&check_timeout_and_size, &read_result, _1,&actually_read,_2)); 
+			    boost::bind(&check_timeout_and_size, &read_result, _1,&actually_read,_2)); 
+
   }
   else
     m_SerialPort.async_read_some(boost::asio::buffer(buf, buffsize),   
- boost::bind(&check_timeout_and_size, &read_result, _1,&actually_read,_2) );
+				 boost::bind(&check_timeout_and_size, &read_result, _1,&actually_read,_2) );
   
   m_SerialPort.io_service().reset(); 
+  
+  bool times_up = false;
   while (m_SerialPort.io_service().run_one()) 
     { 
-      if (read_result) {
-        timer.cancel(); 
+      //std::cout<<"read res = "<<read_result<<"time_res = "<<timer_result<<std::endl;
+      //ICR::coms::sleep(200);
+      if (read_result)
+	{
+	  //std::cout<<"about to cancel timer"<<std::endl;
 
-      }
+	  timer.cancel(); 
+	  //std::cout<<"timer cancelled"<<std::endl;
+
+	}
       else if (timer_result) 
 	{
-	  m_SerialPort.cancel(); 
-	  std::cout<<"timer has exceeded from serial manager"<<std::endl;
+	  //std::cout<<"trying to cancel"<<std::endl;
+	  m_SerialPort.cancel();
+	  times_up=true;
 
-	  throw exception::timeout_exceeded();
+	  //std::cout<<"timer has exceeded from serial manager"<<std::endl;
+	 
 	}
     }
+  if (times_up) {
+    free(buf); 
+    ICR::coms::sleep(500);
+    throw exception::timeout_exceeded();
+  }
+  //std::cout<<"read res"<<std::endl;
+
   if (*read_result) 
     {
       //some sort of exception.
-      free(buf);
-	std::cout<<"timed_recv in serial erroc_code value = "<<m_error.value()<<std::endl;
+      std::cout<<"timed_recv in serial erroc_code value = "<<m_error.value()<<std::endl;
 
       //try to recue
       close();
@@ -198,22 +222,32 @@ ICR::coms::serial_manager::timed_recv(const unsigned long& buffsize, const doubl
       std::cout<<"reopened"<<std::endl;
       std::cout<<"problem in timed_recv serial  - cleaning up ... "<<std::endl;
       //resend
-      try{
-	timed_recv(buffsize,seconds, false); //retry
-      } catch (...)  {}
+      // try{
+      // 	timed_recv(buffsize,seconds, false); //retry
+      // } catch (...)  {}
       
       std::cout<<"  ... cleanup complete\n \n ****** you must now resend the command   ******* "<<std::endl;
       
+      free(buf);
       throw exception::exception_in_receive_you_must_resend_command();
      
     }
-  else //no error
-    free(buf);  //cleanup
+
   std::string ret;
   for(size_t i=0;i<actually_read;++i){
     ret.push_back(buf[i]);
   }
 
+  // std::cout<<"read "<<actually_read <<" characters: ";
+  // for(size_t i=0;i<actually_read;++i){
+
+  //   std::cout<<(int) buf[i]<<" ";
+
+  // }
+  // std::cout<<std::endl;
+  // std::cout<<"sizeof ret = "<<ret.size()<<std::endl;
+
+  free(buf);  //cleanup
   //ret.append(buf);
   return ret;
 }
