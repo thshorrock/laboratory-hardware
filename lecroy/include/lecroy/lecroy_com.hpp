@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @file   lecroy_com.hpp
  * @author Tom Shorrock (t.h.shorrock@gmail.com)

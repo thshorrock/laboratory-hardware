@@ -1,3 +1,5 @@
+#pragma once
+
 #include "coms_manager/serial_manager.hpp"
 #include "commands.hpp"
 #include "enums.hpp"
@@ -62,7 +64,7 @@ namespace ICR{
        * @param seconds The number of seconds to wait for a reply from the DPR500.
        * @return The decoded reply from the DPR500 */
       std::string timed_recv(const boost::shared_ptr<command::recv_cmd>& recv_cmd,
-			     const unsigned int& seconds =1);
+			     const unsigned int& seconds =3);
       
       void init() throw(ICR::exception::failed_to_contact_DPR500_device);
       // void gain(pr_ptr);

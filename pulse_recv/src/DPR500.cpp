@@ -182,6 +182,7 @@ ICR::pulser::DPR500::init() throw(ICR::exception::failed_to_contact_DPR500_devic
 
   typedef command::InitiationFactory::cmd_ptr cmd;
   typedef command::InitiationFactory::recv_cmd_ptr rcmd;
+  
 
   cmd  init = f.initiate_address_assignment();
   //cmd  set_addr = f.set_address(0x10);
@@ -282,12 +283,23 @@ ICR::pulser::DPR500::timed_recv(const boost::shared_ptr<command::recv_cmd>& c,
   bool not_sent = true;
   while (count <5 && not_sent){
     try{
+      std::string cmd = *c;
+      std::cout<<"DPR500 timed recv, cmd = ";
+      for(size_t i=0;i<cmd.size();++i){
+	std::cout<<cmd[i]<<" ";
+      }
+      std::cout<<", seconds = "<<seconds<<std::endl;
+
       ans = ICR::coms::serial_manager::timed_recv((std::string)*c, c->reply_size(),seconds, true);
+      std::cout<<"recvd = "<<ans<<std::endl;
+
       not_sent=false;
       //A small pause here helps
-      boost::this_thread::sleep(boost::posix_time::milliseconds(100)); 
+      //boost::this_thread::sleep(boost::posix_time::milliseconds(300)); 
     }
     catch (ICR::exception::timeout_exceeded& e)  {  //boost::system::system_error
+      std::cout<<"serial timeout in DPR500 tr"<<std::endl;
+
       //Failed, give it a large pause to sort itself out before trying again
       boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
     }

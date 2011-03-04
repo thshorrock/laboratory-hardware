@@ -283,6 +283,12 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const 
       std::cout<<"lecroy receive exception caught (in recv), resending command"<<std::endl;
       recv(cmd, buffsize,exact);
     }
+  catch(...)
+    {
+      std::cout<<"UNKNOWN EXCEPTION IN LECROY COM MANAGER RECV TRYING TO RESEND REGARDLESS"<<std::endl;
+      recv(cmd, buffsize,exact);
+
+    }
    
   // }
     
@@ -295,7 +301,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const 
 	
   //   //   std::cout<<"recv command not completed, retry..."<<std::endl;   
   // }
-  throw("lecroy recv error: could not read\n") ;
+  //throw("lecroy recv error: could not read\n") ;
   // }
 }
    
@@ -500,21 +506,19 @@ ICR::lecroy::lecroy_com_manager<coms_method>::wait(const double& seconds)
   std::string cmd = "WAIT "+stringify(seconds)+"\n";
   coms_method::send(header.add(cmd));
   
-  coms_method::send( header.add("*OPC?\n"));
-  try{
-    std::string opc_bit = coms_method::timed_recv(20,seconds,false);
-  }
-  catch(ICR::exception::timeout_exceeded& e) {
-    e.debug_print();
-    std::cout<<"Lecroy timed out in wait ... trying to send again"<<std::endl;
-    wait(seconds);
-  }
-  catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
-    {
+  // coms_method::send( header.add("*OPC?\n"));
+  // try{
+  //   std::string opc_bit = coms_method::timed_recv(20,seconds,false);
+  // }
+  // catch(ICR::exception::timeout_exceeded& e) {
+  //   e.debug_print();
+  //   std::cout<<"Lecroy timed out in wait ..."<<std::endl;
+  // }
+  // catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
+  //   {
       
-      std::cout<<"lecroy receive exception caught (in wait), resending command"<<std::endl;
-      wait(seconds);
-    }
+  //     std::cout<<"lecroy receive exception caught (in wait)..."<<std::endl;
+  //   }
 }
 
 // template<class coms_method>

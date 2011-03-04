@@ -134,7 +134,7 @@ namespace ICR {
       /** Set the output to be on.  */
       void turn_on()   {
 	send("RUN");
-	ICR::coms::sleep(1000);
+	ICR::coms::sleep(4000);
       }
       /** Set the output to be off.  */
       void turn_off()  {send("STOP");} 
