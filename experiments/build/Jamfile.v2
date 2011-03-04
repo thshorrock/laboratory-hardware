@@ -1,4 +1,23 @@
 
+
+lib maths-vec-lib
+    : 
+    : <name>maths_vec <search>/home/tommy/progs/cpp_maths/lib
+    ;
+
+lib maths-fourier-lib
+    : 
+    : <name>maths_fourier <search>/home/tommy/progs/cpp_maths/lib
+    ;
+alias maths-library
+    : .//maths-vec-lib
+      .//maths-fourier-lib
+      /site-config//gsl-library
+    : <include>/home/tommy/progs/cpp_maths/include 
+    :
+    : <include>/home/tommy/progs/cpp_maths/include 
+    ;
+
 project  experiment1
 	: source-location ../src
 	: default-build  <threading>multi 
@@ -157,7 +176,8 @@ exe  2011-03-03-water :  2011-03-03-water.cpp
     /lib/hardware-pulse-recv
     /lib/hardware-analogic
     /lib/filename	
-    /lib/readme					     
+    /lib/readme		
+    .//maths-library			     
      ;
 
 

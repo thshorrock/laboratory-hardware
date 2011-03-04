@@ -2,47 +2,42 @@
 #include "stringify.hpp"
 #include "agilent.hpp"
 #include "lecroy.hpp"
+#include "DPR500.hpp"
+
+#include "get_alines.hpp"
+#include "no_imaging_compare.hpp"
 
 using namespace ICR::agilent;
 using namespace ICR::analogic;
 using namespace ICR::lecroy;
+using namespace ICR::pulser;
 using namespace ICR;
 
-void 
-get_alines(
-	  WG33220A<agilent::IP>& pulser,
-	  lecroy_64Xi&  scope,
-	  aline& al1,
-	  aline& al2
-	  ) 
-{
-  try{
-    pulser.trigger_now();
-    lecroy_file file =  scope.get_waveform(location::C4);
-    al1 = file.get_data1(0);
-    al2 = file.get_data1(1);
-  }
-  catch(exception::could_not_get_fresh_aquisition& e){
-    std::cout<<"missed trigger - refiring"<<std::endl;
-    pulser.trigger_now();
-    pulser.trigger_now();
-    get_alines(pulser,scope, al1, al2);
-  }
 
-}
 
 
 int
 main  (int ac, char **av)
 {
+  ICR::directory dir("/data/2011/03/04/water/test");  //the current directory
+
   analogic_remote_control analogic("/dev/ttyUSB0");
   std::cout<<"here"<<std::endl;
 
   WG33220A<agilent::IP>  driving_pulse("10.0.0.20");
 
-  std::cout<<"here0"<<std::endl;
+  //std::cout<<"here0"<<std::endl;
   lecroy_64Xi  scope("10.0.0.10");
   std::cout<<"here0.1"<<std::endl;
+  
+  DPR500                 pulser("/dev/ttyUSB1");
+  std::cout<<"here0.2"<<std::endl;
+
+  PulserReceiverFactory  factory;   
+  RPL2* imaging_pulse = factory.make_RPL2();
+  pulser.attach_A(imaging_pulse);
+  double imaging_voltage = 400;
+
 
   driving_pulse.turn_off();
   driving_pulse.frequency(.5e6);
@@ -51,83 +46,83 @@ main  (int ac, char **av)
   driving_pulse.trigger(trigger::BUS);
   driving_pulse.burst_on();
 
-  double analogic_delay = 3;
-  double analogic_high = 1.5;
-  double analogic_low  = 0.5;
+  const double analogic_delay = 28; //microseconds
   
-  double clock = 1.25;
+  const size_t repeats = 1;
   
-  const size_t repeats = 50;
-  
-  for(size_t i=50;i<1000;i+=50){
-  
-     double agilent_delay = i;
-    if (agilent_delay<800)
-      clock = 1.25;
-    else
-      clock = 2.5;
-  std::string no_imaging = "AT TRIG RPT 1 ( FOR "+stringify(analogic_delay)+"u 0.0 FOR 2u "+stringify(analogic_low)+" FOR "+stringify(agilent_delay+18)+"u 0.0 FOR 2u "+stringify(analogic_low)+" FOR 1u 0) CLK = "+stringify(clock)+"n";
-    std::string imaging_first = "AT TRIG RPT 1 ( FOR "+stringify(analogic_delay)+"u 0.0 FOR 2u "+stringify(analogic_high)+" FOR "+stringify(agilent_delay+18)+"u 0.0 FOR 2u "+stringify(analogic_low)+" FOR 1u 0) CLK = "+stringify(clock)+"n" ;
-    std::string imaging_second = "AT TRIG RPT 1 ( FOR "+stringify(analogic_delay)+"u 0.0 FOR 2u "+stringify(analogic_low)+" FOR "+stringify(agilent_delay+18)+"u 0.0 FOR 2u "+stringify(analogic_high)+" FOR 1u 0) CLK ="+stringify(clock)+"n";
+  //the different pressures
+  for(double driving_voltage=10e-3;driving_voltage<160e-3;driving_voltage+=5e-3)
+    {
+      std::cout<<"driving voltage = "<<driving_voltage<<std::endl;
 
-
-    two_sin_with_n_microsecond_gap(&driving_pulse, 0.5, agilent_delay );
-
-
-    aline aline1;
-    aline aline2;
-    
-
-    analogic.expression(no_imaging);  //create a pulse
-
-    analogic.turn_on(); 
-    driving_pulse.turn_on(); 
-    driving_pulse.trigger_now();
-    for(size_t i=0;i<repeats;++i){
-      get_alines(driving_pulse, scope, aline1, aline2);
+      driving_pulse.turn_off();
+      driving_pulse.cycles(10);
+      driving_pulse.voltage(driving_voltage); 
+      driving_pulse.shape(shape::SIN);
       
-      ICR::lecroy::save_gnuplot(aline2-aline1,   "./test.dat");
-    }
+      driving_pulse.phase(0);
+      driving_pulse.burst_ext(edge::POSITIVE);
+      driving_pulse.trigger(trigger::BUS);
+      driving_pulse.burst_on();
+      driving_pulse.turn_on();
 
-    analogic.expression(imaging_first);  //create a pulse
+      // std::cout<<"phases"<<std::endl;
+      // phase_plot phases(dir.get_directory(), driving_voltage, "phases");
+      // phases.setup_analogic(analogic, analogic_delay);
+      // phases.setup_pulser(pulser, imaging_pulse, imaging_voltage);
+      // phases.run(driving_pulse,scope,repeats);
+
+      driving_pulse.turn_off();
+      //the different times
+      for(double agilent_delay=5000;agilent_delay>=100;agilent_delay-=100){
+      	std::cout<<"agilent_delay = "<<agilent_delay<<std::endl;
+
+
+      	//0th exp (just one driving wave and imaging the tail afterwards.)
+
+      	std::cout<<"tail"<<std::endl;
+      	imaging_on<1> tail(dir.get_directory(), driving_voltage, "imaging_tail");
+      	tail.setup_analogic(analogic, analogic_delay, agilent_delay);
+      	tail.setup_pulser(pulser, imaging_pulse, imaging_voltage);
+      	tail.run(driving_pulse,scope,repeats);
+
+
+      	// driving_pulse.turn_off();
+      	// two_sin_with_n_microsecond_gap(&driving_pulse, 0.5, agilent_delay, driving_voltage);
+      	// driving_pulse.turn_on();
+
+      	// //first exp
+      	// std::cout<<"no imag wave"<<std::endl;
+      	// no_imaging_compare no_imag(dir.get_directory(), driving_voltage, "no_imaging");
+      	// no_imag.setup_analogic(analogic, analogic_delay, agilent_delay);
+      	// no_imag.setup_pulser(pulser, imaging_pulse, imaging_voltage);
+      	// double xcorr = no_imag.run(driving_pulse,scope,repeats);
+
+
+      	// //2nd exp
+      	// std::cout<<"im 1st"<<std::endl;
+      	// imaging_on<0> imag0(dir.get_directory(), driving_voltage, "imaging_1st");
+      	// imag0.setup_analogic(analogic, analogic_delay, agilent_delay);
+      	// imag0.setup_pulser(pulser, imaging_pulse, imaging_voltage);
+      	// imag0.run(driving_pulse,scope,repeats);
+
+      	// //3d exp
+      	// std::cout<<"im 2nd"<<std::endl;
+      	// imaging_on<1> imag1(dir.get_directory(), driving_voltage, "imaging_2nd");
+      	// imag1.setup_analogic(analogic, analogic_delay, agilent_delay);
+      	// imag1.setup_pulser(pulser, imaging_pulse, imaging_voltage);
+      	// imag1.run(driving_pulse,scope,repeats);
     
-    analogic.turn_on(); 
-    driving_pulse.trigger_now();
-    for(size_t i=0;i<repeats;++i){
-      get_alines(driving_pulse, scope, aline1, aline2);
-      
-      ICR::lecroy::save_gnuplot(aline2-aline1,   "./test.dat");
-    }
     
-    analogic.expression(imaging_second);  //create a pulse
-    analogic.turn_on(); 
-    
-    driving_pulse.trigger_now();
-    for(size_t i=0;i<repeats;++i){
-      get_alines(driving_pulse, scope, aline1, aline2);
-      
-      ICR::lecroy::save_gnuplot(aline2-aline1,   "./test.dat");
-    }
-    
-    
-  }
+      }
   
+  
+    
+    }
+    
   analogic.turn_off();
     
 
   
   driving_pulse.turn_off();
-  
-  //driving_pulse.shape(shape::SQUARE);
-  //n_microseconds_after_sin(&driving_pulse, 0.5e6, 10 );
-  //sin_after_n_microseconds(&driving_pulse, 0.5, 3);
-  // analogic.echo(true);
-  // for(size_t i=0;i<20;++i){
-    
-    
-    
-  //   analogic.expression("AT TRIG RPT 1 ( FOR "+stringify(i)+"u 0.0 FOR 2u 0.5 FOR 1u 0) CLK = 1.25n MARK = 20u");  //create a pulse
-    
-  
-  // }
 }
