@@ -25,16 +25,18 @@ namespace ICR{
      * the notify() command must be issued.
      *
      */
-    class DPR500 :  public ICR::coms::serial_manager
+    class DPR500 //:  public ICR::coms::serial_manager
     {
      
     private: 
       typedef pulser_receiver* pr_ptr;
+      ICR::coms::serial_manager comm;
       char m_address;
       bool A_attached, B_attached;
       pr_ptr m_A;
       pr_ptr m_B;
       command::DPR500CommandFactory m_CF;
+
 
       std::list<boost::shared_ptr<command::DPR500_recv_cmd> > cmds_A;
       std::list<boost::shared_ptr<command::DPR500_recv_cmd> > cmds_B;

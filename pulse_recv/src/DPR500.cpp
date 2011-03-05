@@ -162,12 +162,12 @@
 
 
  ICR::pulser::DPR500::DPR500(const std::string& port)
-   :  ICR::coms::serial_manager(port, 
-				4800, 
-				coms::flow_control::software, 
-				coms::parity::none, 
-				coms::stop_bits::one, 
-				8),
+   :  comm(port, 
+	   4800, 
+	   coms::flow_control::software, 
+	   coms::parity::none, 
+	   coms::stop_bits::one, 
+	   8),
       m_address(0x01),
       A_attached(false), B_attached(false),
       m_CF(m_address)
@@ -241,13 +241,13 @@ ICR::pulser::DPR500::send(const boost::shared_ptr<command::cmd>& c)
    // for(size_t i=0;i<cmd.size();++i){
    //   std::cout<<"["<<i<<"] = "<<(int) cmd[i]<<std::endl;
    // }
-  ICR::coms::serial_manager::send(*c);
+  comm.send(*c);
 }
 
 std::string
 ICR::pulser::DPR500::recv(const boost::shared_ptr<command::recv_cmd>& c)
 {
-  std::string ans = ICR::coms::serial_manager::recv((std::string)*c, c->reply_size(),true);
+  std::string ans = comm.recv((std::string)*c, c->reply_size(),true);
   
   // std::cout<<"ans = "<<std::endl;
   // for(size_t i=0;i<ans.size();++i){
@@ -281,34 +281,46 @@ ICR::pulser::DPR500::timed_recv(const boost::shared_ptr<command::recv_cmd>& c,
   std::string ans;
   size_t count = 0; 
   bool not_sent = true;
-  while (count <5 && not_sent){
+  while (not_sent){
     try{
       std::string cmd = *c;
-      std::cout<<"DPR500 timed recv, cmd = ";
-      for(size_t i=0;i<cmd.size();++i){
-	std::cout<<cmd[i]<<" ";
-      }
-      std::cout<<", seconds = "<<seconds<<std::endl;
+      //std::cout<<"DPR500 timed recv, cmd = ";
+      // for(size_t i=0;i<cmd.size();++i){
+      // 	std::cout<<cmd[i]<<" ";
+      // }
+      //std::cout<<", seconds = "<<seconds<<std::endl;
 
-      ans = ICR::coms::serial_manager::timed_recv((std::string)*c, c->reply_size(),seconds, true);
-      std::cout<<"recvd = "<<ans<<std::endl;
+      ans = comm.timed_recv((std::string)*c, c->reply_size(),seconds, true);
+      //std::cout<<"recvd = "<<ans<<std::endl;
 
       not_sent=false;
       //A small pause here helps
-      //boost::this_thread::sleep(boost::posix_time::milliseconds(300)); 
+      boost::this_thread::sleep(boost::posix_time::milliseconds(200)); 
     }
     catch (ICR::exception::timeout_exceeded& e)  {  //boost::system::system_error
-      std::cout<<"serial timeout in DPR500 tr"<<std::endl;
+      // std::cout<<"serial timeout in DPR500 tr"<<std::endl;
 
       //Failed, give it a large pause to sort itself out before trying again
-      boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
+      //  boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
     }
     ++count;
-  }
-  if (not_sent) 
-    std::cout<<"Failed to communicate command"<<std::endl;
-  
+    if (count>20) {
 
+      std::cout<<"The DPR500 is still having problems - you are probably going to have to do something..  Sleeping for 60 seconds."<<std::endl;
+
+      boost::this_thread::sleep(boost::posix_time::seconds(60)); 
+
+    }
+    else if (count>10) {
+
+      std::cout<<"The DPR500 is having a problem sending the command "<<std::string(*c)<<std::endl;
+      std::cout<<"Please try to fix the problem.  The DPR500 is going to sleep for 2 seconds now, lets hope things sort themselves out"<<std::endl;
+
+       boost::this_thread::sleep(boost::posix_time::milliseconds(2000)); 
+
+    }
+  
+  }
 
   // std::cout<<"ans = "<<std::endl;
   // for(size_t i=0;i<ans.size();++i){
