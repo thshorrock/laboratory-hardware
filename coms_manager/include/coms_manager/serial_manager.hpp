@@ -54,6 +54,11 @@ namespace ICR{
       /** A destructor.*/
       ~serial_manager();
       
+      /** Cancels the queue of commands.
+       */ 
+      void 
+      cancel();
+      
       /** Open the connection. 
        * @attention Automatically called when the serial connection is constructed.
        */ 
@@ -66,15 +71,13 @@ namespace ICR{
     
       /* The following functions are overloads. */
       void 
-      send(const std::string& cmd)
-	throw (boost::system::system_error) ;
+      send(const std::string& cmd);
 
       
       std::string 
       recv(const std::string& cmd, 
 	   const unsigned long& buffsize = 128, 
-	   const bool& size_exactly=false)
-	throw(boost::system::system_error ) ;
+	   const bool& size_exactly=false);
 
        
       std::string 
@@ -82,14 +85,13 @@ namespace ICR{
 		 const unsigned long& buffsize = 128, 
 		 const double& seconds = 5, 
 		 const bool& size_exactly = false)
-	throw(exception::timeout_exceeded,
-	      boost::system::system_error ) ;
+	throw(exception::timeout_exceeded) ;
 
        
       std::string 
       recv( const unsigned long& buffsize = 128, 
 	    const bool& size_exactly = false)
-	throw(boost::system::system_error );
+	throw(exception::exception_in_receive_you_must_resend_command );
 
        
       std::string 
@@ -97,7 +99,7 @@ namespace ICR{
 		  const double& seconds = 5, 
 		  const bool& size_exactly = false) 
 	throw(exception::timeout_exceeded,
-	      boost::system::system_error );
+	      exception::exception_in_receive_you_must_resend_command );
       
     };
   }

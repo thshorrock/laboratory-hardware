@@ -25,14 +25,11 @@ namespace ICR{
       /** A constuctor.
        *  @param address The IP address of the device.
        *  @param port The port of the connection.
-       *  @throws boost::system::system_error A boost asio error occured.
        */
       IPmanager(const std::string& address, 
-		const std::string& port = "http")  
-	throw (boost::system::system_error) ;
+		const std::string& port = "http");
     
       /** A destructor.*/
-      virtual 
       ~IPmanager();
       
       /** Return the socket used in the connection.
@@ -63,11 +60,9 @@ namespace ICR{
 
 
       /** open the socket. 
-       *  @throws boost::system::system_error A boost asio error occured.
        */
       void 
-      open() 
-	throw (boost::system::system_error) ;
+      open() ;
 
       /**Cancel all asynchronous operations associated with the socket.
        */
@@ -75,41 +70,37 @@ namespace ICR{
       cancel() {m_socket.cancel();}
       
       /* The following functions are overloads. */
-      virtual 
+       
       void 
-      send(const std::string& cmd) 
-	throw (boost::system::system_error) ;
+      send(const std::string& cmd) ;
       
-      virtual 
+       
       std::string 
       recv(const std::string& cmd, 
 	   const unsigned long& buffsize = 128, 
-	   const bool& size_exactly = false)
-	throw (boost::system::system_error)  ;
+	   const bool& size_exactly = false) 
+	throw( ) ;
     
-      virtual 
+       
       std::string 
       timed_recv(const std::string& cmd, 
 		 const unsigned long& buffsize = 128, 
 		 const double& seconds = 5, 
 		 const bool& size_exactly = false) 
-	throw(exception::timeout_exceeded,
-	      boost::system::system_error);
+	throw(exception::timeout_exceeded);
 
-      virtual 
+       
       std::string 
       recv( const unsigned long& buffsize = 128, 
 	    const bool& size_exactly = false)
-	throw (boost::system::system_error,
-	      exception::exception_in_receive_you_must_resend_command) ;
+	throw ( exception::exception_in_receive_you_must_resend_command) ;
       
-      virtual 
+       
       std::string 
       timed_recv( const unsigned long& buffsize = 128, 
 		  const double& seconds = 5, 
 		  const bool& size_exactly = false)
 	throw(exception::timeout_exceeded,
-	      boost::system::system_error ,
 	      exception::exception_in_receive_you_must_resend_command) ;
       
     };
