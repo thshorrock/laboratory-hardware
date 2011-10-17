@@ -3,6 +3,7 @@
 #include "lecroy_header.hpp"
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <bitset>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -24,6 +25,32 @@ namespace ICR{
   
   namespace lecroy{
 
+    /** Convert characters in a Gnuplot binary stream into floats, ready for processing */
+    class GnuplotFloatConverter
+    {
+    public:
+      // When the FloatConverterFromBinary object is assigned to a float value
+      // i.e. When put into the vector<float> this method will be called
+      //      to convert the object into a float.
+      operator float() const { return m_data; }
+
+      /** Grab chars from the stream and store as a float */
+      friend 
+      std::istream& 
+      operator>>(std::istream& st, GnuplotFloatConverter& fc);
+
+    private:
+      float  m_data;
+    };
+    
+    inline
+    std::istream& 
+    operator>>(std::istream& st, GnuplotFloatConverter& fc)
+    {
+      // Use reinterpret_cast to emphasis how dangerous and unportable this is.
+      st.read(reinterpret_cast<char*>(&fc.m_data), sizeof(float));
+      return st;
+    }
 
     /** A class wrapping a single aline */
     class aline
@@ -56,8 +83,77 @@ namespace ICR{
 	    const boost::shared_array<double>& trace,
 	    const size_t& size);
 
+      /** Constructor.
+       * @param time An vector of times
+       * @param trace An vector of data
+       **/
+      aline(const std::vector<double>& time,
+	    const std::vector<double>& trace);
+
       /** Copy constructor. @param other the aline to copy */
       aline(const aline& other);
+
+      const double* 
+      begin_trace() const
+      {
+	return m_trace.get();
+      }
+
+      const double* 
+      end_trace() const
+      {
+	return m_trace.get()+m_size;
+      }
+
+      double* 
+      begin_trace() 
+      {
+	return m_trace.get();
+      }
+
+      
+      double* 
+      end_trace() 
+      {
+	return m_trace.get()+m_size;
+      }
+      
+      const double* 
+      begin_time() const
+      {
+	return m_t.get();
+      }
+
+      const double* 
+      end_time() const
+      {
+	return m_t.get()+m_size;
+      }
+
+      double* 
+      begin_time() 
+      {
+	return m_t.get();
+      }
+
+      
+      double* 
+      end_time() 
+      {
+	return m_t.get()+m_size;
+      }
+
+      const double* 
+      _data() const
+      {
+	return m_t.get();
+      }
+      
+      const double* 
+      _time() const
+      {
+	return m_t.get();
+      }
 
       double* 
       _data()
@@ -130,11 +226,18 @@ namespace ICR{
       operator-=(const aline& other);
 
       /** Multiply  by a scalar
-       * @param other The aline to add to the preset.
+       * @param other The constant to scale the voltages by
        * @return The resultant aline.
        */
       aline&
       operator*=(const double& other);
+      
+      /** Multiply the voltage by another aline.
+       * @param other The aline to multiply to the preset.
+       * @return The resultant aline.
+       */
+      aline&
+      operator*=(const aline& other);
       
       /** divide  by a scalar
        * @param other The aline to add to the preset.
@@ -152,12 +255,22 @@ namespace ICR{
 
     /** Save the aline in ascii format. @param a The aline to save @param filename The filename to use */
     void save_ascii(const aline& a, const std::string filename);
+    
+    /** Save a vector of alines in ascii format. @param a The aline to save @param filename The filename to use */
+    void save_ascii(const std::vector<aline>& a, const std::string filename);
 
     /** Save the aline in gnuplot format. @param a The aline to save @param filename The filename to use */
     void save_gnuplot(const aline& a, const std::string filename);
     
+    /** Save a vector of alinesin gnuplot format. @param a The vector of alines to save @param filename The filename to use */
+    void save_gnuplot(const std::vector<aline>& a, const std::string filename);
+    
     /** Load the aline from gnuplot format. @param a The aline to save @param filename The filename to use */
     void load_gnuplot( aline& a, const std::string filename);
+    
+    /** Load the aline from gnuplot format. @param a The aline to save @param data The data stored in a standard vector */
+    void load_gnuplot( aline& a, const std::vector<float>& data );
+
 
     template<class Archive>
     void
@@ -170,11 +283,6 @@ namespace ICR{
 	boost::serialization::make_array<double>(m_trace.get(), m_size);
       ar & sa_time;
       ar & sa_trace;
-      // for(size_t i=0;i<m_size;++i){
-      // 	ar& m_t[i];
-      // 	ar& m_trace[i];
-      // }
-
     }
   
     template<class Archive>
@@ -182,68 +290,8 @@ namespace ICR{
     aline::load(Archive & ar, const unsigned int version)
     {
       
-      // char buffer;
-      // std::ifstream pIn("/data/2011/01/09/water/imaging_on_first_burst/imaging_wave_only/./imaging_solo_00.dat");
-      // pIn.seekg (30, std::ios::beg); 
-      // pIn.read( &buffer ,1);
-      // pIn.close();
-      // std::cout<<"buffer = "<<(int) buffer<<std::endl;
-
-      // if ( (int) buffer == 7) 
-      // 	{
-      // 	  char new_buff = 0x06;
-      // 	  std::ofstream pOut("/data/2011/01/09/water/imaging_on_first_burst/imaging_wave_only/./imaging_solo_00.dat_test", std::ios::binary );
-      // 	  pOut.seekp (30, std::ios::beg); 
-      // 	  pOut.write(&new_buff,1);
-      // 	  pOut.close();
-	  
-      // 	}
-
-      // std::cout<<"size0 = "<<m_size<<std::endl;
-      // char buffer2;
-       // ar & buffer2;
-       // ar & buffer2;
-       // ar & buffer2;
-      // std::cout<<"sizeof short = "<<sizeof(unsigned short)<<std::endl;
-      // std::cout<<"sizeof int = "<<sizeof(unsigned int)<<std::endl;
-
-      // std::cout<<"sizeof size_t = "<<sizeof(size_t)<<std::endl;
-      // unsigned int size;
       ar & m_size;
-      //m_size = size;
-      //std::cout<<"size1 = "<<m_size<<std::endl;
-      
-       std::bitset<64> size_bytes(m_size);
-       std::string string_bytes = size_bytes.to_string();
-       //std::cout<<"bytes = "<<string_bytes<<std::endl;
 
-       // for(size_t i=0;i<64;++i){
-       // 	 std::cout<<"string bytes ["<<i<<"] = "<<string_bytes[i]<<std::endl;
-       // }
-       
-       //std::cout<<"should be "<<std::endl;
-
-
-       std::bitset<64> size_bytes_cor(250002);
-       std::string string_bytes_cor = size_bytes_cor.to_string();
-       //std::cout<<"bytes = "<<string_bytes_cor<<std::endl;
-       // for(size_t i=0;i<64;++i){
-       // 	 std::cout<<"string bytes ["<<i<<"] = "<<string_bytes[i]<<std::endl;
-       // }
-      // char* bits = new char[9];
-      // for(size_t i=0;i<8;++i){
-      //  	bits[i]=0;
-      // }
-      // std::cout<<"here0"<<std::endl;
-      // //bits = (char*) m_size;
-      // std::cout<<"here"<<std::endl;
-
-      // for(size_t i=0;i<8;++i){
-      //  	std::cout<<"string bytes ["<<i<<"] = "<<bits[i]<<std::endl;
-      // }
-      // delete[] bits;
-
-      
       m_t     = boost::shared_array<double>(new double[m_size]);
       m_trace = boost::shared_array<double>(new double[m_size]);
 
@@ -254,14 +302,8 @@ namespace ICR{
       //std::cout<<"get times"<<std::endl;
 
       ar & sa_time;
-      //std::cout<<"get data"<<std::endl;
       ar & sa_trace;
-      //std::cout<<"done"<<std::endl;
       
-      // for(size_t i=0;i<m_size;++i){
-      // 	ar& m_t[i];
-      // 	ar& m_trace[i];
-      // }
     }
     
     /** Add two alines together
@@ -300,6 +342,34 @@ namespace ICR{
     inline
     aline 
     operator*(const double& a, const aline& b) {return b*a;}
+
+    /** Multiply the voltages of two alines together (element by element).
+     * @param a The 1st aline.
+     * @param b The 2nd aline.
+     * @return The resultant aline.
+     */
+    inline
+    aline 
+    operator*(const aline& a, const aline& b) 
+    {
+      aline tmp(a); tmp *= b; return tmp;
+    }
+
+    aline 
+    pow(const aline&, const double&d );
+    
+    inline
+    aline 
+    square(const aline& a) 
+    {
+      return a*a;
+    }
+    inline
+    aline 
+    sqrt(const aline& a) 
+    {
+      return pow(a,0.5);
+    }
 
     /** Divide every element of an aline by a constant
      * @param a The  aline.

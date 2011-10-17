@@ -156,34 +156,93 @@ L::lecroy_com_header::add(const std::string& cmd)
 template<class coms_method>
 void
 ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd) 
-  throw (boost::system::system_error) 
 {
   // bool not_completed = true;
   // while(not_completed){
   // try{
-  std::string full_command = header.add(cmd);
-  coms_method::send(full_command);
-  //wait for operation to complete.
 
-  //  std::string ib= recv("INR?\n");
-  // std::cout<<"IB = "<<ib<<std::endl;
-
-  // if (!wait) {
-  coms_method::send( header.add("*OPC?\n"));
-  try{
-    std::string opc_bit = coms_method::timed_recv(20,5,false);
-  }
-  catch(ICR::exception::timeout_exceeded& e) {
-    e.debug_print();
-    std::cout<<"Lecroy timed out in send ... trying to send again"<<std::endl;
-    send(cmd);
-  }
-  catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
+  bool send_successful = false;
+  // size_t
+  size_t  attempts = 0;
+  while (!send_successful)
     {
-      
-      std::cout<<"lecroy receive exception caught (in send), resending command"<<std::endl;
-      send(cmd);
+
+      //std::string full_command = header.add(cmd);
+      comm.send(header.add(cmd));//full_command);
+      //comm.send( header.add("*OPC\n"));  //set the OPC bit
+      //wait until it gets to the front of the queue. - this will be done in a timed thread
+      send_successful = true;
+      //wait for operation to complete.
+
+      //  std::string ib= recv("INR?\n");
+      // std::cout<<"IB = "<<ib<<std::endl;
+
+      // if (!wait) {
+      //comm.send( header.add("*OPC?\n")); 
+      detail::lecroy_command_completed<coms_method> complete(comm, header);
+      boost::thread thr(boost::ref(complete));
+      if (!thr.timed_join(boost::posix_time::milliseconds(1000)))
+	{
+	  complete.stop();
+	  ICR::coms::sleep(100);
+	  send_successful= false; 
+	  ++attempts;
+	  std::cout<<"opc signal not returned from lecroy, attempts = "<<attempts <<std::endl;
+
+	  std::cout<<"sending a cancel to the communicator"<<std::endl;
+	  comm.cancel();
+		  
+	}
+      if (attempts>3) 
+	{
+	  std::cout<<"still not fixed... restarting communicator"<<std::endl;
+	  comm.close();
+	  comm.open();
+	  std::cout<<"restarted"<<std::endl;
+
+
+	}
+      if (attempts>10) 
+	{
+	  std::string cmd_beg;
+	  if (cmd.size()<100) 
+	    for(size_t i=0;i<cmd.size();++i){
+	      cmd_beg.push_back(cmd[i]);
+	    }
+	  else
+	    for(size_t i=0;i<100;++i){
+	      cmd_beg.push_back(cmd[i]);
+	    }
+	  
+
+	  std::cout<<"Something is wrong - I cannot send the command '"
+		   <<cmd_beg
+		   <<"' from the agilent.  Please inspect the error messages and try to fix. I am going to sleep for 1 minute"<<std::endl;
+	  
+
+	  boost::this_thread::sleep(boost::posix_time::seconds(60)); 
+
+	}
     }
+      
+  //com_method::send("*WAI\n");
+	
+      
+}
+// try{
+//   std::string opc_bit = comm.timed_recv(20,5,false);
+// }
+// catch(ICR::exception::timeout_exceeded& e) {
+//   e.debug_print();
+//   std::cout<<"Lecroy timed out in send ... trying to send again"<<std::endl;
+  //   send(cmd);
+  // }
+  // catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
+  //   {
+      
+  //     std::cout<<"lecroy receive exception caught (in send), resending command"<<std::endl;
+  //     send(cmd);
+  //   }
   // }
   // not_completed = false;
   // }
@@ -196,7 +255,7 @@ ICR::lecroy::lecroy_com_manager<coms_method>::send(const std::string cmd)
   //     std::cout<<"command not completed, retry..."<<std::endl;   
   //   }
   // }
-}
+//}
 
 
 // template<class coms_method>
@@ -226,70 +285,74 @@ ICR::lecroy::lecroy_com_manager<coms_method>::clean_string(std::string& str, con
 template<class coms_method>
 std::string
 ICR::lecroy::lecroy_com_manager<coms_method>::recv(const std::string cmd, const unsigned int& buffsize, const bool& exact )  
-  throw (boost::system::system_error) 
 {
 
   //std::cout<<"start recv"<<std::endl;
   //boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
-
-  try{
-    std::string rec ;
+  for(;;){
+    try{
+      std::string rec ;
   
-    // for(;;){ //infinite loop
-    // try{
-    std::string full_command = header.add(cmd);
-    coms_method::send(full_command);
+      // for(;;){ //infinite loop
+      // try{
+      std::string full_command = header.add(cmd);
+      comm.send(full_command);
 
-    size_t attempts = 0;
-    while (attempts < 500){
-      //	std::cout<<"attempts = "<<attempts<<std::endl;
+      size_t attempts = 0;
+      while (attempts < 500){
+	//	std::cout<<"attempts = "<<attempts<<std::endl;
 
-      std::string h = coms_method::timed_recv(8,5,true);
-      //std::cout<<"h = "<<h<<std::endl;
-      // if (attempts<=1) {
-      //   for(size_t i=0;i<h.size();++i){
-      //     std::cout<<"header["<<i<<"] = "<<(int) h[i]<<std::endl;
+	std::string h = comm.timed_recv(8,5,true);
+	//std::cout<<"h = "<<h<<std::endl;
+	// if (attempts<=1) {
+	//   for(size_t i=0;i<h.size();++i){
+	//     std::cout<<"header["<<i<<"] = "<<(int) h[i]<<std::endl;
 	    
-      //   }
-      // }
+	//   }
+	// }
 
-      size_t size = header.get_length(h);
-      //	if (attempts<=1) 
-      //	std::cout<<"size = "<<size<<std::endl;
-      if (header.is_eoi(h)){
-	// std::cout<<"eoi"<<std::endl;
+	size_t size = header.get_length(h);
+	//	if (attempts<=1) 
+	//	std::cout<<"size = "<<size<<std::endl;
+	if (header.is_eoi(h)){
+	  // std::cout<<"eoi"<<std::endl;
 	
-	rec.append( coms_method::recv(size+1));
+	  rec.append( comm.recv(size+1));
 	
-	// std::cout<<"ret = "<<rec<<std::endl;
+	  // std::cout<<"ret = "<<rec<<std::endl;
 
-	return rec;
+	  return rec;
+	}
+	//std::cout<<"not eoi"<<std::endl;
+	rec.append(comm.recv(size, true));
+	// if (attempts==1) 
+	//   std::cout<<"rec = "<<rec<<std::endl;
+	++attempts;
       }
-      //std::cout<<"not eoi"<<std::endl;
-      rec.append(coms_method::recv(size, true));
-      // if (attempts==1) 
-      //   std::cout<<"rec = "<<rec<<std::endl;
-      ++attempts;
-    }
-  } 
-  catch(ICR::exception::timeout_exceeded& e) {
-    e.debug_print();
-    std::cout<<"Lecroy timed out in recv ... trying to send again"<<std::endl;
-     recv(cmd, buffsize,exact);
-  }
-  catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
-    {
-      
-      std::cout<<"lecroy receive exception caught (in recv), resending command"<<std::endl;
-      recv(cmd, buffsize,exact);
-    }
-  catch(...)
-    {
-      std::cout<<"UNKNOWN EXCEPTION IN LECROY COM MANAGER RECV TRYING TO RESEND REGARDLESS"<<std::endl;
-      recv(cmd, buffsize,exact);
+    } 
+    catch(ICR::exception::timeout_exceeded& e) {
+      e.debug_print();
+      std::cout<<"Lecroy timed out in recv ... trying to send again"<<std::endl;
+      std::cout<<"restarting"<<std::endl;
+      comm.close();
+      comm.open();
+      std::cout<<"open again"<<std::endl;
 
+      //recv(cmd, buffsize,exact);
     }
-   
+    catch (ICR::exception::exception_in_receive_you_must_resend_command& e)
+      {
+      
+	std::cout<<"lecroy receive exception caught (in recv), resending command"<<std::endl;
+	// recv(cmd, buffsize,exact);
+      }
+    catch(...)
+      {
+	std::cout<<"UNKNOWN EXCEPTION IN LECROY COM MANAGER RECV TRYING TO RESEND REGARDLESS"<<std::endl;
+	// recv(cmd, buffsize,exact);
+
+      }
+  }
   // }
     
   // catch(exception::timeout_exceeded& e){
@@ -488,12 +551,12 @@ ICR::lecroy::lecroy_com_manager<coms_method>::clear()
   header.set_data(false);
   header.set_eoi(false);
   header.set_clear(true);
-  coms_method::send(header.add(""));
+  comm.send(header.add(""));
   header.set_clear(false);
   header.set_data(true);
   header.set_eoi(true);
 
-  coms_method::send(header.add("*CLS\n"));
+  comm.send(header.add("*CLS\n"));
   //deviceClear= true;
   //send("");
   //deviceClear= false;
@@ -504,7 +567,7 @@ void
 ICR::lecroy::lecroy_com_manager<coms_method>::wait(const double& seconds)
 {
   std::string cmd = "WAIT "+stringify(seconds)+"\n";
-  coms_method::send(header.add(cmd));
+  comm.send(header.add(cmd));
   
   // coms_method::send( header.add("*OPC?\n"));
   // try{

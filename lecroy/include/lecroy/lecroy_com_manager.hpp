@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include "coms_manager.hpp"
+#include <boost/thread.hpp>
 
 #include <bitset>
 
@@ -20,6 +21,9 @@ namespace ICR{
     struct invalid_communication_method : public lecroy_exception{};
   }
   namespace lecroy {
+ 
+
+
     /** A class handling the VICP header to the Lecroy scope */
     class lecroy_com_header
     {
@@ -97,19 +101,74 @@ namespace ICR{
 
     };
     
+    namespace detail{
+
+      template<class com_method>
+      class lecroy_command_completed 
+      {
+	com_method& m_comm;
+	lecroy_com_header& m_header;
+	bool keep_going;
+      public:
+	lecroy_command_completed(com_method& comm, lecroy_com_header& header) 
+	  : m_comm(comm), m_header(header), keep_going(true)
+	{}
+
+	
+	void stop(){keep_going = false;}
+	void
+	operator()()
+	{
+	  while(  keep_going ){ 
+	    try{
+	      int opc_code = 0;
+	      while( keep_going){
+		m_comm.send(m_header.add("*OPC?\n"));
+		std::string opc_bit =  m_comm.timed_recv(20,1,false);
+		if (opc_bit.size() == 10){
+		  opc_code  =  atoi(opc_bit.substr(8,1).c_str()) ;
+		  if (opc_code == 1)  
+		    return;
+		}
+		std::cout<<"opc l = "<<opc_code<<std::endl;
+	      }
+	    }
+	    catch(ICR::exception::timeout_exceeded& e) {
+	      e.debug_print();
+	      std::cout<<"Lecroy timed out in send OPC?... trying to send again"<<std::endl;
+	    }
+	    catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
+	      std::cout<<"LecroyLecroy receive exception caught (in send), resending command"<<std::endl;
+	    } 
+	    // ICR::coms::sleep(100);
+	  
+	  
+	  }
+	}
+      };
+    
+
+
+      
+
+    }
+
     typedef ICR::coms::IPmanager IP;
     typedef ICR::coms::serial_manager SERIAL;
 
     /** Lecroy VICP communications manager */
     template<class com_method>
-    class lecroy_com_manager  : com_method //coms::IPmanager
+    class lecroy_com_manager  //: com_method //coms::IPmanager
     {
-
+      
+    
+      
+      com_method comm;
       
       lecroy_com_header header;
       void clean_string(std::string& str, const std::string& badchar);
-
-    protected:
+      protected:
+      
     public:
       /** Open a communication with the lecroy scope.
        * @param device The locaton of the device.
@@ -118,19 +177,15 @@ namespace ICR{
       /** The distructor.*/
       virtual ~lecroy_com_manager();
       /** Send a command to the scope.  Most of the time this will be null terminated 
-       *  @param cmd The command string.
-       *  @throws boost::system::system_error A boost asio error occured.*/
-      void send(const std::string cmd) 
-	throw (boost::system::system_error) ;
+       *  @param cmd The command string..*/
+      void send(const std::string cmd)  ;
       
       /** Send a request to the scope.  Most of the time this will be null terminated 
        * @param cmd The request string 
        * @param buffsize The size of the buffer to collect.  The returned string can be shorter than this size.
        * @param exact If exactly buffsize characters are to be collected
-       * @return The returned string from the scope (missing the header).
-       *  @throws boost::system::system_error A boost asio error occured. */
-      std::string recv(const std::string cmd, const unsigned int& buffsize = 128, const bool& exact=false)
-	throw (boost::system::system_error)   ;
+       * @return The returned string from the scope (missing the header). */
+      std::string recv(const std::string cmd, const unsigned int& buffsize = 128, const bool& exact=false)   ;
       
       /* receive surplus bits.
        * If a communication fails the sometimes there are bits backed up.
@@ -179,11 +234,11 @@ namespace ICR{
     
     template<>
     inline lecroy_com_manager<ICR::lecroy::IP>::lecroy_com_manager(const std::string& IPaddress)
-      : coms::IPmanager(IPaddress, "1861"),
+      : comm(IPaddress, "1861"),
 	header(false,false)
     {
 
-      lecroy::IP::no_delay();
+      comm.no_delay();
       //request an anser to make sure all is well.
      
       // std::string reply;
@@ -228,13 +283,13 @@ namespace ICR{
       header.set_remote(false);
       header.set_lockout(false);
       header.set_clear(true);
-	ICR::lecroy::IP::send( header.add("") );
+      comm.send( header.add("") );
       // send("",false); //make live
     }
 
     template<>
     inline lecroy_com_manager<ICR::lecroy::SERIAL>::lecroy_com_manager(const std::string& port)
-      : coms::serial_manager(port)
+      : comm(port)
     {
     }
 

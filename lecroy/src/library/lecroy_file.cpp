@@ -1,6 +1,7 @@
 
 #include "lecroy/lecroy_file.hpp"
 #include <string.h>
+#include <iterator>
 
 ICR::lecroy::aline::aline()
   : m_t(0), m_trace(0), m_size(0) 
@@ -12,15 +13,25 @@ ICR::lecroy::aline::aline(const boost::shared_array<double>& time,
   : m_t(time), m_trace(trace), m_size(size) 
 {}
 
+ICR::lecroy::aline::aline(const std::vector<double>& time,
+			  const std::vector<double>& trace)
+{
+  m_size = time.size();
+  m_t     = boost::shared_array<double>(new double[m_size]);
+  m_trace = boost::shared_array<double>(new double[m_size]);
+  
+  std::copy(time.begin(), time.end(), m_t.get());
+  std::copy(trace.begin(), trace.end(), m_trace.get());
+}
+
 ICR::lecroy::aline::aline(const aline& other)
   :  m_size(other.m_size) 
 {
   m_t     = boost::shared_array<double>(new double[m_size]);
   m_trace = boost::shared_array<double>(new double[m_size]);
-  for(size_t i=0;i<m_size;++i){
-    m_t[i] = other.m_t[i];
-    m_trace[i] = other.m_trace[i];
-  }
+  
+  std::copy(other.m_t.get(), other.m_t.get()+m_size, m_t.get());
+  std::copy(other.m_trace.get(), other.m_trace.get()+m_size, m_trace.get());
 }
 
 ICR::lecroy::aline&
@@ -31,10 +42,9 @@ ICR::lecroy::aline::operator=(const aline& other)
       m_size = other.m_size;
       m_t.reset(new double[m_size]);
       m_trace.reset(new double[m_size]);
-      for(size_t i=0;i<m_size;++i){
-	m_t[i] = other.m_t[i];
-	m_trace[i] = other.m_trace[i];
-      }
+
+      std::copy(other.m_t.get(), other.m_t.get()+m_size, m_t.get());
+      std::copy(other.m_trace.get(), other.m_trace.get()+m_size, m_trace.get());
     } 
   return *this;
 }
@@ -52,6 +62,28 @@ ICR::lecroy::save_ascii(const aline& a, const std::string filename)
   }
   pOut->close();
 }
+
+
+void 
+ICR::lecroy::save_ascii(const std::vector<aline>& a, const std::string filename)
+{
+  boost::scoped_ptr<std::fstream> 
+    pOut(new std::fstream(filename.c_str(), std::ios_base::out ));
+	
+  //char array1
+  const size_t size0 = a.size();
+  const size_t size1 =a[0].size();
+  for(size_t j=0;j<size0;++j){
+    for(size_t i=0;i<size1;++i){
+      *pOut  << j<<"  "<< a[j].time(i) <<"  "<< a[j][i] <<"\n";
+    }
+    *pOut<<"\n";
+    *pOut<<"\n";
+  }
+
+  pOut->close();
+}
+
 void 
 ICR::lecroy::save_gnuplot(const aline& a, const std::string filename)
 {
@@ -90,43 +122,96 @@ ICR::lecroy::save_gnuplot(const aline& a, const std::string filename)
 }
 
 void 
-ICR::lecroy::load_gnuplot( aline& a, const std::string filename)
+ICR::lecroy::load_gnuplot( aline& a, const std::vector<float>& data)
+{
+  const size_t vec_size = (size_t)(data[0]);
+  std::vector<double> t(vec_size);
+  std::vector<double> trace(vec_size);
+
+  std::copy(data.begin()+1, data.begin()+vec_size+1, t.begin());
+  std::copy(data.begin()+vec_size+1, data.end(), trace.begin());
+  
+  a = aline(t,trace);
+}
+
+void 
+ICR::lecroy::save_gnuplot(const std::vector<aline>& a, const std::string filename)
 {
   boost::scoped_ptr<std::fstream> 
-    pIn(new std::fstream(filename.c_str(), std::ios_base::in |std::ios_base::binary ));
+    pOut(new std::fstream(filename.c_str(), std::ios_base::out|std::ios_base::binary ));
 
-  float size_buffer;
-  pIn->read(reinterpret_cast<char*>(&size_buffer),sizeof(float));
-  
-  size_t vec_size = (size_t)(size_buffer);
-  
-  const size_t sf= sizeof(float);
+  const size_t vec_size = a[0].size();
   const size_t points_per_row = vec_size+1;
-  const size_t no_rows = 1; //time
-  const size_t no_bytes   = sf*(no_rows*points_per_row);
+  const size_t no_bytes   = sizeof(float)*(points_per_row);
+
       
-  float* buffer = new float[no_rows*points_per_row];//no_bytes
-  
-  boost::shared_array<double> t(new double[vec_size]);
-  boost::shared_array<double> trace(new double[vec_size]);
+  float* buffer = new float[points_per_row];//no_bytes
+    
+  buffer[0] = static_cast<float> (vec_size);
+  std::copy(a[0]._time(),a[0]._time()+ vec_size, buffer+1);
+  pOut->write(reinterpret_cast<char*>(&buffer[0]),no_bytes);
 	
-  pIn->seekg (0, std::ios::beg); 
+  //start buffer again
+  //add the offsets and the radius
+  for(size_t i=0;i<a.size();++i){
+    buffer[0] = static_cast<float> (i); //the y axis
+    std::copy(a[i]._data(),a[i]._data()+ vec_size, buffer+1);
+    pOut->write(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  }
+  delete[] buffer;
   
-  pIn->read(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  pOut->close();
+}
+
+void 
+ICR::lecroy::load_gnuplot( aline& a, const std::string filename)
+{
+  std::ifstream input( filename.c_str(), std::ios::binary );
+  std::vector<float> buffer;
+
+  std::copy( 
+    	    std::istream_iterator<GnuplotFloatConverter>(input), 
+   	    std::istream_iterator<GnuplotFloatConverter>( ),
+   	    std::back_inserter(buffer)); // copies all data into buffer
   
-  for(size_t i=1;i<points_per_row;++i)
-    t[i-1] = buffer[i]; 
+  load_gnuplot(a, buffer);
+
+
+  // boost::scoped_ptr<std::fstream> 
+  //   pIn(new std::fstream(filename.c_str(), std::ios_base::in |std::ios_base::binary ));
+
+  // float size_buffer;
+  // pIn->read(reinterpret_cast<char*>(&size_buffer),sizeof(float));
   
-  pIn->read(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  // size_t vec_size = (size_t)(size_buffer);
   
-  for(size_t i=1;i<points_per_row;++i)
-    trace[i-1] = buffer[i]; 
+  // const size_t sf= sizeof(float);
+  // const size_t points_per_row = vec_size+1;
+  // const size_t no_rows = 1; //time
+  // const size_t no_bytes   = sf*(no_rows*points_per_row);
+      
+  // float* buffer = new float[no_rows*points_per_row];//no_bytes
+  
+  // boost::shared_array<double> t(new double[vec_size]);
+  // boost::shared_array<double> trace(new double[vec_size]);
+	
+  // pIn->seekg (0, std::ios::beg); 
+  
+  // pIn->read(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  
+  // for(size_t i=1;i<points_per_row;++i)
+  //   t[i-1] = buffer[i]; 
+  
+  // pIn->read(reinterpret_cast<char*>(&buffer[0]),no_bytes);
+  
+  // for(size_t i=1;i<points_per_row;++i)
+  //   trace[i-1] = buffer[i]; 
   
        
-  delete[] buffer;
+  // delete[] buffer;
 	    
-  pIn->close();
-  a = aline(t,trace,vec_size);
+  // pIn->close();
+  // a = aline(t,trace,vec_size);
 }
 
 
@@ -166,6 +251,27 @@ ICR::lecroy::aline::operator*=(const double& other)
   }
   return *this;
 }   
+
+ICR::lecroy::aline&
+ICR::lecroy::aline::operator*=(const aline& other)
+{
+  for(size_t i=0;i<m_size;++i){
+    m_trace[i]*=other.m_trace[i];
+  }
+  return *this;
+}   
+      
+ICR::lecroy::aline
+ICR::lecroy::pow(const aline& other, const double& exp)
+{
+  aline tmp(other);
+  double* data = tmp._data();
+  for(size_t i=0;i<other.size();++i){
+    data[i]=std::pow(data[i], exp);
+  }
+  return tmp;
+}   
+      
       
 ICR::lecroy::aline&
 ICR::lecroy::aline::operator-=(const aline& other)
