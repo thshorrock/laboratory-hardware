@@ -18,37 +18,36 @@ namespace ICR{
       class agilent_command_completed 
       {
 	com_method& m_comm;
+	bool run;
       public:
 	agilent_command_completed(com_method& comm) 
-	  : m_comm(comm)
+	  : m_comm(comm), run(true)
 	{}
 
-
+	void stop() {run =false;}
 	void
 	operator()()
 	{
-	  int opc_code = 0;
-	  while(opc_code!=1){
+	  while(run){
 	    try{
-	      while(opc_code!=1){
-		opc_code  =  atoi(m_comm.timed_recv("*OPC?\n", 128,5).c_str()) ;
-		
+	      while(run){
+		int opc_code  =  atoi(m_comm.timed_recv("*OPC?\n", 128,5).c_str()) ;
+		if (opc_code == 1)
+		  return;
 	      }
 	    }
 	    catch(ICR::exception::timeout_exceeded& e) {
 	      e.debug_print();
-	      std::cout<<"AGILENT timed out in send ...  trying to send  again"<<std::endl;
-	      ICR::coms::sleep(100);
+	      std::cout<<"AGILENT timed out in send OPC?...  trying to send  again"<<std::endl;
 	    }
 	    catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
 	      std::cout<<"AGILENT receive exception caught (in send), resending command"<<std::endl;
-	      ICR::coms::sleep(100);
 	    } 
 	    catch(...)
 	      {
-		std::cout<<"unknown error in completed thread"<<std::endl;
-
+		std::cout<<"unknown error in agilent completed thread"<<std::endl;
 	      }
+	      ICR::coms::sleep(100);
 	  
 	  }
 	}

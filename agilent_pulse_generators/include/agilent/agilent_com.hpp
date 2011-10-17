@@ -75,45 +75,77 @@ namespace ICR {
 
       /** Send a command. 
        * @param cmd The command to send. These must be terminated with a new line character. 
-       * @throws boost::system::system_error Something went wrong with the communication.
        */
       void send(const std::string& cmd)
-	throw (boost::system::system_error) 
       {
 	//std::cout<<"cmd = "<<cmd<<std::endl;
 	
 	bool send_successful = false;
 	// size_t
 	size_t  attempts = 0;
-	while (!send_successful && attempts <10)
+	while (!send_successful)
 	  {
 	
 	    comm.send(cmd);
 	    send_successful = true;
 	    if (m_burst_mode) {
-	      ICR::coms::sleep(50);
+	      //ICR::coms::sleep(50);
 	      comm.send("*WAI\n");
 	      detail::agilent_command_completed<com_method> complete(comm);
-	      boost::thread thr(complete);
-	      ICR::coms::sleep(50);
+	      boost::thread thr(boost::ref(complete));
+	      //ICR::coms::sleep(50);
 	      
-	      if (!thr.timed_join(boost::posix_time::milliseconds(3000)))
+	      if (!thr.timed_join(boost::posix_time::milliseconds(10000)))
 		{
+		  complete.stop();
 		  send_successful= false; 
 		  ++attempts;
 		  std::cout<<"opc signal not returned from agilent, attempts = "<<attempts <<std::endl;
-
+		  
+		  std::cout<<"restarting the communicator"<<std::endl;
+		  comm.cancel();
+		  comm.close();
+		  comm.open();
+		  
 		}
 	     
 	    }
-	    ICR::coms::sleep(100);
+	    if (attempts>3) 
+	      {
+		std::cout<<"still not fixed... restarting communicator"<<std::endl;
+		comm.close();
+		comm.open();
+		std::cout<<"restarted"<<std::endl;
+
+
+	      }
+	    //ICR::coms::sleep(100);
+	    if (attempts>10) 
+	      {
+		std::string cmd_beg;
+		if (cmd.size()<100) 
+		  for(size_t i=0;i<cmd.size();++i){
+		    cmd_beg.push_back(cmd[i]);
+		  }
+		else
+		  for(size_t i=0;i<100;++i){
+		    cmd_beg.push_back(cmd[i]);
+		  }
+	  
+
+		std::cout<<"Something is wrong - I cannot send the command '"
+			 <<cmd_beg
+			 <<"' from the agilent.  Please inspect the error messages and try to fix. I am going to sleep for 1 minute"<<std::endl;
+	  
+
+		boost::this_thread::sleep(boost::posix_time::seconds(60)); 
+
+	      }
 	  }
-	
+      
 	//com_method::send("*WAI\n");
 	
       
-	if (attempts==10) 
-	  throw ICR::exception::agilent_failed_to_send_cmd();
       }
       /** Receive a response from the device.
        * @param cmd The command requesting a response.
@@ -121,21 +153,26 @@ namespace ICR {
        * @throws boost::system::system_error Something went wrong with the communication.
      */
       std::string recv(const std::string& cmd)
-	throw(boost::system::system_error )
       {
-	try{
-	  std::string ret = comm.recv(cmd);
-	  return ret;
+	for(;;){
+	  try{
+	    std::string ret = comm.recv(cmd);
 
-	  if (m_burst_mode) {
-	    comm.send("*WAI\n");
-	    std::string opc_code = comm.recv("*OPC?\n");
-	    //std::cout<<"opc_code = "<<opc_code<<std::endl;
+	    return ret;
+	    // if (m_burst_mode) {
+	    //   comm.send("*WAI\n");
+	    //   std::string opc_code = comm.recv("*OPC?\n");
+	    //   //std::cout<<"opc_code = "<<opc_code<<std::endl;
+	    // }
 	  }
-	}
-	catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
-	  std::cout<<"AGILENT receive exception caught (in recv), resending command"<<std::endl;
-	  recv(cmd);
+	  catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
+	    std::cout<<"AGILENT receive exception caught (in recv), resending command"<<std::endl;
+	    std::cout<<"restarting"<<std::endl;
+	    comm.close();
+	    comm.open();
+	    std::cout<<"open again"<<std::endl;
+	    ICR::coms::sleep(100);
+	  }
 	}
       }
       
@@ -356,11 +393,11 @@ namespace ICR {
      */     
     template<class com_method>
     void
-    two_sin_with_n_microsecond_gap(agilent_com<com_method>* gen, double frequency,  double gap, double voltage = 2, size_t cycles = 10 )
+    two_sin_with_n_microsecond_gap(agilent_com<com_method>* gen, const double& frequency, const double& gap, const double& voltage = 2, const size_t& cycles = 10 )
     {
       //max samples = 16000
       unsigned long samples = 65536;
-      double duration = cycles/frequency;
+      const double duration = cycles/frequency;
       std::cout<<"duration = "<<duration<<std::endl;
 
       //max temp resolution = ((delay + duration)/16000 )e-6 seconds
@@ -371,9 +408,9 @@ namespace ICR {
       // 	freq_res = 15e6;
       // temp_res = 1.0/freq_res;
       samples = (gap+2*duration)/(temp_res*1e6)+1;
-      std::cout<<"samples= "<<samples<<std::endl;
+      //std::cout<<"samples= "<<samples<<std::endl;
       boost::shared_array<float> data(new float[samples]);
-      std::cout<<"temp_res = "<<temp_res<<std::endl;
+      //std::cout<<"temp_res = "<<temp_res<<std::endl;
       size_t j = 0;
       for(size_t i=0;i<(samples-1);++i){
 	if (i*temp_res*1e6 < duration){
@@ -389,13 +426,13 @@ namespace ICR {
 	//   ++extra;
 	// } 
 	else if  (i*temp_res*1e6<(gap+2*duration)){
-	  data[i-2] = voltage*std::sin(2*M_PI*frequency*1.0e6*temp_res*j);
+	  data[i] = voltage*std::sin(2*M_PI*frequency*1.0e6*temp_res*j);
 	  ++j;
 	  
 	  // std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
 	}
 	else{
-	  std::cout<<"end zreo"<<std::endl;
+	  //std::cout<<"end zreo"<<std::endl;
 
 	  data[i] = 0;
 	}
@@ -403,7 +440,64 @@ namespace ICR {
       data[samples-1]=0;
       data[0]=0;
       //std::cout<<"data["<<samples-1<<"]="<<data[samples-1]<<std::endl;
-      std::cout<<"applying two sin waveform"<<std::endl;
+      //std::cout<<"applying two sin waveform"<<std::endl;
+
+      apply_waveform<com_method>(gen,"sin_gap",freq_res, data.get(),samples);
+
+
+    }
+
+    /** Create a waveform that is a sin after n microseconds.
+     * @attention the number of points in an arbitrary waveform is at most 16000. This limits the rise-time of the pulse
+     * for pulses that have a large temporal offset.
+     */     
+    template<class com_method>
+    void
+    two_pulse_with_n_microsecond_gap(agilent_com<com_method>* gen, const double& duration, const double& gap, const double& voltage = 2 )
+    {
+      //max samples = 16000
+      unsigned long samples = 16000;
+      std::cout<<"duration = "<<duration<<std::endl;
+
+      //max temp resolution = ((delay + duration)/16000 )e-6 seconds
+      //last point = 0 to make it pulse so have only 15999 points
+      double temp_res = ((gap+2.*duration)/double(samples-1))*1e-6; //seconds
+      double freq_res = 1.0/temp_res;
+      // if (freq_res >15e6) // round to 15MHz
+      // 	freq_res = 15e6;
+      // temp_res = 1.0/freq_res;
+      samples = (gap+2*duration)/(temp_res*1e6)+1;
+      //std::cout<<"samples= "<<samples<<std::endl;
+      boost::shared_array<float> data(new float[samples]);
+      //std::cout<<"temp_res = "<<temp_res<<std::endl;
+      for(size_t i=0;i<(samples-1);++i){
+	if (i*temp_res*1e6 < duration){
+	  data[i] = voltage;
+	  // std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
+
+	}
+	else if ((i)*temp_res*1e6<(gap+duration)) {
+	  data[i] = 0;
+	}
+	// else if (extra < 2){
+	//   data[i] = 0;
+	//   ++extra;
+	// } 
+	else if  (i*temp_res*1e6<(gap+2*duration)){
+	  data[i-2] = voltage;
+	  
+	  // std::cout<<"data["<<i<<"]="<<data[i]<<std::endl;
+	}
+	else{
+	  //std::cout<<"end zreo"<<std::endl;
+
+	  data[i] = 0;
+	}
+      }
+      data[samples-1]=0;
+      data[0]=0;
+      //std::cout<<"data["<<samples-1<<"]="<<data[samples-1]<<std::endl;
+      //std::cout<<"applying two sin waveform"<<std::endl;
 
       apply_waveform<com_method>(gen,"sin_gap",freq_res, data.get(),samples);
 

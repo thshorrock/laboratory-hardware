@@ -251,10 +251,11 @@ WG::agilent_com<com_method>::arb_wave(const std::string& name, const float* data
  //  std::cout<<"send name"<<std::endl;
 
  //  send("FUNC:USER "+name+"\n");
+   send("FUNC:USER volatile\n");
  //  ICR::coms::sleep(1000);
- // std::cout<<"send user shape"<<std::endl;
+   //std::cout<<"send user shape"<<std::endl;
 
- //  send("FUNC:SHAP USER\n");
+  send("FUNC:SHAP USER\n");
 
  //  ICR::coms::sleep(1000);
 
