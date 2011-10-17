@@ -1,3 +1,4 @@
+
 #include "coms_manager/serial_manager.hpp"
 #include "stringify.hpp"
 #include "trigger_mode.hpp"
@@ -134,6 +135,7 @@ namespace ICR {
       /** Set the output to be on.  */
       void turn_on()   {
 	send("RUN");
+	send("ENTER"); //enter the command
 	ICR::coms::sleep(4000);
       }
       /** Set the output to be off.  */
