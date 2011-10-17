@@ -247,23 +247,35 @@ ICR::pulser::DPR500::send(const boost::shared_ptr<command::cmd>& c)
 std::string
 ICR::pulser::DPR500::recv(const boost::shared_ptr<command::recv_cmd>& c)
 {
-  std::string ans = comm.recv((std::string)*c, c->reply_size(),true);
+
+  std::string ans;
+  size_t count = 0; 
+  for(;;){
+    try{
+      ans = comm.recv((std::string)*c, c->reply_size(),true);
   
-  // std::cout<<"ans = "<<std::endl;
-  // for(size_t i=0;i<ans.size();++i){
-  //   std::cout<<"["<<i<<"] = "<<(int) ans[i]<<std::endl;
+    } catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
+      std::cout<<"DPR500 receive exception caught (in recv), resending command"<<std::endl;
+      ++count;
+      boost::this_thread::sleep(boost::posix_time::milliseconds(200)); 
+    }
+    // std::cout<<"ans = "<<std::endl;
+    // for(size_t i=0;i<ans.size();++i){
+    //   std::cout<<"["<<i<<"] = "<<(int) ans[i]<<std::endl;
 
-  // }
+    // }
 
-  // std::string dans = c->decode(ans);
-  //  std::cout<<" decoded to "<<dans<<std::endl;
-  // for(size_t i=0;i<dans.size();++i){
-  //   std::cout<<"["<<i<<"] = "<<(int) dans[i]<<std::endl;
+    // std::string dans = c->decode(ans);
+    //  std::cout<<" decoded to "<<dans<<std::endl;
+    // for(size_t i=0;i<dans.size();++i){
+    //   std::cout<<"["<<i<<"] = "<<(int) dans[i]<<std::endl;
     
-  // }
+    // }
 
 
-  return c->decode(ans);
+    return c->decode(ans);
+    
+  }
 }
 
 
@@ -295,13 +307,16 @@ ICR::pulser::DPR500::timed_recv(const boost::shared_ptr<command::recv_cmd>& c,
 
       not_sent=false;
       //A small pause here helps
-      boost::this_thread::sleep(boost::posix_time::milliseconds(200)); 
+      boost::this_thread::sleep(boost::posix_time::milliseconds(50));  //200
     }
     catch (ICR::exception::timeout_exceeded& e)  {  //boost::system::system_error
       // std::cout<<"serial timeout in DPR500 tr"<<std::endl;
 
       //Failed, give it a large pause to sort itself out before trying again
       //  boost::this_thread::sleep(boost::posix_time::milliseconds(500)); 
+    }
+    catch(ICR::exception::exception_in_receive_you_must_resend_command& e) {
+      std::cout<<"DPR500 receive exception caught (in recv), resending command"<<std::endl;
     }
     ++count;
     if (count>20) {
