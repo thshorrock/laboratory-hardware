@@ -14,25 +14,25 @@ int
 main  (int ac, char **av)
 {
   
-  //Equipment
-  lecroy_64Xi     scope("10.0.0.10");
-  WG33120A       bus_sync("/dev/ttyUSB0");
+  // //Equipment
+  // lecroy_64Xi     scope("10.0.0.10");
+  // WG33120A       bus_sync("/dev/ttyUSB0");
 
 
-  // //BUS
-  bus_sync.shape(shape::SQUARE);
-  bus_sync.trigger(trigger::BUS);
-  bus_sync.burst_on();
+  // // //BUS
+  // bus_sync.shape(shape::SQUARE);
+  // bus_sync.trigger(trigger::BUS);
+  // bus_sync.burst_on();
 
   
-  //LECROY SETUP
-  scope.set_date();
-   scope.sequence(2,500);
+  // //LECROY SETUP
+  // scope.set_date();
+  //  scope.sequence(2,500);
 
 
-  // scope.demand_fresh_aquisition();
+  // // scope.demand_fresh_aquisition();
 
-  scope.trigger_mode(trigger_mode::NORM);
+  // scope.trigger_mode(trigger_mode::NORM);
   
   // scope.auto_calibrate(false);
 

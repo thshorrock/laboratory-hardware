@@ -121,30 +121,34 @@ no_imaging_compare::no_imaging_compare(const std::string& dir,
   else if (driving_voltage<0.05) 
     m_volts_per_div = 70e-3;
   else if (driving_voltage<0.07) 
-    m_volts_per_div = 100e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.08) 
-    m_volts_per_div = 150e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.1) 
-    m_volts_per_div = 200e-3;
+    m_volts_per_div = 100e-3;
   else if (driving_voltage<0.11)
     { 
-      m_volts_per_div = 300e-3;
-      m_imaging_gain = 40;
+      m_volts_per_div = 150e-3;
+    }
+  else if (driving_voltage<0.12)
+    { 
+      m_volts_per_div = 200e-3;
+      m_imaging_gain = 45;
     }
   else if (driving_voltage<0.13)
     { 
-      m_volts_per_div = 400e-3;
-      m_imaging_gain = 40;
+      m_volts_per_div = 175e-3;
+      m_imaging_gain = 45;
     }
-  else if (driving_voltage<0.14)
+  else if(driving_voltage<0.14)
     {
       m_volts_per_div = 400e-3;
-      m_imaging_gain = 35;
+      m_imaging_gain = 45;
     }
   else
     {
-      m_volts_per_div = 400e-3;
-      m_imaging_gain = 35;
+      m_volts_per_div = 100e-3;
+      m_imaging_gain = 40;
     }
       
 }
@@ -163,12 +167,12 @@ no_imaging_compare::setup_analogic(analogic_remote_control& analogic,
 				   const double& agilent_delay)
 {
   
- double m_analogic_low = 1.5;
+ double m_analogic_low = 0.75;
 
 
   //create a subdir
   std::string subdir = "/gap_between_pulses_"+stringify(agilent_delay);
-  std::cout<<"subdir = "<< m_dir.get_directory()+subdir <<std::endl;
+  //  std::cout<<"subdir = "<< m_dir.get_directory()+subdir <<std::endl;
   
   m_dir.mkdir(m_dir.get_directory()+subdir); //create the subdirectory
   m_dir.pushd(m_dir.get_directory()+subdir);  //goto subdirectory
@@ -176,15 +180,19 @@ no_imaging_compare::setup_analogic(analogic_remote_control& analogic,
   m_analogic_delay = analogic_delay;
   m_agilent_delay = agilent_delay;
    
-  if (agilent_delay<640)
+  if (agilent_delay<550)
     m_clock = 1.25;
-  else if (agilent_delay<1280) 
+  else if (agilent_delay<1001) //changed from 1101 to 10001 for .116mVpp 
     m_clock = 2.5;
-  else if (agilent_delay<2560) 
+  else if (agilent_delay<2201) 
     m_clock = 5;
-  else 
+  else if (agilent_delay<5101) 
     m_clock = 10;
-  std::string no_imaging = "AT TRIG RPT 1 ( FOR "+stringify(m_analogic_delay)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR "+stringify(m_agilent_delay+18)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR 6u 0) CLK = "+stringify(m_clock)+"n";
+  else if (agilent_delay<10201) 
+    m_clock = 20;
+  else 
+    m_clock = 50;
+  std::string no_imaging = "AT TRIG RPT 1 ( FOR "+stringify(m_analogic_delay)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR "+stringify(m_agilent_delay+18)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR 6u 0) CLK = "+stringify(m_clock)+"n MARK " + stringify(m_agilent_delay+18) + "u";
 
     
   analogic.expression(no_imaging);  //create a pulse
@@ -199,10 +207,10 @@ no_imaging_compare::run(
 			const size_t& repeats)
 {
   std::string subdir = m_subdirectory;
-  std::cout<<"subdir = "<< m_dir.get_directory() + "/"+subdir <<std::endl;
+  //  std::cout<<"subdir = "<< m_dir.get_directory() + "/"+subdir <<std::endl;
   
-  m_dir.mkdir(m_dir.get_directory()+subdir); //create the subdirectory
-  m_dir.pushd(m_dir.get_directory()+subdir);  //goto subdirectory
+  m_dir.mkdir(m_dir.get_directory()+"/"+subdir); //create the subdirectory
+  m_dir.pushd(m_dir.get_directory()+"/"+subdir);  //goto subdirectory
   
   readme README(m_dir.get_directory());
   README
@@ -281,20 +289,27 @@ no_imaging_compare::run(
   ICR::lecroy::save_gnuplot(av2, av_Filename_GP2.full()  );
   
 
-  ICR::maths::vector<boost::units::si::electric_potential> v1(av1.size(), av1._data());
-  ICR::maths::vector<boost::units::si::electric_potential> v2(av2.size(), av2._data());
+  // std::cout<<"xcorr will be here"<<std::endl;
+
+  // ICR::maths::vector<boost::units::si::electric_potential> v1(av1.size(), av1._data());
+  // ICR::maths::vector<boost::units::si::electric_potential> v2(av2.size(), av2._data());
+ 
+  // std::cout<<"vectors made, size = "<<v1.size()<<std::endl;
+
+  // ICR::maths::xcorr<boost::units::si::electric_potential,ICR::maths::xcorr_scaling::coeff> xc(v1,v2);
   
-  ICR::maths::xcorr<boost::units::si::electric_potential,ICR::maths::xcorr_scaling::coeff> xc(v1,v2);
-  double result = xc.result()[0]; //.max_index()];
-  std::cout<<"xc = "<<result <<std::endl; //<<" at xc offset = "<<xc.offset_index<<std::endl;
+  //  double result = xc.result()[0]; //.max_index()];
+  // // std::cout<<"xc = "<<result <<std::endl; //<<" at xc offset = "<<xc.offset_index<<std::endl;
   
+  // std::cout<<"xcorr will be done"<<std::endl;
+
 
   driving_pulse.turn_off();
   m_dir.popd();
 
   m_dir.popd(); //no_imag_pulse
   
-  return result;
+  return 0.1; // result; //
   
 }
 
@@ -355,36 +370,37 @@ imaging_on<i>::imaging_on(const std::string& dir,
   if (driving_voltage<0.03) 
     m_volts_per_div = 50e-3;
   else if (driving_voltage<0.05) 
-    m_volts_per_div = 70e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.07) 
-    m_volts_per_div = 100e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.08) 
-    m_volts_per_div = 150e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.1) 
-    m_volts_per_div = 200e-3;
+    m_volts_per_div = 100e-3;
   else if (driving_voltage<0.11)
     { 
-      m_volts_per_div = 300e-3;
-      m_imaging_gain = 40;
+      m_volts_per_div = 150e-3;
+    }
+  else if (driving_voltage<0.12)
+    { 
+      m_imaging_gain = 45;
+      m_volts_per_div = 250e-3;
     }
   else if (driving_voltage<0.13)
     { 
-      m_volts_per_div = 400e-3;
-      m_imaging_gain = 40;
+      m_volts_per_div = 175e-3;
+      m_imaging_gain = 45;
     }
-  else if (driving_voltage<0.14)
+  else if(driving_voltage<0.14)
     {
       m_volts_per_div = 400e-3;
-      m_imaging_gain = 35;
+      m_imaging_gain = 45;
     }
   else
     {
-      m_volts_per_div = 400e-3;
-      m_imaging_gain = 35;
+      m_volts_per_div = 100e-3;
+      m_imaging_gain = 40;
     }
-      
-      
-
 }
 
 template<int i>
@@ -402,12 +418,12 @@ imaging_on<ipulse>::setup_analogic(analogic_remote_control& analogic,
 				   const double& analogic_delay,
 				   const double& agilent_delay)
 {
-  double m_analogic_high = 4.5; 
-  double m_analogic_low = 1.5;
+  double m_analogic_high = 2.5; 
+  double m_analogic_low = 0.75;
 
   //create a subdir
   std::string subdir = "/gap_between_pulses_"+stringify(agilent_delay);
-  std::cout<<"subdir = "<< m_dir.get_directory()+subdir <<std::endl;
+  //  std::cout<<"subdir = "<< m_dir.get_directory()+subdir <<std::endl;
   
   m_dir.mkdir(m_dir.get_directory()+subdir); //create the subdirectory
   m_dir.pushd(m_dir.get_directory()+subdir);  //goto subdirectory
@@ -415,20 +431,24 @@ imaging_on<ipulse>::setup_analogic(analogic_remote_control& analogic,
   m_analogic_delay = analogic_delay;
   m_agilent_delay = agilent_delay;
    
-  if (agilent_delay<640)
+  if (agilent_delay<550)
     m_clock = 1.25;
-  else if (agilent_delay<1280) 
+  else if (agilent_delay<1001) 
     m_clock = 2.5;
-  else if (agilent_delay<2560) 
+  else if (agilent_delay<2201) 
     m_clock = 5;
-  else 
+  else if (agilent_delay<5101) 
     m_clock = 10;
+  else if (agilent_delay<10201) 
+    m_clock = 20;
+  else 
+    m_clock = 50;
 
   std::string  imaging;
   if (ipulse == 0) 
-    imaging = "AT TRIG RPT 1 ( FOR "+stringify(m_analogic_delay)+"u 0.0 FOR 2u "+stringify(m_analogic_high)+" FOR "+stringify(m_agilent_delay+18)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR 6u 0) CLK = "+stringify(m_clock)+"n";
+    imaging = "AT TRIG RPT 1 ( FOR "+stringify(m_analogic_delay)+"u 0.0 FOR 2u "+stringify(m_analogic_high)+" FOR "+stringify(m_agilent_delay+18)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR 6u 0) CLK = "+stringify(m_clock)+"n MARK " + stringify(m_agilent_delay+18) + "u";
   else
-    imaging = "AT TRIG RPT 1 ( FOR "+stringify(m_analogic_delay)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR "+stringify(m_agilent_delay+18)+"u 0.0 FOR 2u "+stringify(m_analogic_high)+" FOR 6u 0) CLK = "+stringify(m_clock)+"n";
+    imaging = "AT TRIG RPT 1 ( FOR "+stringify(m_analogic_delay)+"u 0.0 FOR 2u "+stringify(m_analogic_low)+" FOR "+stringify(m_agilent_delay+18)+"u 0.0 FOR 2u "+stringify(m_analogic_high)+" FOR 6u 0) CLK = "+stringify(m_clock)+"n MARK " + stringify(m_agilent_delay+18) + "u";
   
   
   analogic.expression(imaging);  //create a pulse
@@ -447,7 +467,7 @@ imaging_on<ipulse>::run(
 
   //create a subdir
   std::string subdir = m_subdirectory;
-  std::cout<<"subdir = "<< m_dir.get_directory()+subdir <<std::endl;
+  //  std::cout<<"subdir = "<< m_dir.get_directory()+"/"+subdir <<std::endl;
   
   m_dir.mkdir(m_dir.get_directory()+"/"+subdir); //create the subdirectory
   m_dir.pushd(m_dir.get_directory()+"/"+subdir);  //goto subdirectory
@@ -500,8 +520,8 @@ imaging_on<ipulse>::run(
   for(size_t i=0;i<repeats;++i){
     get_alines(driving_pulse, scope, aline1, aline2);
     std::string index = stringify_with_zeros(i,3); //pad the index with zeros
-    ICR::file Filename_GP1(m_dir,"no_imaging_1st_"+index+"_GP.dat");
-    ICR::file Filename_GP2(m_dir,"no_imaging_2nd_"+index+"_GP.dat");
+    ICR::file Filename_GP1(m_dir,"imaging_"+stringify(ipulse)+ "_1st_"+index+"_GP.dat");
+    ICR::file Filename_GP2(m_dir,"imaging_"+stringify(ipulse)+ "_2nd_"+index+"_GP.dat");
     ICR::lecroy::save_gnuplot(aline1, Filename_GP1.full()  );
     ICR::lecroy::save_gnuplot(aline2, Filename_GP2.full()  );
    
@@ -576,20 +596,17 @@ phase_plot::phase_plot(const std::string& dir,
   m_dir.mkdir(m_dir.get_directory()+ "/"+subdir); //create the subdirectory
   m_dir.pushd(m_dir.get_directory()+ "/"+subdir);  //goto subdirectory
   
-  m_dir.mkdir(m_dir.get_directory()+ "/voltage_"+stringify(driving_voltage)); //create the subdirectory
-  m_dir.pushd(m_dir.get_directory()+ "/voltage_"+stringify(driving_voltage));  //goto subdirectory
-  
   m_imaging_gain = 30;
   if (driving_voltage<0.03) 
     m_volts_per_div = 50e-3;
   else if (driving_voltage<0.05) 
-    m_volts_per_div = 70e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.07) 
-    m_volts_per_div = 100e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.08) 
-    m_volts_per_div = 150e-3;
+    m_volts_per_div = 50e-3;
   else if (driving_voltage<0.1) 
-    m_volts_per_div = 200e-3;
+      m_volts_per_div = 150e-3;
   else if (driving_voltage<0.11)
     { 
       m_volts_per_div = 300e-3;
@@ -626,7 +643,7 @@ phase_plot::setup_analogic(analogic_remote_control& analogic,
 			   const double& analogic_delay)
 {
   
- double m_analogic_low = 1.5;
+ double m_analogic_low = 0.75;
 
 
   m_analogic_delay = analogic_delay;
@@ -721,7 +738,6 @@ phase_plot::run(
   m_dir.popd(); //leave the imaging_wave on.
 
 
-  m_dir.popd(); //driving voltage
   
   
 }
