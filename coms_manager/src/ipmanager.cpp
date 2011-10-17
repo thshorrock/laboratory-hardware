@@ -298,9 +298,16 @@ ICR::coms::IPmanager::timed_recv(const unsigned long& buffsize, const double& se
       else if (*read_result == boost::asio::error::broken_pipe) {
 	std::cout<<"broken pipe in  ip timed_recv, trying to fix..."<<std::endl;
       }
-      else 
-	std::cout<<"timed_recv ip erroc_code value = "<<m_error.value()<<std::endl;
-
+      else if (*read_result  == boost::asio::error::operation_aborted) {
+	std::cout<<"operation aborted, retrying"<<std::endl;
+      }
+      else if (*read_result  == boost::asio::error::bad_descriptor) {
+	std::cout<<"bad file descriptor, retrying"<<std::endl;
+      }
+      else {
+	std::cout<<"timed_recv ip erroc_code value = "<<*read_result<<std::endl;
+	//throw boost::system::system_error(*read_result);
+      }
       //try to recue
       cancel();
       close();
